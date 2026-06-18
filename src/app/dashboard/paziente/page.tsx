@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useApp } from "@/lib/AppContext";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import StatoBadge from "@/components/StatoBadge";
 import { pazienti, fisioterapisti, medici, Richiesta } from "@/lib/demoData";
@@ -20,10 +21,11 @@ export default function DashboardPaziente() {
     urgenza: "normale" as "normale" | "urgente",
   });
 
-  if (!utente || utente.ruolo !== "paziente") {
-    router.push("/");
-    return null;
-  }
+  useEffect(() => {
+    if (!utente || utente.ruolo !== "paziente") router.push("/");
+  }, [utente, router]);
+
+  if (!utente || utente.ruolo !== "paziente") return null;
 
   const paziente = pazienti.find((p) => p.id === utente.id);
   const medico = medici.find((m) => m.id === paziente?.medicoId);
@@ -281,7 +283,7 @@ function RichiestaCard({ richiesta: r }: { richiesta: Richiesta }) {
             </p>
           )}
           <div className="mt-3">
-            <a
+            <Link
               href={`/chat/${r.id}`}
               className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
             >
@@ -294,7 +296,7 @@ function RichiestaCard({ richiesta: r }: { richiesta: Richiesta }) {
                   {nMsg}
                 </span>
               )}
-            </a>
+            </Link>
           </div>
         </div>
         <StatoBadge stato={r.stato} />

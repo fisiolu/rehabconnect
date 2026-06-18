@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useApp } from "@/lib/AppContext";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
@@ -30,10 +30,11 @@ export default function DashboardFisioterapista() {
   const [vista, setVista] = useState<Vista>("incarichi");
   const [confermaRifiuto, setConfermaRifiuto] = useState<string | null>(null);
 
-  if (!utente || utente.ruolo !== "fisioterapista") {
-    router.push("/");
-    return null;
-  }
+  useEffect(() => {
+    if (!utente || utente.ruolo !== "fisioterapista") router.push("/");
+  }, [utente, router]);
+
+  if (!utente || utente.ruolo !== "fisioterapista") return null;
 
   const fis = fisioterapisti.find((f) => f.id === utente.id);
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useApp } from "@/lib/AppContext";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
@@ -19,10 +19,11 @@ export default function DashboardMedico() {
   const [filtro, setFiltro] = useState<Filtro>("tutte");
   const [salvataggio, setSalvataggio] = useState(false);
 
-  if (!utente || utente.ruolo !== "medico") {
-    router.push("/");
-    return null;
-  }
+  useEffect(() => {
+    if (!utente || utente.ruolo !== "medico") router.push("/");
+  }, [utente, router]);
+
+  if (!utente || utente.ruolo !== "medico") return null;
 
   const medico = medici.find((m) => m.id === utente.id);
   const mieRichieste = richieste.filter((r) => r.medicoId === utente.id);

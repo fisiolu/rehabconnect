@@ -49,13 +49,16 @@ export default function ChatPage() {
   const richiesta = richieste.find((r) => r.id === richiestaId);
 
   useEffect(() => {
+    if (!utente) {
+      router.push("/");
+    }
+  }, [utente, router]);
+
+  useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messaggi]);
 
-  if (!utente) {
-    router.push("/");
-    return null;
-  }
+  if (!utente) return null;
 
   if (!richiesta) {
     return (

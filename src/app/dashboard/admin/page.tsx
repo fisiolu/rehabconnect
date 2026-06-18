@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useApp } from "@/lib/AppContext";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
@@ -15,10 +15,11 @@ export default function DashboardAdmin() {
   const [sezione, setSezione] = useState<Sezione>("panoramica");
   const [filtroStato, setFiltroStato] = useState<StatoRichiesta | "tutte">("tutte");
 
-  if (!utente || utente.ruolo !== "admin") {
-    router.push("/");
-    return null;
-  }
+  useEffect(() => {
+    if (!utente || utente.ruolo !== "admin") router.push("/");
+  }, [utente, router]);
+
+  if (!utente || utente.ruolo !== "admin") return null;
 
   const stati: StatoRichiesta[] = [
     "in_attesa", "in_valutazione", "assegnata", "in_corso", "completata", "rifiutata",
