@@ -5,6 +5,7 @@ import { useApp } from "@/lib/AppContext";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import StatoBadge from "@/components/StatoBadge";
+import Link from "next/link";
 import { pazienti, medici, fisioterapisti, StatoRichiesta, statoLabel } from "@/lib/demoData";
 
 type Sezione = "panoramica" | "richieste" | "utenti";
@@ -49,10 +50,16 @@ export default function DashboardAdmin() {
             <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center text-2xl">
               ⚙️
             </div>
-            <div>
+            <div className="flex-1 min-w-0">
               <h1 className="text-xl font-bold">Pannello Amministratore</h1>
               <p className="text-gray-500 text-sm">Supervisione piattaforma RehabConnect</p>
             </div>
+            <Link
+              href="/mappa"
+              className="shrink-0 btn-secondary text-sm py-2 flex items-center gap-1.5"
+            >
+              🗺️ Mappa
+            </Link>
           </div>
         </div>
 

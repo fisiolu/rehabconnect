@@ -85,10 +85,16 @@ export default function DashboardMedico() {
             <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-2xl">
               👨‍⚕️
             </div>
-            <div>
+            <div className="flex-1 min-w-0">
               <h1 className="text-xl font-bold">Dr.ssa {medico?.cognome}</h1>
               <p className="text-green-100 text-sm">{medico?.ambulatorio}</p>
             </div>
+            <Link
+              href="/mappa"
+              className="shrink-0 bg-white/20 hover:bg-white/30 text-white text-sm font-medium px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
+            >
+              🗺️ Mappa
+            </Link>
           </div>
         </div>
 

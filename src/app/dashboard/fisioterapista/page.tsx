@@ -6,7 +6,18 @@ import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import StatoBadge from "@/components/StatoBadge";
 import Link from "next/link";
-import { pazienti, fisioterapisti, Appuntamento } from "@/lib/demoData";
+import dynamic from "next/dynamic";
+import type { MarkerDati } from "@/components/MappaLeaflet";
+import { pazienti, fisioterapisti, Appuntamento, Posizione } from "@/lib/demoData";
+
+const MappaLeaflet = dynamic(() => import("@/components/MappaLeaflet"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-72 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400 text-sm animate-pulse">
+      📡 Caricamento mappa...
+    </div>
+  ),
+});
 
 const GIORNI = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab"];
 
@@ -22,13 +33,16 @@ function getSettimana(): Date[] {
   });
 }
 
-type Vista = "incarichi" | "agenda";
+type Vista = "incarichi" | "agenda" | "mappa";
+type StatoGeo = "inattivo" | "caricamento" | "attivo" | "errore";
 
 export default function DashboardFisioterapista() {
-  const { utente, richieste, aggiornaRichiesta, addToast } = useApp();
+  const { utente, richieste, aggiornaRichiesta, addToast, posizioni, aggiornaPosizione } = useApp();
   const router = useRouter();
   const [vista, setVista] = useState<Vista>("incarichi");
   const [confermaRifiuto, setConfermaRifiuto] = useState<string | null>(null);
+  const [statoGeo, setStatoGeo] = useState<StatoGeo>("inattivo");
+  const [erroreGeo, setErroreGeo] = useState("");
 
   useEffect(() => {
     if (!utente || utente.ruolo !== "fisioterapista") router.push("/");
@@ -37,6 +51,38 @@ export default function DashboardFisioterapista() {
   if (!utente || utente.ruolo !== "fisioterapista") return null;
 
   const fis = fisioterapisti.find((f) => f.id === utente.id);
+  const miaPos = posizioni[utente.id];
+
+  function condividiPosizione() {
+    if (!navigator.geolocation) {
+      addToast("Il dispositivo non supporta la geolocalizzazione.", "errore");
+      return;
+    }
+    setStatoGeo("caricamento");
+    setErroreGeo("");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const nuova: Posizione = {
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          accuracy: pos.coords.accuracy,
+          timestamp: new Date().toISOString(),
+        };
+        aggiornaPosizione(utente!.id, nuova);
+        setStatoGeo("attivo");
+        addToast("Posizione condivisa! I pazienti potranno vederla sulla mappa.", "successo");
+      },
+      (err) => {
+        setStatoGeo("errore");
+        setErroreGeo(
+          err.code === 1
+            ? "Permesso negato. Abilita la geolocalizzazione nelle impostazioni del browser."
+            : "Impossibile rilevare la posizione. Riprova."
+        );
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  }
 
   // Incarichi assegnati a questo fisioterapista (in attesa accettazione + in corso)
   const incarichi = richieste.filter(
@@ -147,6 +193,7 @@ export default function DashboardFisioterapista() {
           {([
             { id: "incarichi", label: "📋 Incarichi" },
             { id: "agenda", label: "📅 Agenda" },
+            { id: "mappa", label: "🗺️ Mappa" },
           ] as { id: Vista; label: string }[]).map((v) => (
             <button
               key={v.id}
@@ -333,6 +380,94 @@ export default function DashboardFisioterapista() {
             )}
           </div>
         )}
+
+        {/* Vista mappa */}
+        {vista === "mappa" && (() => {
+          const markers: MarkerDati[] = [];
+          if (miaPos) {
+            markers.push({ id: utente.id, lat: miaPos.lat, lng: miaPos.lng, emoji: "🏃", label: `Tu — ${fis?.nome} ${fis?.cognome}` });
+          }
+          incarichi.forEach((r) => {
+            const paz = pazienti.find((p) => p.id === r.pazienteId);
+            const pos = posizioni[r.pazienteId];
+            if (paz && pos) {
+              markers.push({ id: r.pazienteId, lat: pos.lat, lng: pos.lng, emoji: "🧑‍🦽", label: `${paz.nome} ${paz.cognome}${pos.indirizzo ? ` — ${pos.indirizzo}` : ""}` });
+            }
+          });
+
+          return (
+            <div className="space-y-4">
+              <div className="card p-0 overflow-hidden">
+                <MappaLeaflet markers={markers} height="340px" />
+              </div>
+
+              <div className="flex flex-wrap gap-2 text-sm text-gray-600">
+                <span className="flex items-center gap-1.5">🏃 Tu (fisioterapista)</span>
+                <span className="flex items-center gap-1.5">🧑‍🦽 Paziente</span>
+                <span className="ml-auto text-xs text-gray-400">{markers.length} posizione{markers.length !== 1 ? "i" : ""}</span>
+              </div>
+
+              {/* Condividi posizione */}
+              <div className="card">
+                <h3 className="font-semibold mb-3">La mia posizione</h3>
+                {miaPos ? (
+                  <div className="flex items-start gap-2 bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
+                    <span className="w-2 h-2 rounded-full bg-green-500 mt-1.5 shrink-0 animate-pulse" />
+                    <div>
+                      <p className="text-sm text-green-800 font-medium">Posizione condivisa</p>
+                      <p className="text-xs text-green-700 mt-0.5">
+                        {miaPos.lat.toFixed(5)}, {miaPos.lng.toFixed(5)}
+                        {miaPos.accuracy ? ` · ≈ ${Math.round(miaPos.accuracy)} m` : ""}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500 mb-3">
+                    Condividi la tua posizione GPS per apparire sulla mappa dei pazienti.
+                  </p>
+                )}
+                {erroreGeo && (
+                  <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg p-2 mb-3">{erroreGeo}</p>
+                )}
+                <button
+                  onClick={condividiPosizione}
+                  disabled={statoGeo === "caricamento"}
+                  className="btn-primary text-sm py-2 flex items-center gap-2 disabled:opacity-60"
+                >
+                  {statoGeo === "caricamento" ? (
+                    <><span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />Rilevamento...</>
+                  ) : (
+                    `📍 ${miaPos ? "Aggiorna posizione" : "Condividi posizione"}`
+                  )}
+                </button>
+              </div>
+
+              {/* Posizioni pazienti */}
+              {incarichi.length > 0 && (
+                <div className="space-y-2">
+                  <h3 className="font-semibold">Pazienti assegnati</h3>
+                  {incarichi.map((r) => {
+                    const paz = pazienti.find((p) => p.id === r.pazienteId);
+                    const pos = posizioni[r.pazienteId];
+                    return (
+                      <div key={r.id} className="card flex items-center gap-3 py-3">
+                        <span className="text-2xl">🧑‍🦽</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium">{paz?.nome} {paz?.cognome}</p>
+                          {pos ? (
+                            <p className="text-xs text-green-600">📍 {pos.indirizzo ?? `${pos.lat.toFixed(4)}, ${pos.lng.toFixed(4)}`}</p>
+                          ) : (
+                            <p className="text-xs text-gray-400">Posizione non condivisa</p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         {/* Vista agenda */}
         {vista === "agenda" && (

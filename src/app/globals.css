@@ -1,3 +1,11 @@
+/* Leaflet map z-index fix — keeps map below modals */
+.leaflet-pane,
+.leaflet-control,
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 10 !important;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

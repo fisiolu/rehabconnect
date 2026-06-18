@@ -7,9 +7,11 @@ import {
   Messaggio,
   Notifica,
   Appuntamento,
+  Posizione,
   richieste as demoRichieste,
   messaggiDemo,
   notificheDemo,
+  posizioniDemo,
 } from "./demoData";
 
 interface UtenteCorrente {
@@ -39,6 +41,8 @@ interface AppContextType {
   toasts: Toast[];
   addToast: (messaggio: string, tipo?: Toast["tipo"]) => void;
   removeToast: (id: string) => void;
+  posizioni: Record<string, Posizione>;
+  aggiornaPosizione: (userId: string, pos: Posizione) => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -49,6 +53,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [messaggi, setMessaggi] = useState<Messaggio[]>(messaggiDemo);
   const [notifiche, setNotifiche] = useState<Notifica[]>(notificheDemo);
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [posizioni, setPosizioni] = useState<Record<string, Posizione>>(posizioniDemo);
 
   const aggiornaRichiesta = useCallback(
     (id: string, campi: Partial<Richiesta>) => {
@@ -105,6 +110,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
+  const aggiornaPosizione = useCallback(
+    (userId: string, pos: Posizione) => {
+      setPosizioni((prev) => ({ ...prev, [userId]: pos }));
+    },
+    []
+  );
+
   return (
     <AppContext.Provider
       value={{
@@ -122,6 +134,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         toasts,
         addToast,
         removeToast,
+        posizioni,
+        aggiornaPosizione,
       }}
     >
       {children}

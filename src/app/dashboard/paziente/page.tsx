@@ -6,13 +6,17 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import StatoBadge from "@/components/StatoBadge";
-import { pazienti, fisioterapisti, medici, Richiesta } from "@/lib/demoData";
+import { pazienti, fisioterapisti, medici, Richiesta, Posizione } from "@/lib/demoData";
+
+type StatoGeo = "inattivo" | "caricamento" | "attivo" | "errore";
 
 export default function DashboardPaziente() {
-  const { utente, richieste, aggiungiRichiesta, addToast } = useApp();
+  const { utente, richieste, aggiungiRichiesta, addToast, posizioni, aggiornaPosizione } = useApp();
   const router = useRouter();
   const [mostraModulo, setMostraModulo] = useState(false);
   const [invio, setInvio] = useState(false);
+  const [statoGeo, setStatoGeo] = useState<StatoGeo>("inattivo");
+  const [erroreGeo, setErroreGeo] = useState("");
 
   const [form, setForm] = useState({
     patologia: "",
@@ -26,6 +30,39 @@ export default function DashboardPaziente() {
   }, [utente, router]);
 
   if (!utente || utente.ruolo !== "paziente") return null;
+
+  const miaPos = posizioni[utente.id];
+
+  function condividiPosizione() {
+    if (!navigator.geolocation) {
+      addToast("Il dispositivo non supporta la geolocalizzazione.", "errore");
+      return;
+    }
+    setStatoGeo("caricamento");
+    setErroreGeo("");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const nuova: Posizione = {
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          accuracy: pos.coords.accuracy,
+          timestamp: new Date().toISOString(),
+        };
+        aggiornaPosizione(utente!.id, nuova);
+        setStatoGeo("attivo");
+        addToast("Posizione condivisa! Il fisioterapista potrà vederla.", "successo");
+      },
+      (err) => {
+        setStatoGeo("errore");
+        setErroreGeo(
+          err.code === 1
+            ? "Permesso negato. Abilita la geolocalizzazione nelle impostazioni del browser."
+            : "Impossibile rilevare la posizione. Riprova."
+        );
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  }
 
   const paziente = pazienti.find((p) => p.id === utente.id);
   const medico = medici.find((m) => m.id === paziente?.medicoId);
@@ -242,6 +279,60 @@ export default function DashboardPaziente() {
             </p>
           </div>
         )}
+
+        {/* Sezione posizione */}
+        <div className="card border border-blue-100">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-base font-semibold">📍 La mia posizione</h2>
+            <Link href="/mappa" className="text-xs text-blue-600 hover:text-blue-800 font-medium">
+              Vedi mappa →
+            </Link>
+          </div>
+
+          {miaPos ? (
+            <div className="flex items-start gap-2 bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
+              <span className="w-2 h-2 rounded-full bg-green-500 mt-1.5 shrink-0 animate-pulse" />
+              <div>
+                <p className="text-sm text-green-800 font-medium">Posizione condivisa</p>
+                <p className="text-xs text-green-700 mt-0.5">
+                  {miaPos.indirizzo
+                    ? miaPos.indirizzo
+                    : `${miaPos.lat.toFixed(5)}, ${miaPos.lng.toFixed(5)}`}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-gray-500 mb-3">
+              Condividi la tua posizione per permettere al fisioterapista di raggiungerti facilmente.
+            </p>
+          )}
+
+          {erroreGeo && (
+            <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg p-2 mb-3">
+              {erroreGeo}
+            </p>
+          )}
+
+          <div className="flex gap-3">
+            <button
+              onClick={condividiPosizione}
+              disabled={statoGeo === "caricamento"}
+              className="btn-primary text-sm py-2 flex items-center gap-2 disabled:opacity-60"
+            >
+              {statoGeo === "caricamento" ? (
+                <>
+                  <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Rilevamento...
+                </>
+              ) : (
+                `📍 ${miaPos ? "Aggiorna posizione" : "Condividi posizione"}`
+              )}
+            </button>
+            <Link href="/mappa" className="btn-secondary text-sm py-2">
+              🗺️ Mappa
+            </Link>
+          </div>
+        </div>
       </main>
     </div>
   );

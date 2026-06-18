@@ -89,6 +89,35 @@ export interface Notifica {
   richiestaId?: string;
 }
 
+export interface Posizione {
+  lat: number;
+  lng: number;
+  accuracy?: number;
+  timestamp: string;
+  indirizzo?: string;
+}
+
+export const posizioniDemo: Record<string, Posizione> = {
+  "paz-001": {
+    lat: 45.4800,
+    lng: 9.2050,
+    timestamp: "2026-06-18T08:30:00",
+    indirizzo: "Via Roma 12, Milano",
+  },
+  "paz-002": {
+    lat: 45.4660,
+    lng: 9.1720,
+    timestamp: "2026-06-18T09:00:00",
+    indirizzo: "Via Dante 45, Milano",
+  },
+  "paz-003": {
+    lat: 45.4520,
+    lng: 9.1900,
+    timestamp: "2026-06-17T16:30:00",
+    indirizzo: "Corso Vittorio 8, Milano",
+  },
+};
+
 export const pazienti: Paziente[] = [
   {
     id: "paz-001",
