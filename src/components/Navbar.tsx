@@ -41,7 +41,7 @@ const notificaTipoIcona: Record<string, string> = {
 
 export default function Navbar() {
   const { utente, setUtente, notifiche, segnaNotificaLetta, segnaNotificheLette } = useApp();
-  const { tema, toggleTema } = useTema();
+  const { tema, toggleTema, testoGrande, toggleTesto } = useTema();
   const router = useRouter();
   const [aperto, setAperto] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -104,6 +104,16 @@ export default function Navbar() {
 
         {/* Destra: tema + campanella + esci */}
         <div className="flex items-center gap-3 shrink-0">
+          {/* Toggle testo grande */}
+          <button
+            onClick={toggleTesto}
+            className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 font-bold text-sm min-w-[2rem]"
+            aria-label={testoGrande ? "Riduci testo" : "Ingrandisci testo"}
+            title={testoGrande ? "Testo normale" : "Testo grande"}
+          >
+            {testoGrande ? "A−" : "A+"}
+          </button>
+
           {/* Toggle tema */}
           <button
             onClick={toggleTema}

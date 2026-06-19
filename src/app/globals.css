@@ -67,6 +67,11 @@
   }
 }
 
+/* Testo grande — scala tutto via rem */
+html.testo-grande {
+  font-size: 20px;
+}
+
 /* Referto print styles */
 @media print {
   .no-print {

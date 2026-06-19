@@ -4,13 +4,23 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 type Tema = "chiaro" | "scuro";
 
-const TemaContext = createContext<{ tema: Tema; toggleTema: () => void }>({
+interface TemaCtx {
+  tema: Tema;
+  toggleTema: () => void;
+  testoGrande: boolean;
+  toggleTesto: () => void;
+}
+
+const TemaContext = createContext<TemaCtx>({
   tema: "chiaro",
   toggleTema: () => {},
+  testoGrande: false,
+  toggleTesto: () => {},
 });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [tema, setTema] = useState<Tema>("chiaro");
+  const [testoGrande, setTestoGrande] = useState(false);
 
   useEffect(() => {
     const salvato = localStorage.getItem("rc-tema") as Tema | null;
@@ -18,6 +28,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const iniziale: Tema = salvato ?? (preferisce ? "scuro" : "chiaro");
     setTema(iniziale);
     document.documentElement.classList.toggle("dark", iniziale === "scuro");
+
+    const grande = localStorage.getItem("rc-testo") === "1";
+    setTestoGrande(grande);
+    document.documentElement.classList.toggle("testo-grande", grande);
   }, []);
 
   function toggleTema() {
@@ -29,8 +43,17 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     });
   }
 
+  function toggleTesto() {
+    setTestoGrande((prev) => {
+      const nuovo = !prev;
+      document.documentElement.classList.toggle("testo-grande", nuovo);
+      localStorage.setItem("rc-testo", nuovo ? "1" : "0");
+      return nuovo;
+    });
+  }
+
   return (
-    <TemaContext.Provider value={{ tema, toggleTema }}>
+    <TemaContext.Provider value={{ tema, toggleTema, testoGrande, toggleTesto }}>
       {children}
     </TemaContext.Provider>
   );

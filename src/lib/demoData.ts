@@ -143,7 +143,7 @@ export const pazienti: Paziente[] = [
     id: "paz-001",
     nome: "Mario",
     cognome: "Rossi",
-    dataNascita: "1955-03-15",
+    dataNascita: "1955-06-19",
     codiceFiscale: "RSSMRA55C15H501Z",
     telefono: "333 1234567",
     email: "mario.rossi@email.it",
