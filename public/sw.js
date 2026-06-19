@@ -1,4 +1,4 @@
-const CACHE = "rehabconnect-v1";
+const CACHE = "rehabconnect-v3";
 const OFFLINE_URL = "/";
 
 const PRECACHE = [
