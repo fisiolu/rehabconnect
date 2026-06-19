@@ -75,7 +75,7 @@ export default function DashboardMedico() {
   const richiesta = richieste.find((r) => r.id === richiestaAperta);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Navbar />
       <main className="max-w-3xl mx-auto px-4 py-6 space-y-6">
 
@@ -335,6 +335,14 @@ export default function DashboardMedico() {
                           >
                             💬 Chat
                           </Link>
+                          {["in_corso", "completata", "assegnata"].includes(r.stato) && (
+                            <Link
+                              href={`/referto/${r.id}`}
+                              className="text-xs text-green-600 hover:text-green-800 font-medium flex items-center gap-1"
+                            >
+                              📄 Referto
+                            </Link>
+                          )}
                         </div>
                       </div>
                     </div>

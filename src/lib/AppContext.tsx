@@ -8,10 +8,14 @@ import {
   Notifica,
   Appuntamento,
   Posizione,
+  Valutazione,
+  FotoEsercizio,
   richieste as demoRichieste,
   messaggiDemo,
   notificheDemo,
   posizioniDemo,
+  valutazioniDemo,
+  fotoEserciziDemo,
 } from "./demoData";
 
 interface UtenteCorrente {
@@ -43,6 +47,10 @@ interface AppContextType {
   removeToast: (id: string) => void;
   posizioni: Record<string, Posizione>;
   aggiornaPosizione: (userId: string, pos: Posizione) => void;
+  valutazioni: Valutazione[];
+  aggiungiValutazione: (v: Valutazione) => void;
+  fotoEsercizi: FotoEsercizio[];
+  aggiungiFoto: (f: FotoEsercizio) => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -54,6 +62,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [notifiche, setNotifiche] = useState<Notifica[]>(notificheDemo);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [posizioni, setPosizioni] = useState<Record<string, Posizione>>(posizioniDemo);
+  const [valutazioni, setValutazioni] = useState<Valutazione[]>(valutazioniDemo);
+  const [fotoEsercizi, setFotoEsercizi] = useState<FotoEsercizio[]>(fotoEserciziDemo);
 
   const aggiornaRichiesta = useCallback(
     (id: string, campi: Partial<Richiesta>) => {
@@ -117,6 +127,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     []
   );
 
+  const aggiungiValutazione = useCallback((v: Valutazione) => {
+    setValutazioni((prev) => [...prev, v]);
+  }, []);
+
+  const aggiungiFoto = useCallback((f: FotoEsercizio) => {
+    setFotoEsercizi((prev) => [...prev, f]);
+  }, []);
+
   return (
     <AppContext.Provider
       value={{
@@ -136,6 +154,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         removeToast,
         posizioni,
         aggiornaPosizione,
+        valutazioni,
+        aggiungiValutazione,
+        fotoEsercizi,
+        aggiungiFoto,
       }}
     >
       {children}

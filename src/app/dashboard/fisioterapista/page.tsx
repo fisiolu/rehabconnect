@@ -8,7 +8,7 @@ import StatoBadge from "@/components/StatoBadge";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import type { MarkerDati } from "@/components/MappaLeaflet";
-import { pazienti, fisioterapisti, Appuntamento, Posizione } from "@/lib/demoData";
+import { pazienti, fisioterapisti, Appuntamento, Posizione, FotoEsercizio } from "@/lib/demoData";
 
 const MappaLeaflet = dynamic(() => import("@/components/MappaLeaflet"), {
   ssr: false,
@@ -37,7 +37,7 @@ type Vista = "incarichi" | "agenda" | "mappa";
 type StatoGeo = "inattivo" | "caricamento" | "attivo" | "errore";
 
 export default function DashboardFisioterapista() {
-  const { utente, richieste, aggiornaRichiesta, addToast, posizioni, aggiornaPosizione } = useApp();
+  const { utente, richieste, aggiornaRichiesta, addToast, posizioni, aggiornaPosizione, fotoEsercizi, aggiungiFoto } = useApp();
   const router = useRouter();
   const [vista, setVista] = useState<Vista>("incarichi");
   const [confermaRifiuto, setConfermaRifiuto] = useState<string | null>(null);
@@ -137,7 +137,7 @@ export default function DashboardFisioterapista() {
   const inCorso = incarichi.filter((r) => r.stato === "in_corso");
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Navbar />
       <main className="max-w-3xl mx-auto px-4 py-6 space-y-6">
 
@@ -353,6 +353,15 @@ export default function DashboardFisioterapista() {
                           </p>
                         )}
 
+                        {/* Foto esercizi */}
+                        <FotoUpload
+                          richiestaId={r.id}
+                          fisioterapistaId={utente.id}
+                          foto={fotoEsercizi.filter((f) => f.richiestaId === r.id)}
+                          aggiungiFoto={aggiungiFoto}
+                          addToast={addToast}
+                        />
+
                         {appPendenti.length === 0 && (
                           <button
                             onClick={() => segnaCompletato(r.id)}
@@ -469,6 +478,7 @@ export default function DashboardFisioterapista() {
           );
         })()}
 
+        {/* Contatore foto nella tab agenda (info banner) */}
         {/* Vista agenda */}
         {vista === "agenda" && (
           <div>
@@ -559,6 +569,102 @@ export default function DashboardFisioterapista() {
           </div>
         )}
       </main>
+    </div>
+  );
+}
+
+interface FotoUploadProps {
+  richiestaId: string;
+  fisioterapistaId: string;
+  foto: FotoEsercizio[];
+  aggiungiFoto: (f: FotoEsercizio) => void;
+  addToast: (msg: string, tipo?: "successo" | "errore" | "info") => void;
+}
+
+function FotoUpload({ richiestaId, fisioterapistaId, foto, aggiungiFoto, addToast }: FotoUploadProps) {
+  const [aperto, setAperto] = useState(false);
+  const [descrizione, setDescrizione] = useState("");
+
+  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      addToast("Seleziona un file immagine.", "errore");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      addToast("L'immagine deve essere inferiore a 5 MB.", "errore");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const dataUrl = ev.target?.result as string;
+      aggiungiFoto({
+        id: `foto-${Date.now()}`,
+        richiestaId,
+        appuntamentoId: "",
+        fisioterapistaId,
+        dataUrl,
+        descrizione: descrizione.trim() || undefined,
+        timestamp: new Date().toISOString(),
+      });
+      addToast("Foto caricata con successo!", "successo");
+      setDescrizione("");
+      e.target.value = "";
+    };
+    reader.readAsDataURL(file);
+  }
+
+  return (
+    <div className="border border-gray-100 dark:border-gray-700 rounded-lg p-3">
+      <button
+        onClick={() => setAperto((v) => !v)}
+        className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 w-full"
+      >
+        <span>📷 Foto esercizi</span>
+        <span className="ml-auto text-xs text-gray-400">
+          {foto.length > 0 ? `${foto.length} foto` : "Aggiungi"}
+        </span>
+        <svg className={`w-4 h-4 transition-transform ${aperto ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {aperto && (
+        <div className="mt-3 space-y-3">
+          {foto.length > 0 && (
+            <div className="grid grid-cols-3 gap-2">
+              {foto.map((f) => (
+                <div key={f.id} className="relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={f.dataUrl}
+                    alt={f.descrizione ?? "Foto esercizio"}
+                    className="w-full h-20 object-cover rounded-lg border border-gray-200 dark:border-gray-600"
+                  />
+                  {f.descrizione && (
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate">{f.descrizione}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+          <input
+            type="text"
+            className="input-field text-sm"
+            placeholder="Descrizione (opzionale)..."
+            value={descrizione}
+            onChange={(e) => setDescrizione(e.target.value)}
+          />
+          <label className="flex items-center gap-2 cursor-pointer btn-secondary py-2 text-sm w-full justify-center">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Carica immagine
+            <input type="file" accept="image/*" className="hidden" onChange={handleFile} />
+          </label>
+        </div>
+      )}
     </div>
   );
 }

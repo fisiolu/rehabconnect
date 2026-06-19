@@ -89,6 +89,26 @@ export interface Notifica {
   richiestaId?: string;
 }
 
+export interface Valutazione {
+  id: string;
+  richiestaId: string;
+  appuntamentoId: string;
+  pazienteId: string;
+  stelle: 1 | 2 | 3 | 4 | 5;
+  nota?: string;
+  data: string;
+}
+
+export interface FotoEsercizio {
+  id: string;
+  richiestaId: string;
+  appuntamentoId: string;
+  fisioterapistaId: string;
+  dataUrl: string;
+  descrizione?: string;
+  timestamp: string;
+}
+
 export interface Posizione {
   lat: number;
   lng: number;
@@ -225,24 +245,14 @@ export const richieste: Richiesta[] = [
     noteMedico: "Iniziare con esercizi a basso impatto. Evitare rotazioni.",
     noteFisioterapista: "Prima seduta effettuata. Paziente collaborativo.",
     appuntamenti: [
-      {
-        id: "app-001",
-        richiestaId: "req-001",
-        data: "2026-06-19",
-        ora: "09:00",
-        durata: 60,
-        luogo: "Via Roma 12, Milano",
-        completato: false,
-      },
-      {
-        id: "app-002",
-        richiestaId: "req-001",
-        data: "2026-06-22",
-        ora: "09:00",
-        durata: 60,
-        luogo: "Via Roma 12, Milano",
-        completato: false,
-      },
+      { id: "app-h1", richiestaId: "req-001", data: "2026-06-02", ora: "09:00", durata: 60, luogo: "Via Roma 12, Milano", completato: true },
+      { id: "app-h2", richiestaId: "req-001", data: "2026-06-05", ora: "09:00", durata: 60, luogo: "Via Roma 12, Milano", completato: true },
+      { id: "app-h3", richiestaId: "req-001", data: "2026-06-09", ora: "09:00", durata: 60, luogo: "Via Roma 12, Milano", completato: true },
+      { id: "app-h4", richiestaId: "req-001", data: "2026-06-12", ora: "09:00", durata: 60, luogo: "Via Roma 12, Milano", completato: true },
+      { id: "app-h5", richiestaId: "req-001", data: "2026-06-16", ora: "09:00", durata: 60, luogo: "Via Roma 12, Milano", completato: true },
+      { id: "app-001", richiestaId: "req-001", data: "2026-06-19", ora: "09:00", durata: 60, luogo: "Via Roma 12, Milano", completato: false },
+      { id: "app-002", richiestaId: "req-001", data: "2026-06-22", ora: "09:00", durata: 60, luogo: "Via Roma 12, Milano", completato: false },
+      { id: "app-003", richiestaId: "req-001", data: "2026-06-26", ora: "09:00", durata: 60, luogo: "Via Roma 12, Milano", completato: false },
     ],
   },
   {
@@ -361,6 +371,16 @@ export const notificheDemo: Notifica[] = [
     richiestaId: "req-001",
   },
 ];
+
+export const valutazioniDemo: Valutazione[] = [
+  { id: "val-001", richiestaId: "req-001", appuntamentoId: "app-h1", pazienteId: "paz-001", stelle: 5, nota: "Fisioterapista molto professionale e gentile.", data: "2026-06-02" },
+  { id: "val-002", richiestaId: "req-001", appuntamentoId: "app-h2", pazienteId: "paz-001", stelle: 4, nota: "Seduta intensa ma efficace. Miglioramento visibile.", data: "2026-06-05" },
+  { id: "val-003", richiestaId: "req-001", appuntamentoId: "app-h3", pazienteId: "paz-001", stelle: 5, nota: "Ottimo recupero! Sto camminando meglio.", data: "2026-06-09" },
+  { id: "val-004", richiestaId: "req-001", appuntamentoId: "app-h4", pazienteId: "paz-001", stelle: 4, nota: "Buon lavoro sulle rotazioni.", data: "2026-06-12" },
+  { id: "val-005", richiestaId: "req-001", appuntamentoId: "app-h5", pazienteId: "paz-001", stelle: 5, nota: "Sono molto soddisfatto dei progressi.", data: "2026-06-16" },
+];
+
+export const fotoEserciziDemo: FotoEsercizio[] = [];
 
 export const statoLabel: Record<StatoRichiesta, string> = {
   in_attesa: "In attesa",

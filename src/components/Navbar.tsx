@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useApp } from "@/lib/AppContext";
+import { useTema } from "@/components/ThemeProvider";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -40,6 +41,7 @@ const notificaTipoIcona: Record<string, string> = {
 
 export default function Navbar() {
   const { utente, setUtente, notifiche, segnaNotificaLetta, segnaNotificheLette } = useApp();
+  const { tema, toggleTema } = useTema();
   const router = useRouter();
   const [aperto, setAperto] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -77,7 +79,7 @@ export default function Navbar() {
   if (!utente) return null;
 
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
         {/* Logo */}
         <Link
@@ -100,8 +102,25 @@ export default function Navbar() {
           </span>
         </div>
 
-        {/* Destra: campanella + esci */}
+        {/* Destra: tema + campanella + esci */}
         <div className="flex items-center gap-3 shrink-0">
+          {/* Toggle tema */}
+          <button
+            onClick={toggleTema}
+            className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+            aria-label={tema === "chiaro" ? "Attiva tema scuro" : "Attiva tema chiaro"}
+            title={tema === "chiaro" ? "Tema scuro" : "Tema chiaro"}
+          >
+            {tema === "chiaro" ? (
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+              </svg>
+            ) : (
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+            )}
+          </button>
           {/* Campanella notifiche */}
           <div className="relative" ref={ref}>
             <button
@@ -121,9 +140,9 @@ export default function Navbar() {
 
             {/* Dropdown notifiche */}
             {aperto && (
-              <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-50">
-                <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-                  <span className="font-semibold text-sm text-gray-900">Notifiche</span>
+              <div className="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                  <span className="font-semibold text-sm text-gray-900 dark:text-gray-100">Notifiche</span>
                   {nonLette > 0 && (
                     <button
                       onClick={segnaNotificheLette}
@@ -144,8 +163,8 @@ export default function Navbar() {
                       <button
                         key={n.id}
                         onClick={() => clickNotifica(n.id, n.richiestaId)}
-                        className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 ${
-                          !n.letto ? "bg-blue-50/50" : ""
+                        className={`w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-b border-gray-50 dark:border-gray-700 last:border-0 ${
+                          !n.letto ? "bg-blue-50/50 dark:bg-blue-900/20" : ""
                         }`}
                       >
                         <div className="flex items-start gap-2.5">
@@ -175,7 +194,7 @@ export default function Navbar() {
                 </div>
 
                 {mieNotifiche.length > 0 && (
-                  <div className="px-4 py-2 border-t border-gray-100 text-center">
+                  <div className="px-4 py-2 border-t border-gray-100 dark:border-gray-700 text-center">
                     <span className="text-xs text-gray-400">
                       {mieNotifiche.length} notifiche totali
                     </span>
