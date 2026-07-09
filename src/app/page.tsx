@@ -3,49 +3,12 @@
 import { useApp } from "@/lib/AppContext";
 import { useRouter } from "next/navigation";
 import { pazienti, medici, fisioterapisti } from "@/lib/demoData";
-
-const ruoli = [
-  {
-    id: "paziente",
-    titolo: "Paziente",
-    sottotitolo: "o familiare",
-    descrizione: "Richiedi assistenza riabilitativa e monitora lo stato",
-    icona: "🧑‍🦽",
-    colore: "border-blue-300 hover:border-blue-500 hover:bg-blue-50",
-    testoColore: "text-blue-700",
-    btnColore: "bg-blue-600 hover:bg-blue-700",
-  },
-  {
-    id: "medico",
-    titolo: "Medico",
-    sottotitolo: "di medicina generale",
-    descrizione: "Valuta le richieste e assegna i fisioterapisti",
-    icona: "👨‍⚕️",
-    colore: "border-green-300 hover:border-green-500 hover:bg-green-50",
-    testoColore: "text-green-700",
-    btnColore: "bg-green-600 hover:bg-green-700",
-  },
-  {
-    id: "fisioterapista",
-    titolo: "Fisioterapista",
-    sottotitolo: "riabilitatore",
-    descrizione: "Gestisci gli incarichi e la tua agenda",
-    icona: "🏥",
-    colore: "border-purple-300 hover:border-purple-500 hover:bg-purple-50",
-    testoColore: "text-purple-700",
-    btnColore: "bg-purple-600 hover:bg-purple-700",
-  },
-  {
-    id: "admin",
-    titolo: "Amministratore",
-    sottotitolo: "della piattaforma",
-    descrizione: "Supervisiona tutte le attività e gli utenti",
-    icona: "⚙️",
-    colore: "border-orange-300 hover:border-orange-500 hover:bg-orange-50",
-    testoColore: "text-orange-700",
-    btnColore: "bg-orange-600 hover:bg-orange-700",
-  },
-];
+import { Accessibility, Stethoscope, Dumbbell, ArrowRight } from "lucide-react";
+import HeaderHome from "@/components/home/HeaderHome";
+import HeroIllustrazione from "@/components/home/HeroIllustrazione";
+import PercorsoCard from "@/components/home/PercorsoCard";
+import ComeFunziona from "@/components/home/ComeFunziona";
+import FooterHome from "@/components/home/FooterHome";
 
 function getUtenteDemo(ruolo: string) {
   if (ruolo === "paziente") {
@@ -74,69 +37,97 @@ export default function HomePage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
-      <div className="max-w-4xl mx-auto px-4 py-12">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl mb-4 shadow-lg">
-            <span className="text-3xl">🔗</span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
-            RehabConnect
+    <div className="min-h-screen bg-sfondo dark:bg-gray-900">
+      <HeaderHome />
+
+      {/* Hero */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 pt-12 sm:pt-20 pb-20 sm:pb-28 grid md:grid-cols-2 gap-16 md:gap-12 items-center">
+        <div>
+          <span className="inline-flex items-center bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-xs font-medium px-3 py-1.5 rounded-full mb-5 border border-amber-200 dark:border-amber-800">
+            Versione dimostrativa · Nessun dato sanitario reale
+          </span>
+          <h1 className="text-3xl sm:text-4xl lg:text-[2.75rem] font-bold text-notte dark:text-white leading-tight mb-5">
+            La riabilitazione domiciliare, finalmente connessa.
           </h1>
-          <p className="text-lg text-gray-600 max-w-xl mx-auto">
-            La piattaforma che collega pazienti, medici e fisioterapisti per una
-            riabilitazione domiciliare efficace.
+          <p className="text-slate-500 dark:text-slate-400 text-base sm:text-lg leading-relaxed mb-8 max-w-lg">
+            RehabConnect mette in contatto pazienti, medici, centri di assistenza e
+            fisioterapisti qualificati, semplificando la presa in carico e
+            l&apos;organizzazione degli interventi domiciliari.
           </p>
-          <div className="mt-3 inline-block bg-yellow-100 text-yellow-800 text-xs font-medium px-3 py-1 rounded-full">
-            Versione dimostrativa — nessun dato reale
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={() => accedi("paziente")}
+              className="inline-flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-semibold px-6 py-3.5 rounded-xl transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+            >
+              Richiedi assistenza
+              <ArrowRight size={18} aria-hidden="true" />
+            </button>
+            <a
+              href="#percorsi"
+              className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 dark:bg-gray-800 dark:hover:bg-gray-700 text-notte dark:text-white font-semibold px-6 py-3.5 rounded-xl border border-slate-200 dark:border-gray-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+            >
+              Sei un professionista?
+            </a>
           </div>
         </div>
 
-        {/* Scelta ruolo */}
-        <div className="mb-8">
-          <h2 className="text-center text-gray-500 text-sm font-medium uppercase tracking-wide mb-6">
-            Accedi come
+        <HeroIllustrazione />
+      </section>
+
+      {/* Scegli il tuo percorso */}
+      <section
+        id="percorsi"
+        className="max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-20"
+        aria-labelledby="percorsi-titolo"
+      >
+        <div className="text-center max-w-xl mx-auto mb-10">
+          <h2 id="percorsi-titolo" className="text-2xl sm:text-3xl font-bold text-notte dark:text-white mb-3">
+            Scegli il tuo percorso
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {ruoli.map((r) => (
-              <button
-                key={r.id}
-                onClick={() => accedi(r.id)}
-                className={`card text-left border-2 transition-all duration-200 cursor-pointer ${r.colore} group`}
-              >
-                <div className="flex items-start gap-4">
-                  <span className="text-4xl">{r.icona}</span>
-                  <div className="flex-1">
-                    <div className="flex items-baseline gap-1.5">
-                      <h3 className={`font-bold ${r.testoColore}`}>
-                        {r.titolo}
-                      </h3>
-                      <span className="text-gray-400 text-sm">
-                        {r.sottotitolo}
-                      </span>
-                    </div>
-                    <p className="text-gray-600 text-sm mt-1">
-                      {r.descrizione}
-                    </p>
-                    <span
-                      className={`inline-block mt-3 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ${r.btnColore}`}
-                    >
-                      Entra →
-                    </span>
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
+          <p className="text-slate-500 dark:text-slate-400">
+            Accedi all&apos;area dedicata al tuo ruolo per iniziare.
+          </p>
         </div>
 
-        {/* Footer info */}
-        <div className="text-center text-xs text-gray-400 space-y-1">
-          <p>Piattaforma dimostrativa — Fase 1</p>
-          <p>Nessun dato sanitario reale · Nessun servizio a pagamento</p>
+        <div className="grid sm:grid-cols-3 gap-5">
+          <PercorsoCard
+            icon={Accessibility}
+            titolo="Paziente"
+            sottotitolo="o familiare"
+            descrizione="Richiedi assistenza riabilitativa e monitora lo stato della tua presa in carico."
+            ctaLabel="Accedi come paziente"
+            onClick={() => accedi("paziente")}
+            iconBg="bg-primary-50 dark:bg-primary-900/30"
+            iconColor="text-primary-600 dark:text-primary-400"
+            ring="focus-visible:ring-primary-500"
+          />
+          <PercorsoCard
+            icon={Stethoscope}
+            titolo="Medico"
+            sottotitolo="o centro"
+            descrizione="Valuta le richieste in arrivo e assegna i fisioterapisti più adatti."
+            ctaLabel="Accedi come medico"
+            onClick={() => accedi("medico")}
+            iconBg="bg-teal-50 dark:bg-teal-900/30"
+            iconColor="text-teal-600 dark:text-teal-400"
+            ring="focus-visible:ring-teal-500"
+          />
+          <PercorsoCard
+            icon={Dumbbell}
+            titolo="Fisioterapista"
+            descrizione="Gestisci gli incarichi assegnati e la tua agenda settimanale."
+            ctaLabel="Accedi come fisioterapista"
+            onClick={() => accedi("fisioterapista")}
+            iconBg="bg-notte/10 dark:bg-white/10"
+            iconColor="text-notte dark:text-slate-200"
+            ring="focus-visible:ring-notte"
+          />
         </div>
-      </div>
-    </main>
+      </section>
+
+      <ComeFunziona />
+
+      <FooterHome onAdminClick={() => accedi("admin")} />
+    </div>
   );
 }

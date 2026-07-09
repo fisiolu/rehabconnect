@@ -23,6 +23,8 @@ const config: Config = {
           500: "#22c55e",
           600: "#16a34a",
         },
+        notte: "#12324A",
+        sfondo: "#F6FAFC",
       },
     },
   },
