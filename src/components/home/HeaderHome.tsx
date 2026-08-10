@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { MapPin, Menu, X } from "lucide-react";
 
 const linkNav = [
   { href: "#come-funziona", label: "Come funziona" },
-  { href: "#percorsi", label: "Per i professionisti" },
+  { href: "#percorsi", label: "Aree riservate" },
   { href: "#sicurezza", label: "Sicurezza e privacy" },
 ];
 
@@ -44,12 +44,13 @@ export default function HeaderHome() {
         </nav>
 
         <div className="hidden md:block shrink-0">
-          <a
-            href="#percorsi"
-            className="inline-flex items-center justify-center bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+          <Link
+            href="/trova"
+            className="inline-flex items-center justify-center gap-1.5 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
           >
-            Accedi
-          </a>
+            <MapPin size={15} aria-hidden="true" />
+            Cerca vicino a me
+          </Link>
         </div>
 
         <button
@@ -79,13 +80,14 @@ export default function HeaderHome() {
               {l.label}
             </a>
           ))}
-          <a
-            href="#percorsi"
+          <Link
+            href="/trova"
             onClick={() => setMenuAperto(false)}
-            className="block text-center bg-primary-600 text-white font-semibold py-2.5 rounded-lg mt-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+            className="flex items-center justify-center gap-1.5 text-center bg-primary-600 text-white font-semibold py-3 rounded-lg mt-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
           >
-            Accedi
-          </a>
+            <MapPin size={16} aria-hidden="true" />
+            Cerca vicino a me
+          </Link>
         </nav>
       )}
     </header>

@@ -36,9 +36,12 @@ export default function PercorsoCard({
       <h3 className="text-lg font-bold text-notte dark:text-white mb-1">
         {titolo}
         {sottotitolo && (
-          <span className="text-slate-400 dark:text-slate-500 font-normal text-sm ml-1.5">
-            {sottotitolo}
-          </span>
+          <>
+            {" "}
+            <span className="text-slate-400 dark:text-slate-500 font-normal text-sm">
+              {sottotitolo}
+            </span>
+          </>
         )}
       </h3>
       <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-4">

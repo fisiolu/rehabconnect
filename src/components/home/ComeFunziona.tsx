@@ -1,23 +1,26 @@
-import { FileText, Stethoscope, HeartHandshake } from "lucide-react";
+import { Crosshair, Map, PhoneCall } from "lucide-react";
 
 const passi = [
   {
-    numero: "01",
-    icon: FileText,
-    titolo: "Il paziente invia la richiesta",
-    testo: "Compila una richiesta descrivendo il bisogno riabilitativo, in pochi minuti e senza spostarsi da casa.",
+    numero: "1",
+    icon: Crosshair,
+    titolo: "Dici dove sei",
+    testo:
+      "Premi un pulsante e l'app rileva la tua posizione. Se preferisci non darla, scegli semplicemente la tua città.",
   },
   {
-    numero: "02",
-    icon: Stethoscope,
-    titolo: "Il medico o il centro la valuta",
-    testo: "Il medico di riferimento valuta la richiesta e individua il fisioterapista più adatto al percorso.",
+    numero: "2",
+    icon: Map,
+    titolo: "Vedi chi c'è vicino",
+    testo:
+      "Sulla mappa compaiono i fisioterapisti della tua zona, ciascuno con la distanza da casa tua e le sue specialità.",
   },
   {
-    numero: "03",
-    icon: HeartHandshake,
-    titolo: "Il fisioterapista prende in carico l'intervento",
-    testo: "Il fisioterapista accetta l'incarico, pianifica gli appuntamenti e segue il percorso fino al completamento.",
+    numero: "3",
+    icon: PhoneCall,
+    titolo: "Lo contatti direttamente",
+    testo:
+      "Apri la scheda, controlli esperienza e valutazioni, e lo chiami. Senza liste d'attesa e senza passaparola.",
   },
 ];
 
@@ -25,36 +28,36 @@ export default function ComeFunziona() {
   return (
     <section
       id="come-funziona"
-      className="py-16 sm:py-20 bg-white dark:bg-gray-900"
+      className="py-16 sm:py-24 bg-white dark:bg-gray-900"
       aria-labelledby="come-funziona-titolo"
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <h2 id="come-funziona-titolo" className="text-2xl sm:text-3xl font-bold text-notte dark:text-white mb-3">
-            Come funziona
+        <div className="text-center max-w-2xl mx-auto mb-14">
+          <h2
+            id="come-funziona-titolo"
+            className="text-3xl sm:text-4xl font-bold text-notte dark:text-white mb-4"
+          >
+            Tre passaggi, un minuto
           </h2>
-          <p className="text-slate-500 dark:text-slate-400">
-            Tre passaggi semplici per attivare un percorso di riabilitazione domiciliare.
+          <p className="text-lg text-slate-500 dark:text-slate-400">
+            Non serve registrarsi per guardare. Apri, cerca, e vedi subito chi lavora vicino a
+            casa tua.
           </p>
         </div>
 
-        <ol className="grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-6">
+        <ol className="grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-8">
           {passi.map((p) => (
-            <li key={p.numero} className="text-center sm:text-left">
-              <div className="flex sm:flex-col items-center sm:items-start gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 flex items-center justify-center shrink-0">
-                  <p.icon size={26} aria-hidden="true" />
-                </div>
-                <div className="text-left">
-                  <span className="text-xs font-bold text-teal-500 tracking-wide">
-                    PASSO {p.numero}
+            <li key={p.numero} className="relative">
+              <div className="flex items-center gap-4 mb-4">
+                <span className="relative w-14 h-14 rounded-2xl bg-primary-600 text-white flex items-center justify-center shrink-0 shadow-md">
+                  <p.icon size={24} aria-hidden="true" />
+                  <span className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-teal-500 text-white text-sm font-bold flex items-center justify-center border-2 border-white dark:border-gray-900">
+                    {p.numero}
                   </span>
-                  <h3 className="font-bold text-notte dark:text-white mt-1">{p.titolo}</h3>
-                </div>
+                </span>
+                <h3 className="text-xl font-bold text-notte dark:text-white">{p.titolo}</h3>
               </div>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-3 sm:pl-[4.5rem] leading-relaxed">
-                {p.testo}
-              </p>
+              <p className="text-slate-500 dark:text-slate-400 leading-relaxed">{p.testo}</p>
             </li>
           ))}
         </ol>
