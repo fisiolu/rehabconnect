@@ -78,6 +78,75 @@ html.testo-grande {
   font-size: 20px;
 }
 
+/* Mappa ricerca — segnaposto in stile car sharing */
+.rc-tu {
+  position: relative;
+  width: 22px;
+  height: 22px;
+}
+.rc-tu-punto {
+  position: absolute;
+  inset: 4px;
+  background: #2563eb;
+  border: 2px solid #fff;
+  border-radius: 9999px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+.rc-tu-alone {
+  position: absolute;
+  inset: 0;
+  background: rgba(37, 99, 235, 0.35);
+  border-radius: 9999px;
+  animation: rc-pulsa 2s ease-out infinite;
+}
+@keyframes rc-pulsa {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rc-tu-alone {
+    animation: none;
+  }
+}
+
+.rc-pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 52px;
+  height: 26px;
+  padding: 0 8px;
+  background: var(--rc-colore, #14b8a6);
+  color: #fff;
+  border: 2px solid #fff;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+.rc-pin:hover {
+  transform: scale(1.08);
+}
+.rc-pin-attivo {
+  transform: scale(1.18);
+  box-shadow:
+    0 0 0 3px #fff,
+    0 0 0 6px var(--rc-colore, #14b8a6),
+    0 4px 10px rgba(0, 0, 0, 0.4);
+  z-index: 500;
+}
+
 /* Referto print styles */
 @media print {
   .no-print {

@@ -17,6 +17,11 @@ export interface Paziente {
   telefono: string;
   email: string;
   indirizzo: string;
+  /** Coordinate del domicilio: è il punto da cui si misura la vicinanza dei fisioterapisti. */
+  domicilio: {
+    lat: number;
+    lng: number;
+  };
   medicoId: string;
 }
 
@@ -34,11 +39,25 @@ export interface Fisioterapista {
   id: string;
   nome: string;
   cognome: string;
-  specializzazione: string;
+  /** Elenco delle specialità, la prima è quella principale. */
+  specializzazioni: string[];
   telefono: string;
   email: string;
   disponibile: boolean;
   valutazione: number;
+  /** Numero di iscrizione all'albo, da verificare prima di pubblicare un profilo. */
+  numeroAlbo: string;
+  /** Punto da cui parte per le visite domiciliari (studio o abitazione). */
+  base: {
+    lat: number;
+    lng: number;
+    citta: string;
+    provincia: string;
+  };
+  /** Quanti chilometri è disposto a percorrere per un domicilio. */
+  raggioKm: number;
+  anniEsperienza: number;
+  presentazione: string;
 }
 
 export interface Appuntamento {
@@ -148,6 +167,7 @@ export const pazienti: Paziente[] = [
     telefono: "333 1234567",
     email: "mario.rossi@email.it",
     indirizzo: "Via Roma 12, Milano",
+    domicilio: { lat: 45.48, lng: 9.205 },
     medicoId: "med-001",
   },
   {
@@ -159,6 +179,7 @@ export const pazienti: Paziente[] = [
     telefono: "347 9876543",
     email: "lucia.bianchi@email.it",
     indirizzo: "Via Dante 45, Milano",
+    domicilio: { lat: 45.466, lng: 9.172 },
     medicoId: "med-001",
   },
   {
@@ -170,6 +191,7 @@ export const pazienti: Paziente[] = [
     telefono: "389 5556666",
     email: "giuseppe.verdi@email.it",
     indirizzo: "Corso Vittorio 8, Milano",
+    domicilio: { lat: 45.452, lng: 9.19 },
     medicoId: "med-002",
   },
 ];
@@ -195,36 +217,341 @@ export const medici: Medico[] = [
   },
 ];
 
+/**
+ * Fisioterapisti dimostrativi distribuiti su tutto il territorio italiano.
+ * Servono a mostrare la ricerca per vicinanza ovunque l'app venga aperta:
+ * ci sono gruppi più fitti nelle zone in cui è più probabile che venga provata.
+ * Nomi, recapiti e numeri d'albo sono inventati.
+ */
 export const fisioterapisti: Fisioterapista[] = [
+  // ---- Milano e hinterland ----
   {
     id: "fis-001",
     nome: "Anna",
     cognome: "Ferrari",
-    specializzazione: "Riabilitazione ortopedica",
+    specializzazioni: ["Riabilitazione ortopedica", "Terapia manuale"],
     telefono: "348 1112233",
     email: "anna.ferrari@rehab.it",
     disponibile: true,
     valutazione: 4.8,
+    numeroAlbo: "TSRM-PSTRP MI 1847",
+    base: { lat: 45.4785, lng: 9.2115, citta: "Milano", provincia: "MI" },
+    raggioKm: 15,
+    anniEsperienza: 12,
+    presentazione:
+      "Mi occupo di recupero funzionale dopo fratture e interventi ortopedici, con particolare attenzione alle persone anziane.",
   },
   {
     id: "fis-002",
     nome: "Luca",
     cognome: "Esposito",
-    specializzazione: "Neuroriabilitazione",
+    specializzazioni: ["Neuroriabilitazione", "Riabilitazione geriatrica"],
     telefono: "349 4445566",
     email: "luca.esposito@rehab.it",
     disponibile: true,
     valutazione: 4.6,
+    numeroAlbo: "TSRM-PSTRP MI 2103",
+    base: { lat: 45.4695, lng: 9.181, citta: "Milano", provincia: "MI" },
+    raggioKm: 12,
+    anniEsperienza: 9,
+    presentazione:
+      "Seguo a domicilio persone con esiti di ictus e malattie neurodegenerative, lavorando anche con i familiari.",
   },
   {
     id: "fis-003",
     nome: "Sara",
     cognome: "Romano",
-    specializzazione: "Riabilitazione respiratoria",
+    specializzazioni: ["Riabilitazione respiratoria", "Riabilitazione cardiologica"],
     telefono: "340 7778899",
     email: "sara.romano@rehab.it",
     disponibile: false,
     valutazione: 4.9,
+    numeroAlbo: "TSRM-PSTRP MI 1592",
+    base: { lat: 45.5333, lng: 9.2333, citta: "Sesto San Giovanni", provincia: "MI" },
+    raggioKm: 10,
+    anniEsperienza: 15,
+    presentazione:
+      "Fisioterapia respiratoria a domicilio, anche per pazienti con ossigenoterapia e post-ricovero.",
+  },
+  {
+    id: "fis-004",
+    nome: "Marco",
+    cognome: "Colombo",
+    specializzazioni: ["Riabilitazione sportiva", "Rieducazione posturale"],
+    telefono: "347 2223344",
+    email: "marco.colombo@rehab.it",
+    disponibile: true,
+    valutazione: 4.4,
+    numeroAlbo: "TSRM-PSTRP MI 2571",
+    base: { lat: 45.45, lng: 9.175, citta: "Milano", provincia: "MI" },
+    raggioKm: 20,
+    anniEsperienza: 7,
+    presentazione:
+      "Recupero da infortuni sportivi e correzione delle posture scorrette, con programmi da proseguire a casa.",
+  },
+
+  // ---- Lazio meridionale (golfo di Gaeta) ----
+  {
+    id: "fis-005",
+    nome: "Giulia",
+    cognome: "De Santis",
+    specializzazioni: ["Riabilitazione ortopedica", "Riabilitazione geriatrica"],
+    telefono: "339 4561122",
+    email: "giulia.desantis@rehab.it",
+    disponibile: true,
+    valutazione: 4.9,
+    numeroAlbo: "TSRM-PSTRP LT 0784",
+    base: { lat: 41.261, lng: 13.6135, citta: "Formia", provincia: "LT" },
+    raggioKm: 25,
+    anniEsperienza: 14,
+    presentazione:
+      "Riabilitazione a domicilio nel golfo di Gaeta, specializzata nel recupero dopo protesi d'anca e di ginocchio.",
+  },
+  {
+    id: "fis-006",
+    nome: "Antonio",
+    cognome: "Parisi",
+    specializzazioni: ["Neuroriabilitazione", "Riabilitazione post-operatoria"],
+    telefono: "333 7788990",
+    email: "antonio.parisi@rehab.it",
+    disponibile: true,
+    valutazione: 4.7,
+    numeroAlbo: "TSRM-PSTRP LT 0912",
+    base: { lat: 41.2135, lng: 13.571, citta: "Gaeta", provincia: "LT" },
+    raggioKm: 20,
+    anniEsperienza: 11,
+    presentazione:
+      "Percorsi neurologici a domicilio, con valutazione iniziale gratuita e obiettivi concordati con il paziente.",
+  },
+  {
+    id: "fis-007",
+    nome: "Valentina",
+    cognome: "Iannone",
+    specializzazioni: ["Linfodrenaggio", "Riabilitazione pavimento pelvico"],
+    telefono: "320 1122334",
+    email: "valentina.iannone@rehab.it",
+    disponibile: true,
+    valutazione: 4.8,
+    numeroAlbo: "TSRM-PSTRP LT 1055",
+    base: { lat: 41.2617, lng: 13.7472, citta: "Minturno", provincia: "LT" },
+    raggioKm: 18,
+    anniEsperienza: 8,
+    presentazione:
+      "Trattamento del linfedema e riabilitazione del pavimento pelvico, anche nel percorso post-parto.",
+  },
+  {
+    id: "fis-008",
+    nome: "Roberto",
+    cognome: "Fusco",
+    specializzazioni: ["Terapia manuale", "Riabilitazione ortopedica"],
+    telefono: "345 6677889",
+    email: "roberto.fusco@rehab.it",
+    disponibile: false,
+    valutazione: 4.5,
+    numeroAlbo: "TSRM-PSTRP LT 0641",
+    base: { lat: 41.4676, lng: 12.9037, citta: "Latina", provincia: "LT" },
+    raggioKm: 30,
+    anniEsperienza: 18,
+    presentazione:
+      "Terapia manuale per dolori cervicali e lombari, con esercizi personalizzati da fare in autonomia.",
+  },
+
+  // ---- Roma ----
+  {
+    id: "fis-009",
+    nome: "Chiara",
+    cognome: "Bruno",
+    specializzazioni: ["Riabilitazione geriatrica", "Riabilitazione post-operatoria"],
+    telefono: "348 9900112",
+    email: "chiara.bruno@rehab.it",
+    disponibile: true,
+    valutazione: 4.7,
+    numeroAlbo: "TSRM-PSTRP RM 3312",
+    base: { lat: 41.9109, lng: 12.465, citta: "Roma", provincia: "RM" },
+    raggioKm: 15,
+    anniEsperienza: 10,
+    presentazione:
+      "Assistenza riabilitativa a domicilio per persone non autosufficienti, in accordo con la famiglia.",
+  },
+  {
+    id: "fis-010",
+    nome: "Davide",
+    cognome: "Neri",
+    specializzazioni: ["Riabilitazione sportiva", "Terapia manuale"],
+    telefono: "331 4455667",
+    email: "davide.neri@rehab.it",
+    disponibile: true,
+    valutazione: 4.3,
+    numeroAlbo: "TSRM-PSTRP RM 4108",
+    base: { lat: 41.833, lng: 12.47, citta: "Roma", provincia: "RM" },
+    raggioKm: 18,
+    anniEsperienza: 6,
+    presentazione:
+      "Lavoro con chi vuole tornare all'attività fisica dopo un infortunio, senza bruciare le tappe.",
+  },
+  {
+    id: "fis-011",
+    nome: "Elena",
+    cognome: "Ricci",
+    specializzazioni: ["Neuroriabilitazione", "Riabilitazione neurologica infantile"],
+    telefono: "349 3344556",
+    email: "elena.ricci@rehab.it",
+    disponibile: true,
+    valutazione: 5,
+    numeroAlbo: "TSRM-PSTRP RM 2876",
+    base: { lat: 41.87, lng: 12.54, citta: "Roma", provincia: "RM" },
+    raggioKm: 20,
+    anniEsperienza: 16,
+    presentazione:
+      "Riabilitazione neurologica in età evolutiva, con percorsi condivisi con la famiglia e la scuola.",
+  },
+
+  // ---- Campania ----
+  {
+    id: "fis-012",
+    nome: "Salvatore",
+    cognome: "Amato",
+    specializzazioni: ["Riabilitazione ortopedica", "Riabilitazione geriatrica"],
+    telefono: "338 5566778",
+    email: "salvatore.amato@rehab.it",
+    disponibile: true,
+    valutazione: 4.6,
+    numeroAlbo: "TSRM-PSTRP NA 1934",
+    base: { lat: 40.846, lng: 14.229, citta: "Napoli", provincia: "NA" },
+    raggioKm: 15,
+    anniEsperienza: 13,
+    presentazione:
+      "Riabilitazione domiciliare a Napoli e provincia, con disponibilità anche nel fine settimana.",
+  },
+  {
+    id: "fis-013",
+    nome: "Rosa",
+    cognome: "Del Prete",
+    specializzazioni: ["Riabilitazione respiratoria", "Riabilitazione post-operatoria"],
+    telefono: "329 6677001",
+    email: "rosa.delprete@rehab.it",
+    disponibile: true,
+    valutazione: 4.8,
+    numeroAlbo: "TSRM-PSTRP CE 0827",
+    base: { lat: 41.0722, lng: 14.332, citta: "Caserta", provincia: "CE" },
+    raggioKm: 22,
+    anniEsperienza: 9,
+    presentazione:
+      "Seguo il rientro a casa dopo interventi importanti, coordinandomi con il medico curante.",
+  },
+
+  // ---- Resto d'Italia ----
+  {
+    id: "fis-014",
+    nome: "Federico",
+    cognome: "Gallo",
+    specializzazioni: ["Rieducazione posturale", "Terapia manuale"],
+    telefono: "347 8899223",
+    email: "federico.gallo@rehab.it",
+    disponibile: true,
+    valutazione: 4.5,
+    numeroAlbo: "TSRM-PSTRP TO 1466",
+    base: { lat: 45.0755, lng: 7.6785, citta: "Torino", provincia: "TO" },
+    raggioKm: 18,
+    anniEsperienza: 11,
+    presentazione:
+      "Mi dedico ai dolori cronici della colonna, con un percorso graduale e verificabile nel tempo.",
+  },
+  {
+    id: "fis-015",
+    nome: "Martina",
+    cognome: "Conti",
+    specializzazioni: ["Riabilitazione pavimento pelvico", "Linfodrenaggio"],
+    telefono: "340 2211445",
+    email: "martina.conti@rehab.it",
+    disponibile: true,
+    valutazione: 4.9,
+    numeroAlbo: "TSRM-PSTRP BO 0993",
+    base: { lat: 44.489, lng: 11.352, citta: "Bologna", provincia: "BO" },
+    raggioKm: 16,
+    anniEsperienza: 12,
+    presentazione:
+      "Riabilitazione del pavimento pelvico e trattamento del linfedema dopo interventi oncologici.",
+  },
+  {
+    id: "fis-016",
+    nome: "Alessandro",
+    cognome: "Fabbri",
+    specializzazioni: ["Riabilitazione cardiologica", "Riabilitazione geriatrica"],
+    telefono: "333 9911224",
+    email: "alessandro.fabbri@rehab.it",
+    disponibile: false,
+    valutazione: 4.4,
+    numeroAlbo: "TSRM-PSTRP FI 1201",
+    base: { lat: 43.7752, lng: 11.247, citta: "Firenze", provincia: "FI" },
+    raggioKm: 14,
+    anniEsperienza: 20,
+    presentazione:
+      "Riprendere il movimento in sicurezza dopo un evento cardiaco, con carichi controllati.",
+  },
+  {
+    id: "fis-017",
+    nome: "Nicola",
+    cognome: "Lorusso",
+    specializzazioni: ["Riabilitazione ortopedica", "Riabilitazione sportiva"],
+    telefono: "328 4433221",
+    email: "nicola.lorusso@rehab.it",
+    disponibile: true,
+    valutazione: 4.6,
+    numeroAlbo: "TSRM-PSTRP BA 0715",
+    base: { lat: 41.123, lng: 16.864, citta: "Bari", provincia: "BA" },
+    raggioKm: 20,
+    anniEsperienza: 8,
+    presentazione:
+      "Riabilitazione ortopedica a domicilio a Bari e nei comuni vicini, anche in orario serale.",
+  },
+  {
+    id: "fis-018",
+    nome: "Grazia",
+    cognome: "Randazzo",
+    specializzazioni: ["Neuroriabilitazione", "Riabilitazione geriatrica"],
+    telefono: "347 5544332",
+    email: "grazia.randazzo@rehab.it",
+    disponibile: true,
+    valutazione: 4.7,
+    numeroAlbo: "TSRM-PSTRP PA 1338",
+    base: { lat: 38.1215, lng: 13.353, citta: "Palermo", provincia: "PA" },
+    raggioKm: 18,
+    anniEsperienza: 15,
+    presentazione:
+      "Assisto a domicilio persone con esiti neurologici, curando anche l'addestramento dei caregiver.",
+  },
+  {
+    id: "fis-019",
+    nome: "Paolo",
+    cognome: "Marras",
+    specializzazioni: ["Terapia manuale", "Rieducazione posturale"],
+    telefono: "331 7766554",
+    email: "paolo.marras@rehab.it",
+    disponibile: true,
+    valutazione: 4.5,
+    numeroAlbo: "TSRM-PSTRP CA 0562",
+    base: { lat: 39.2238, lng: 9.1217, citta: "Cagliari", provincia: "CA" },
+    raggioKm: 25,
+    anniEsperienza: 10,
+    presentazione:
+      "Trattamento manuale di spalla, collo e schiena, con esercizi semplici da ripetere a casa.",
+  },
+  {
+    id: "fis-020",
+    nome: "Silvia",
+    cognome: "Zanetti",
+    specializzazioni: ["Riabilitazione post-operatoria", "Riabilitazione ortopedica"],
+    telefono: "345 1199887",
+    email: "silvia.zanetti@rehab.it",
+    disponibile: true,
+    valutazione: 4.8,
+    numeroAlbo: "TSRM-PSTRP VR 0847",
+    base: { lat: 45.4384, lng: 10.9916, citta: "Verona", provincia: "VR" },
+    raggioKm: 20,
+    anniEsperienza: 13,
+    presentazione:
+      "Recupero dopo interventi ortopedici, con contatto diretto con il chirurgo quando serve.",
   },
 ];
 

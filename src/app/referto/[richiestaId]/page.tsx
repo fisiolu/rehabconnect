@@ -189,7 +189,7 @@ export default function PaginaReferto() {
                 <span className="text-2xl">🏥</span>
                 <div>
                   <p className="font-semibold text-gray-900 dark:text-gray-100">{fisio.nome} {fisio.cognome}</p>
-                  <p className="text-gray-500 dark:text-gray-400">{fisio.specializzazione} · ★ {fisio.valutazione}</p>
+                  <p className="text-gray-500 dark:text-gray-400">{fisio.specializzazioni.join(" · ")} · ★ {fisio.valutazione}</p>
                 </div>
               </div>
               {richiesta.noteFisioterapista && (

@@ -3,7 +3,8 @@
 import { useApp } from "@/lib/AppContext";
 import { useRouter } from "next/navigation";
 import { pazienti, medici, fisioterapisti } from "@/lib/demoData";
-import { Accessibility, Stethoscope, Dumbbell, ArrowRight } from "lucide-react";
+import Link from "next/link";
+import { Accessibility, Stethoscope, Dumbbell, MapPin } from "lucide-react";
 import HeaderHome from "@/components/home/HeaderHome";
 import HeroIllustrazione from "@/components/home/HeroIllustrazione";
 import PercorsoCard from "@/components/home/PercorsoCard";
@@ -55,13 +56,13 @@ export default function HomePage() {
             l&apos;organizzazione degli interventi domiciliari.
           </p>
           <div className="flex flex-wrap gap-3">
-            <button
-              onClick={() => accedi("paziente")}
+            <Link
+              href="/trova"
               className="inline-flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-semibold px-6 py-3.5 rounded-xl transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
             >
-              Richiedi assistenza
-              <ArrowRight size={18} aria-hidden="true" />
-            </button>
+              <MapPin size={18} aria-hidden="true" />
+              Trova un fisioterapista vicino a te
+            </Link>
             <a
               href="#percorsi"
               className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 dark:bg-gray-800 dark:hover:bg-gray-700 text-notte dark:text-white font-semibold px-6 py-3.5 rounded-xl border border-slate-200 dark:border-gray-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"

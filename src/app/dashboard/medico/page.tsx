@@ -205,7 +205,7 @@ export default function DashboardMedico() {
                       <option value="">— Seleziona fisioterapista —</option>
                       {fisDisponibili.map((f) => (
                         <option key={f.id} value={f.id}>
-                          {f.nome} {f.cognome} — {f.specializzazione} (★ {f.valutazione})
+                          {f.nome} {f.cognome} — {f.specializzazioni[0]} (★ {f.valutazione})
                         </option>
                       ))}
                     </select>

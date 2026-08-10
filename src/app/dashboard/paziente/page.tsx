@@ -253,7 +253,7 @@ export default function DashboardPaziente() {
                   {fisioAssegnato.nome} {fisioAssegnato.cognome}
                 </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {fisioAssegnato.specializzazione}
+                  {fisioAssegnato.specializzazioni.join(" · ")}
                 </p>
               </div>
               <div className="text-yellow-500 font-bold shrink-0">

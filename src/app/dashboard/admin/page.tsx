@@ -291,7 +291,7 @@ export default function DashboardAdmin() {
                           {f.nome} {f.cognome}
                         </p>
                         <p className="text-xs text-gray-400">
-                          {f.specializzazione} · ★{f.valutazione} · {nIncarichi} incarichi
+                          {f.specializzazioni.join(" · ")} · ★{f.valutazione} · {nIncarichi} incarichi
                         </p>
                       </div>
                       <span
