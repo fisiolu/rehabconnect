@@ -52,7 +52,7 @@ export default function DashboardAdmin() {
             </div>
             <div className="flex-1 min-w-0">
               <h1 className="text-xl font-bold">Pannello Amministratore</h1>
-              <p className="text-gray-500 text-sm">Supervisione piattaforma RehabConnect</p>
+              <p className="text-gray-500 text-sm">Supervisione della piattaforma</p>
             </div>
             <Link
               href="/mappa"

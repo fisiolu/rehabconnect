@@ -1,7 +1,7 @@
 {
-  "name": "RehabConnect",
-  "short_name": "RehabConnect",
-  "description": "Piattaforma per la riabilitazione domiciliare",
+  "name": "Fisioterapista Domiciliare",
+  "short_name": "Fisioterapista",
+  "description": "Trova il fisioterapista a domicilio più vicino a casa tua",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

@@ -1,8 +1,9 @@
-const CACHE = "rehabconnect-v3";
+const CACHE = "fisioterapista-domiciliare-v1";
 const OFFLINE_URL = "/";
 
 const PRECACHE = [
   "/",
+  "/trova",
   "/dashboard/paziente",
   "/dashboard/medico",
   "/dashboard/fisioterapista",

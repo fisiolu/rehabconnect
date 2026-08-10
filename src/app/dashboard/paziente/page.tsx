@@ -61,7 +61,7 @@ export default function DashboardPaziente() {
     aggiungiNotifica({
       id: `notif-bday-${Date.now()}`,
       destinatarioId: utente.id,
-      testo: `🎂 Buon compleanno ${paziente.nome}! Oggi compi ${anni} anni. Tanti auguri dal team RehabConnect!`,
+      testo: `🎂 Buon compleanno ${paziente.nome}! Oggi compi ${anni} anni. Tanti auguri da tutti noi!`,
       tipo: "successo",
       letto: false,
       timestamp: new Date().toISOString(),
@@ -138,7 +138,7 @@ export default function DashboardPaziente() {
       addToast("Notifiche attivate!", "successo");
       setTimeout(() => {
         if (prossimoApp) {
-          new Notification("RehabConnect — Promemoria seduta", {
+          new Notification("Fisioterapista Domiciliare — Promemoria seduta", {
             body: `Ricorda: hai una seduta il ${new Date(prossimoApp.data).toLocaleDateString("it-IT", { weekday: "long", day: "numeric", month: "long" })} ore ${prossimoApp.ora}.`,
             icon: "/icons/icon-192.png",
           });
@@ -191,7 +191,7 @@ export default function DashboardPaziente() {
                   Oggi compi <strong>{etaOggi} anni</strong>. Tanti auguri di cuore!
                 </p>
                 <p className="text-yellow-200 text-sm mt-1">
-                  Dal tuo medico, dal fisioterapista e da tutto il team RehabConnect
+                  Dal tuo medico, dal fisioterapista e da tutto il nostro team
                 </p>
               </div>
             </div>

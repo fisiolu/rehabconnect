@@ -88,7 +88,11 @@ export default function Navbar() {
           aria-label="Torna alla scelta del ruolo"
         >
           <span className="text-lg">🔗</span>
-          <span className="hidden sm:block">RehabConnect</span>
+          <span className="hidden sm:block leading-[1.05] text-[13px]">
+            Fisioterapista
+            <br />
+            Domiciliare
+          </span>
         </Link>
 
         {/* Ruolo corrente */}

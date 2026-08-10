@@ -74,7 +74,7 @@ export default function PaginaReferto() {
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-2xl">🔗</span>
-                <span className="text-xl font-bold text-blue-600">RehabConnect</span>
+                <span className="text-xl font-bold text-blue-600">Fisioterapista Domiciliare</span>
               </div>
               <p className="text-xs text-gray-400">Piattaforma di riabilitazione domiciliare</p>
             </div>
@@ -238,7 +238,7 @@ export default function PaginaReferto() {
           {/* Firma */}
           <div className="pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-end text-xs text-gray-400">
             <div>
-              <p>Documento generato da RehabConnect</p>
+              <p>Documento generato da Fisioterapista Domiciliare</p>
               <p>Solo per uso dimostrativo — nessun dato reale</p>
             </div>
             <div className="text-right">

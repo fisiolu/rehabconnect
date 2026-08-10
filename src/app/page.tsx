@@ -127,7 +127,7 @@ export default function HomePage() {
             Aree riservate
           </h2>
           <p className="text-slate-500 dark:text-slate-400">
-            Sei già seguito, oppure lavori con RehabConnect? Entra nella tua area.
+            Sei già seguito, oppure lavori con noi? Entra nella tua area.
           </p>
         </div>
 

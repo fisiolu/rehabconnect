@@ -18,8 +18,8 @@ export default function HeaderHome() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         <Link
           href="/"
-          className="flex items-center gap-2 font-bold text-notte dark:text-white text-lg shrink-0 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-          aria-label="RehabConnect — torna alla home"
+          className="flex items-center gap-2.5 shrink-0 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+          aria-label="Fisioterapista Domiciliare — torna alla home"
         >
           <span className="w-9 h-9 rounded-xl bg-primary-600 flex items-center justify-center text-white shrink-0">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
@@ -28,7 +28,14 @@ export default function HeaderHome() {
               <path d="M8.5 8.5l7 7" />
             </svg>
           </span>
-          RehabConnect
+          <span
+            className="font-bold text-notte dark:text-white leading-[1.05] text-[15px] sm:text-base"
+            aria-hidden="true"
+          >
+            Fisioterapista
+            <br />
+            <span className="text-primary-600 dark:text-primary-400">Domiciliare</span>
+          </span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-8" aria-label="Navigazione principale">

@@ -6,13 +6,14 @@ import ToastContainer from "@/components/ToastContainer";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 
 export const metadata: Metadata = {
-  title: "RehabConnect",
-  description: "Piattaforma per la riabilitazione domiciliare",
+  title: "Fisioterapista Domiciliare — Trova chi lavora vicino a te",
+  description:
+    "Vedi sulla mappa quali fisioterapisti a domicilio lavorano nella tua zona, con le loro specialità e la distanza da casa tua.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "RehabConnect",
+    title: "Fisioterapista Domiciliare",
   },
 };
 
