@@ -4,16 +4,55 @@ import { AppProvider } from "@/lib/AppContext";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import ToastContainer from "@/components/ToastContainer";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
+import { CLAIM, DESCRIZIONE, NOME_SITO, urlSito } from "@/lib/sito";
+
+const BASE = urlSito();
+const TITOLO = `${NOME_SITO} — ${CLAIM}`;
 
 export const metadata: Metadata = {
-  title: "Fisioterapista Domiciliare — Trova chi lavora vicino a te",
-  description:
-    "Vedi sulla mappa quali fisioterapisti a domicilio lavorano nella tua zona, con le loro specialità e la distanza da casa tua.",
+  metadataBase: new URL(BASE),
+  title: TITOLO,
+  description: DESCRIZIONE,
+  applicationName: NOME_SITO,
+  keywords: [
+    "fisioterapista a domicilio",
+    "fisioterapia domiciliare",
+    "fisioterapista a casa",
+    "riabilitazione a domicilio",
+    "fisioterapista vicino a me",
+  ],
+  alternates: { canonical: "/" },
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Fisioterapista Domiciliare",
+    title: NOME_SITO,
+  },
+  openGraph: {
+    type: "website",
+    locale: "it_IT",
+    siteName: NOME_SITO,
+    title: TITOLO,
+    description: DESCRIZIONE,
+    url: BASE,
+    images: [
+      {
+        url: "/api/og",
+        width: 1200,
+        height: 630,
+        alt: "Fisioterapista Domiciliare — il fisioterapista a casa tua, vicino davvero",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITOLO,
+    description: DESCRIZIONE,
+    images: ["/api/og"],
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 
@@ -21,7 +60,10 @@ export const viewport: Viewport = {
   themeColor: "#2563eb",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
+  // Nessun limite allo zoom: chi ha difficoltà di vista deve poter ingrandire
+  // la pagina pizzicando lo schermo.
+  maximumScale: 5,
+  userScalable: true,
 };
 
 export default function RootLayout({
@@ -33,6 +75,41 @@ export default function RootLayout({
     <html lang="it" suppressHydrationWarning>
       <head>
         <link rel="apple-touch-icon" href="/api/icon-192" />
+        {/* Dati strutturati: spiegano ai motori di ricerca che cos'è questo sito.
+            Nessuna recensione o valutazione dichiarata, perché non ne abbiamo di reali. */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "WebSite",
+                  "@id": `${BASE}/#sito`,
+                  url: BASE,
+                  name: NOME_SITO,
+                  description: DESCRIZIONE,
+                  inLanguage: "it-IT",
+                  potentialAction: {
+                    "@type": "SearchAction",
+                    target: `${BASE}/trova`,
+                    "query-input": "required name=search_term_string",
+                  },
+                },
+                {
+                  "@type": "Service",
+                  "@id": `${BASE}/#servizio`,
+                  name: "Ricerca di fisioterapisti a domicilio",
+                  serviceType: "Fisioterapia domiciliare",
+                  description: DESCRIZIONE,
+                  areaServed: { "@type": "Country", name: "Italia" },
+                  provider: { "@id": `${BASE}/#sito` },
+                  audience: { "@type": "Patient" },
+                },
+              ],
+            }),
+          }}
+        />
         {/* Anti-FOUC: apply saved theme before React hydrates */}
         <script
           dangerouslySetInnerHTML={{

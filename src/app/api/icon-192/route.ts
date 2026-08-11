@@ -20,7 +20,7 @@ export function GET() {
           gap: "8px",
         },
       },
-      React.createElement("div", { style: { fontSize: 90, lineHeight: 1 } }, "🔗"),
+      React.createElement("div", { style: { fontSize: 90, lineHeight: 1 } }, "🏠"),
       React.createElement(
         "div",
         {
@@ -32,7 +32,7 @@ export function GET() {
             fontFamily: "system-ui, sans-serif",
           },
         },
-        "RC"
+        "FD"
       )
     ),
     { width: 192, height: 192 }
