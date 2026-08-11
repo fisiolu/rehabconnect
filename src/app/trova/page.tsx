@@ -3,7 +3,17 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { ArrowLeft, Crosshair, MapPin, Phone, Star, SlidersHorizontal, X } from "lucide-react";
+import {
+  ArrowLeft,
+  Crosshair,
+  ExternalLink,
+  MapPin,
+  Phone,
+  SlidersHorizontal,
+  Star,
+  Wallet,
+  X,
+} from "lucide-react";
 import { fisioterapisti } from "@/lib/demoData";
 import {
   cercaFisioterapistiVicini,
@@ -148,7 +158,7 @@ export default function TrovaPage() {
               onSeleziona={setSelezionatoId}
             />
             {selezionato && (
-              <div className="absolute left-3 right-3 bottom-3 z-[400] lg:left-4 lg:right-auto lg:w-80">
+              <div className="absolute left-3 right-3 bottom-3 top-3 z-[400] overflow-y-auto lg:left-4 lg:right-auto lg:w-80 lg:top-auto lg:max-h-[calc(100%-2rem)]">
                 <SchedaSelezionato
                   risultato={selezionato}
                   onChiudi={() => setSelezionatoId(null)}
@@ -424,8 +434,53 @@ function SchedaSelezionato({
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-3 text-sm text-slate-500 dark:text-slate-400">
         <Stelline valutazione={f.valutazione} />
         <span>{f.anniEsperienza} anni di esperienza</span>
-        <span>Albo {f.numeroAlbo}</span>
       </div>
+
+      {/* Costo: il trattamento domiciliare è privato, quindi la tariffa è del professionista */}
+      <div className="mt-3 rounded-xl bg-slate-50 dark:bg-gray-900/50 border border-slate-200 dark:border-gray-700 p-3">
+        <div className="flex items-baseline justify-between gap-2">
+          <span className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 dark:text-slate-300">
+            <Wallet size={15} aria-hidden="true" />
+            Tariffa a seduta
+          </span>
+          <span className="font-bold text-notte dark:text-white">
+            {f.tariffa.min}–{f.tariffa.max} €
+          </span>
+        </div>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">
+          Prestazione privata. L&apos;importo esatto dipende dal trattamento e lo concordi
+          direttamente con il professionista.
+        </p>
+
+        {f.assicurazioni.length > 0 ? (
+          <p className="text-xs text-slate-600 dark:text-slate-300 mt-2 leading-relaxed">
+            <span className="font-medium">Lavora con:</span> {f.assicurazioni.join(", ")}
+          </p>
+        ) : (
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
+            Non lavora con assicurazioni o fondi sanitari.
+          </p>
+        )}
+      </div>
+
+      {/* Prudenza clinica: non promuoviamo l'accesso diretto come argomento di vendita */}
+      <p className="mt-3 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+        Se il tuo medico ti ha consigliato o prescritto della fisioterapia, portane l&apos;indicazione
+        al primo incontro: aiuta a impostare il percorso giusto.
+      </p>
+
+      <p className="mt-2 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+        Iscrizione all&apos;albo: <span className="font-medium">{f.numeroAlbo}</span> —{" "}
+        <a
+          href="https://fisionet.fnofi.it/albo-professionale"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-0.5 text-primary-600 dark:text-primary-400 font-medium underline underline-offset-2 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+        >
+          puoi verificarla tu
+          <ExternalLink size={11} aria-hidden="true" />
+        </a>
+      </p>
 
       {!raggiungibile && (
         <p className="mt-3 text-sm text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-lg px-3 py-2">
