@@ -11,6 +11,7 @@ import {
   MapPin,
   MessageSquare,
   Phone,
+  Search,
   SlidersHorizontal,
   Star,
   Wallet,
@@ -97,6 +98,13 @@ export default function TrovaPage() {
     setSelezionatoId(null);
   }
 
+  /** Luogo scritto a mano dal paziente e riconosciuto dalla ricerca. */
+  function usaLuogo(luogo: Luogo) {
+    setPosizione({ lat: luogo.lat, lng: luogo.lng });
+    setEtichettaPosizione(luogo.nome);
+    setSelezionatoId(null);
+  }
+
   /**
    * Per scrivere serve un profilo paziente. In questa versione dimostrativa,
    * chi non è ancora entrato viene fatto accedere come paziente di esempio,
@@ -169,6 +177,7 @@ export default function TrovaPage() {
           statoGps={statoGps}
           onGps={usaPosizioneAttuale}
           onCitta={usaCitta}
+          onLuogo={usaLuogo}
         />
       ) : (
         <div className="flex-1 flex flex-col lg:flex-row max-w-7xl mx-auto w-full lg:gap-4 lg:px-4 lg:py-4">
@@ -290,10 +299,12 @@ function SceltaPartenza({
   statoGps,
   onGps,
   onCitta,
+  onLuogo,
 }: {
   statoGps: StatoGps;
   onGps: () => void;
   onCitta: (c: (typeof CITTA)[number]) => void;
+  onLuogo: (l: Luogo) => void;
 }) {
   return (
     <div className="flex-1 flex items-center justify-center px-4 py-12">
@@ -326,11 +337,20 @@ function SceltaPartenza({
         )}
         {statoGps === "non_supportato" && (
           <p className="mt-3 text-sm text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-lg px-3 py-2">
-            Questo dispositivo non permette di rilevare la posizione. Scegli una città qui sotto.
+            Questo dispositivo non permette di rilevare la posizione. Scrivi qui sotto dove ti
+            trovi.
           </p>
         )}
 
-        <p className="text-sm text-slate-400 dark:text-slate-500 my-5">oppure scegli una città</p>
+        <p className="text-sm text-slate-400 dark:text-slate-500 my-5">
+          oppure scrivi dove ti trovi
+        </p>
+
+        <RicercaLuogo onScelto={onLuogo} />
+
+        <p className="text-sm text-slate-400 dark:text-slate-500 mt-7 mb-3">
+          Città cercate più spesso
+        </p>
 
         <div className="flex flex-wrap justify-center gap-2">
           {CITTA.map((c) => (
@@ -344,6 +364,130 @@ function SceltaPartenza({
           ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+interface Luogo {
+  nome: string;
+  lat: number;
+  lng: number;
+}
+
+/**
+ * Casella per scrivere una città o un indirizzo qualsiasi.
+ *
+ * Cerca solo quando il paziente lo chiede — premendo Invio o il pulsante — e
+ * non a ogni lettera digitata: così l'indirizzo di casa non viene spedito
+ * fuori mentre lo si sta ancora scrivendo, e non si tempesta di richieste il
+ * servizio gratuito di OpenStreetMap.
+ */
+function RicercaLuogo({ onScelto }: { onScelto: (l: Luogo) => void }) {
+  const [testo, setTesto] = useState("");
+  const [risultati, setRisultati] = useState<Luogo[] | null>(null);
+  const [ripiego, setRipiego] = useState(false);
+  const [inCorso, setInCorso] = useState(false);
+  const [errore, setErrore] = useState("");
+
+  async function cerca(e: React.FormEvent) {
+    e.preventDefault();
+    const q = testo.trim();
+    if (q.length < 3) {
+      setErrore("Scrivi almeno tre lettere.");
+      return;
+    }
+
+    setInCorso(true);
+    setErrore("");
+    setRisultati(null);
+    setRipiego(false);
+
+    try {
+      const r = await fetch(`/api/geocodifica?q=${encodeURIComponent(q)}`);
+      const dati = (await r.json()) as {
+        risultati: Luogo[];
+        ripiego?: boolean;
+        errore?: string;
+      };
+
+      if (dati.errore) {
+        setErrore(dati.errore);
+      } else if (dati.risultati.length === 0) {
+        setErrore(`Non ho trovato "${q}". Prova a scrivere solo il nome del comune.`);
+      } else {
+        setRisultati(dati.risultati);
+        setRipiego(!!dati.ripiego);
+      }
+    } catch {
+      setErrore("Non sono riuscito a cercare. Controlla la connessione.");
+    } finally {
+      setInCorso(false);
+    }
+  }
+
+  return (
+    <div>
+      <form onSubmit={cerca} className="flex gap-2">
+        <label htmlFor="luogo" className="sr-only">
+          Città o indirizzo
+        </label>
+        <input
+          id="luogo"
+          type="text"
+          value={testo}
+          onChange={(e) => {
+            setTesto(e.target.value);
+            setErrore("");
+          }}
+          placeholder="Es. Gaeta, oppure Via Roma 12 Formia"
+          autoComplete="street-address"
+          className="input-field flex-1 py-3.5 text-base"
+        />
+        <button
+          type="submit"
+          disabled={inCorso}
+          className="shrink-0 inline-flex items-center justify-center gap-2 bg-notte hover:bg-notte/90 disabled:opacity-60 text-white font-semibold px-5 py-3.5 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+        >
+          <Search size={18} aria-hidden="true" />
+          <span className="sr-only sm:not-sr-only">{inCorso ? "Cerco…" : "Cerca"}</span>
+        </button>
+      </form>
+
+      {errore && (
+        <p
+          role="status"
+          className="mt-3 text-sm text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-lg px-3 py-2 text-left"
+        >
+          {errore}
+        </p>
+      )}
+
+      {ripiego && risultati && risultati.length > 0 && (
+        <p className="mt-3 text-sm text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2 text-left">
+          Non ho trovato l&apos;indirizzo preciso, ma il comune sì. Va bene lo stesso: la
+          distanza dei Fisioterapisti sarà calcolata dal centro del paese.
+        </p>
+      )}
+
+      {risultati && risultati.length > 0 && (
+        <ul className="mt-3 text-left border border-slate-200 dark:border-gray-700 rounded-xl overflow-hidden divide-y divide-slate-200 dark:divide-gray-700">
+          {risultati.map((r) => (
+            <li key={`${r.lat},${r.lng},${r.nome}`}>
+              <button
+                onClick={() => onScelto(r)}
+                className="w-full text-left px-4 py-3 bg-white dark:bg-gray-800 hover:bg-primary-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500"
+              >
+                <MapPin
+                  size={16}
+                  className="text-primary-600 dark:text-primary-400 shrink-0"
+                  aria-hidden="true"
+                />
+                <span className="text-notte dark:text-white">{r.nome}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
