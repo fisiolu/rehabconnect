@@ -66,14 +66,16 @@ export default function AnteprimaMappa() {
           </svg>
 
           {/* Il punto "sei qui" */}
+          {/* Il centro del pallino cade sul punto: da qui lo scostamento in pixel */}
           <div
-            className="absolute -translate-x-1/2 -translate-y-full"
+            className="absolute -translate-x-1/2 -translate-y-[38px]"
             style={{ left: "48%", top: "50%" }}
           >
-            <span className="absolute left-1/2 -translate-x-1/2 bottom-0 w-6 h-6 -mb-3 rounded-full bg-primary-500/25 rc-anteprima-alone" />
-            <span className="relative rc-qui">
+            <span className="rc-qui">
               <span className="rc-qui-testo">Tu sei qui</span>
               <span className="rc-qui-freccia" />
+              <span className="rc-qui-alone" />
+              <span className="rc-qui-punto" />
             </span>
           </div>
 

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useApp } from "@/lib/AppContext";
 import { useRouter } from "next/navigation";
 import { pazienti, medici, fisioterapisti } from "@/lib/demoData";
-import { Accessibility, ArrowRight, Dumbbell, MapPin, Stethoscope } from "lucide-react";
+import { Accessibility, ArrowRight, HandHelping, MapPin, Stethoscope } from "lucide-react";
 import HeaderHome from "@/components/home/HeaderHome";
 import AnteprimaMappa from "@/components/home/AnteprimaMappa";
 import ComeFunziona from "@/components/home/ComeFunziona";
@@ -153,7 +153,7 @@ export default function HomePage() {
             ring="focus-visible:ring-teal-500"
           />
           <PercorsoCard
-            icon={Dumbbell}
+            icon={HandHelping}
             titolo="Fisioterapista"
             descrizione="Fatti trovare dai pazienti della tua zona e gestisci la tua agenda."
             ctaLabel="Entra come Fisioterapista"

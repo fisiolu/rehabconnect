@@ -119,10 +119,36 @@ html.testo-grande {
 
 /* Freccina "Tu sei qui" che indica il punto esatto del paziente */
 .rc-qui {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   line-height: 1;
+}
+/* Il pallino segna il punto: la freccia ci punta sopra */
+.rc-qui-punto {
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background: #2563eb;
+  border: 2.5px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+.rc-qui-alone {
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  width: 26px;
+  height: 26px;
+  margin-left: -13px;
+  border-radius: 9999px;
+  background: rgba(37, 99, 235, 0.3);
+  animation: rc-pulsa 2.4s ease-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rc-qui-alone {
+    animation: none;
+  }
 }
 .rc-qui-testo {
   background: #2563eb;

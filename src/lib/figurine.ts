@@ -52,13 +52,31 @@ export function htmlSegnaposto(
   </div>`;
 }
 
-/** Freccina "Tu sei qui" che indica il punto esatto del paziente. */
+/**
+ * Freccina "Tu sei qui" con il pallino che segna il punto esatto.
+ * L'ordine conta: l'alone sta prima del pallino così gli finisce dietro.
+ */
 export function htmlTuSeiQui(): string {
   return `<div class="rc-qui">
     <span class="rc-qui-testo">Tu sei qui</span>
     <span class="rc-qui-freccia"></span>
+    <span class="rc-qui-alone"></span>
+    <span class="rc-qui-punto"></span>
   </div>`;
 }
+
+/**
+ * Misure del segnaposto "Tu sei qui", in pixel. Servono a Leaflet per far
+ * cadere il centro del pallino esattamente sulle coordinate, e all'anteprima
+ * disegnata per allinearlo allo stesso modo. Se cambiano gli stili in
+ * globals.css vanno riviste anche queste.
+ */
+export const MISURE_TU_SEI_QUI = {
+  larghezza: 100,
+  altezza: 46,
+  /** Distanza dal bordo superiore al centro del pallino. */
+  centroPallino: 38,
+};
 
 /**
  * Alterna camice e camicia in modo stabile: lo stesso professionista deve

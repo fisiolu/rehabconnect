@@ -5,7 +5,12 @@ import type { Map as LeafletMap, Marker } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { RisultatoRicerca } from "@/lib/geo";
 import { formattaDistanza } from "@/lib/geo";
-import { figuraPer, htmlSegnaposto, htmlTuSeiQui } from "@/lib/figurine";
+import {
+  figuraPer,
+  htmlSegnaposto,
+  htmlTuSeiQui,
+  MISURE_TU_SEI_QUI,
+} from "@/lib/figurine";
 
 interface Props {
   /** Posizione del paziente: il puntino "sei qui". */
@@ -62,9 +67,9 @@ export default function MappaRicerca({
         icon: L.divIcon({
           className: "",
           html: htmlTuSeiQui(),
-          iconSize: [90, 34],
-          // La punta della freccia deve cadere esattamente sulle coordinate.
-          iconAnchor: [45, 34],
+          iconSize: [MISURE_TU_SEI_QUI.larghezza, MISURE_TU_SEI_QUI.altezza],
+          // Il centro del pallino deve cadere esattamente sulle coordinate.
+          iconAnchor: [MISURE_TU_SEI_QUI.larghezza / 2, MISURE_TU_SEI_QUI.centroPallino],
         }),
         zIndexOffset: 1000,
       }).addTo(mappa);
