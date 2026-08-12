@@ -139,7 +139,7 @@ export default function TrovaPage() {
             className="shrink-0 inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-notte dark:text-white text-sm font-semibold pl-2.5 pr-3.5 py-2.5 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
           >
             <ArrowLeft size={18} aria-hidden="true" />
-            Indietro
+            Torna Indietro
           </Link>
           <div className="min-w-0">
             <h1 className="font-bold text-notte dark:text-white leading-tight truncate">

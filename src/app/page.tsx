@@ -173,7 +173,7 @@ export default function HomePage() {
             <PercorsoCard
               icon={Stethoscope}
               titolo="Medico"
-              sottotitolo="o centro"
+              sottotitolo="di base/Specialista"
               descrizione="Valuta le richieste dei tuoi assistiti e indirizzali al professionista giusto."
               ctaLabel="Entra come medico"
               onClick={() => accedi("medico")}
