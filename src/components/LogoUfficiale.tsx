@@ -9,11 +9,21 @@ interface Props {
 /**
  * Simbolo del logo ufficiale: la casa con le mani e il cuore.
  *
- * Il file logo.png è quadrato e contiene anche la scritta "Fisioterapista
- * Domiciliare" sotto il simbolo. Qui la scritta va esclusa, perché accanto
- * compare già il nome scritto: l'immagine viene quindi ingrandita e spostata
- * dentro un riquadro che ritaglia il solo simbolo.
+ * Il file logo.png è quadrato e sotto al simbolo porta anche la scritta
+ * "Fisioterapista Domiciliare". Qui la scritta va esclusa, perché accanto
+ * compare già il nome: l'immagine viene quindi ingrandita e spostata dentro
+ * un riquadro che ritaglia il solo simbolo.
+ *
+ * I tre numeri qui sotto non sono a occhio: derivano dalla misura dei pixel
+ * dell'immagine. Il simbolo occupa dal 30% al 70% in larghezza e dal 21,5%
+ * al 63,5% in altezza, quindi il suo centro sta al 50% / 42,5% — spostato in
+ * alto rispetto al centro del file. Se un giorno il logo cambia, vanno
+ * rimisurati, altrimenti il simbolo esce storto.
  */
+const SCALA = 2.095; // porta il simbolo a occupare l'88% del riquadro
+const SINISTRA = -0.548;
+const ALTO = -0.39;
+
 export default function LogoUfficiale({ dimensione = 40, className = "" }: Props) {
   return (
     <span
@@ -27,8 +37,13 @@ export default function LogoUfficiale({ dimensione = 40, className = "" }: Props
         width={2000}
         height={2000}
         priority
-        className="absolute left-1/2 max-w-none -translate-x-1/2"
-        style={{ width: dimensione * 2.3, height: dimensione * 2.3, top: `-${dimensione * 0.2}px` }}
+        className="absolute max-w-none"
+        style={{
+          width: dimensione * SCALA,
+          height: dimensione * SCALA,
+          left: dimensione * SINISTRA,
+          top: dimensione * ALTO,
+        }}
       />
     </span>
   );
