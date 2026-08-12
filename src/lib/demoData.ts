@@ -760,6 +760,84 @@ export const valutazioniDemo: Valutazione[] = [
 
 export const fotoEserciziDemo: FotoEsercizio[] = [];
 
+/**
+ * Conversazione diretta fra un paziente e un fisioterapista.
+ * Nasce dalla ricerca sulla mappa e NON dipende da una richiesta assegnata da un
+ * medico: è il paziente che sceglie chi contattare.
+ */
+export interface Conversazione {
+  id: string;
+  pazienteId: string;
+  fisioterapistaId: string;
+  iniziata: string;
+}
+
+export interface MessaggioDiretto {
+  id: string;
+  conversazioneId: string;
+  mittenteId: string;
+  ruolo: "paziente" | "fisioterapista";
+  testo: string;
+  timestamp: string;
+  letto: boolean;
+}
+
+export const conversazioniDemo: Conversazione[] = [
+  {
+    id: "conv-001",
+    pazienteId: "paz-001",
+    fisioterapistaId: "fis-001",
+    iniziata: "2026-08-06T09:12:00",
+  },
+  {
+    id: "conv-002",
+    pazienteId: "paz-002",
+    fisioterapistaId: "fis-001",
+    iniziata: "2026-08-09T17:40:00",
+  },
+];
+
+export const messaggiDirettiDemo: MessaggioDiretto[] = [
+  {
+    id: "md-001",
+    conversazioneId: "conv-001",
+    mittenteId: "paz-001",
+    ruolo: "paziente",
+    testo:
+      "Buongiorno, ho visto il suo profilo. Mia moglie ha subito un intervento all'anca e le hanno consigliato fisioterapia a casa. Lei viene in zona Via Roma?",
+    timestamp: "2026-08-06T09:12:00",
+    letto: true,
+  },
+  {
+    id: "md-002",
+    conversazioneId: "conv-001",
+    mittenteId: "fis-001",
+    ruolo: "fisioterapista",
+    testo:
+      "Buongiorno, certamente: Via Roma rientra nella mia zona. Se ha la lettera di dimissioni o l'indicazione del medico, me la porti al primo incontro così imposto il percorso.",
+    timestamp: "2026-08-06T10:05:00",
+    letto: true,
+  },
+  {
+    id: "md-003",
+    conversazioneId: "conv-001",
+    mittenteId: "paz-001",
+    ruolo: "paziente",
+    testo: "Perfetto. Quando avrebbe disponibilità la prossima settimana?",
+    timestamp: "2026-08-06T10:22:00",
+    letto: true,
+  },
+  {
+    id: "md-004",
+    conversazioneId: "conv-002",
+    mittenteId: "paz-002",
+    ruolo: "paziente",
+    testo: "Salve, lavora anche il sabato mattina?",
+    timestamp: "2026-08-09T17:40:00",
+    letto: false,
+  },
+];
+
 export const statoLabel: Record<StatoRichiesta, string> = {
   in_attesa: "In attesa",
   in_valutazione: "In valutazione",

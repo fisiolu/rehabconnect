@@ -2,12 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import {
   ArrowLeft,
   Crosshair,
   ExternalLink,
   MapPin,
+  MessageSquare,
   Phone,
   SlidersHorizontal,
   Star,
@@ -49,7 +51,8 @@ const CITTA = [
 type StatoGps = "inattivo" | "in_corso" | "negato" | "non_supportato";
 
 export default function TrovaPage() {
-  const { utente } = useApp();
+  const { utente, setUtente, apriConversazione, addToast } = useApp();
+  const router = useRouter();
 
   const [posizione, setPosizione] = useState<Coordinate | null>(null);
   const [etichettaPosizione, setEtichettaPosizione] = useState("");
@@ -92,6 +95,25 @@ export default function TrovaPage() {
     setPosizione({ lat: citta.lat, lng: citta.lng });
     setEtichettaPosizione(citta.nome);
     setSelezionatoId(null);
+  }
+
+  /**
+   * Per scrivere serve un profilo paziente. In questa versione dimostrativa,
+   * chi non è ancora entrato viene fatto accedere come paziente di esempio,
+   * dicendoglielo apertamente invece di farlo di nascosto.
+   */
+  function scriviA(fisioterapistaId: string) {
+    let pazienteId = utente?.ruolo === "paziente" ? utente.id : null;
+
+    if (!pazienteId) {
+      const demo = pazienti[0];
+      pazienteId = demo.id;
+      setUtente({ ruolo: "paziente", id: demo.id, nome: `${demo.nome} ${demo.cognome}` });
+      addToast(`Versione dimostrativa: sei entrato come ${demo.nome} ${demo.cognome}`, "info");
+    }
+
+    const conversazioneId = apriConversazione(pazienteId, fisioterapistaId);
+    router.push(`/messaggi/${conversazioneId}`);
   }
 
   const specialita = useMemo(() => specializzazioniDisponibili(fisioterapisti), []);
@@ -162,6 +184,7 @@ export default function TrovaPage() {
                 <SchedaSelezionato
                   risultato={selezionato}
                   onChiudi={() => setSelezionatoId(null)}
+                  onScrivi={() => scriviA(selezionato.fisioterapista.id)}
                 />
               </div>
             )}
@@ -390,9 +413,11 @@ function CardFisioterapista({
 function SchedaSelezionato({
   risultato,
   onChiudi,
+  onScrivi,
 }: {
   risultato: import("@/lib/geo").RisultatoRicerca;
   onChiudi: () => void;
+  onScrivi: () => void;
 }) {
   const { fisioterapista: f, distanzaKm, raggiungibile } = risultato;
 
@@ -489,13 +514,22 @@ function SchedaSelezionato({
         </p>
       )}
 
-      <a
-        href={`tel:${f.telefono.replace(/\s/g, "")}`}
-        className="mt-4 w-full inline-flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-semibold px-5 py-3.5 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
-      >
-        <Phone size={18} aria-hidden="true" />
-        Chiama {f.nome}
-      </a>
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <a
+          href={`tel:${f.telefono.replace(/\s/g, "")}`}
+          className="inline-flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-semibold px-4 py-3.5 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+        >
+          <Phone size={18} aria-hidden="true" />
+          Chiama
+        </a>
+        <button
+          onClick={onScrivi}
+          className="inline-flex items-center justify-center gap-2 bg-white dark:bg-gray-700 hover:bg-slate-50 dark:hover:bg-gray-600 text-notte dark:text-white font-semibold px-4 py-3.5 rounded-xl border border-slate-200 dark:border-gray-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+        >
+          <MessageSquare size={18} aria-hidden="true" />
+          Scrivi
+        </button>
+      </div>
     </div>
   );
 }

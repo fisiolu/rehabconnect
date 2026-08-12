@@ -40,7 +40,15 @@ const notificaTipoIcona: Record<string, string> = {
 };
 
 export default function Navbar() {
-  const { utente, setUtente, notifiche, segnaNotificaLetta, segnaNotificheLette } = useApp();
+  const {
+    utente,
+    setUtente,
+    notifiche,
+    segnaNotificaLetta,
+    segnaNotificheLette,
+    conversazioni,
+    messaggiDiretti,
+  } = useApp();
   const { tema, toggleTema, testoGrande, toggleTesto } = useTema();
   const router = useRouter();
   const [aperto, setAperto] = useState(false);
@@ -48,6 +56,21 @@ export default function Navbar() {
 
   const mieNotifiche = notifiche.filter((n) => n.destinatarioId === utente?.id);
   const nonLette = mieNotifiche.filter((n) => !n.letto).length;
+
+  // Messaggi diretti ancora da leggere, nelle conversazioni che riguardano l'utente.
+  const mieConversazioni = conversazioni.filter((c) =>
+    utente?.ruolo === "paziente"
+      ? c.pazienteId === utente.id
+      : utente?.ruolo === "fisioterapista"
+        ? c.fisioterapistaId === utente.id
+        : false
+  );
+  const messaggiNonLetti = messaggiDiretti.filter(
+    (m) =>
+      !m.letto &&
+      m.mittenteId !== utente?.id &&
+      mieConversazioni.some((c) => c.id === m.conversazioneId)
+  ).length;
 
   useEffect(() => {
     function chiudi(e: MouseEvent) {
@@ -106,8 +129,28 @@ export default function Navbar() {
           </span>
         </div>
 
-        {/* Destra: tema + campanella + esci */}
+        {/* Destra: messaggi + tema + campanella + esci */}
         <div className="flex items-center gap-3 shrink-0">
+          {(utente.ruolo === "paziente" || utente.ruolo === "fisioterapista") && (
+            <Link
+              href="/messaggi"
+              className="relative p-2 rounded-lg text-gray-500 hover:text-blue-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-blue-400 dark:hover:bg-gray-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              aria-label={
+                messaggiNonLetti > 0
+                  ? `Messaggi (${messaggiNonLetti} non letti)`
+                  : "Messaggi"
+              }
+            >
+              <span className="text-lg leading-none" aria-hidden="true">
+                💬
+              </span>
+              {messaggiNonLetti > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
+                  {messaggiNonLetti}
+                </span>
+              )}
+            </Link>
+          )}
           {/* Toggle testo grande */}
           <button
             onClick={toggleTesto}

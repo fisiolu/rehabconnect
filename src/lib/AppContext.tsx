@@ -10,12 +10,16 @@ import {
   Posizione,
   Valutazione,
   FotoEsercizio,
+  Conversazione,
+  MessaggioDiretto,
   richieste as demoRichieste,
   messaggiDemo,
   notificheDemo,
   posizioniDemo,
   valutazioniDemo,
   fotoEserciziDemo,
+  conversazioniDemo,
+  messaggiDirettiDemo,
 } from "./demoData";
 
 interface UtenteCorrente {
@@ -51,6 +55,18 @@ interface AppContextType {
   aggiungiValutazione: (v: Valutazione) => void;
   fotoEsercizi: FotoEsercizio[];
   aggiungiFoto: (f: FotoEsercizio) => void;
+  conversazioni: Conversazione[];
+  messaggiDiretti: MessaggioDiretto[];
+  /** Restituisce la conversazione fra i due, creandola se non esiste ancora. */
+  apriConversazione: (pazienteId: string, fisioterapistaId: string) => string;
+  inviaMessaggioDiretto: (
+    conversazioneId: string,
+    mittenteId: string,
+    ruolo: "paziente" | "fisioterapista",
+    testo: string
+  ) => void;
+  /** Segna come letti i messaggi ricevuti in quella conversazione. */
+  segnaConversazioneLetta: (conversazioneId: string, lettoreId: string) => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -64,6 +80,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [posizioni, setPosizioni] = useState<Record<string, Posizione>>(posizioniDemo);
   const [valutazioni, setValutazioni] = useState<Valutazione[]>(valutazioniDemo);
   const [fotoEsercizi, setFotoEsercizi] = useState<FotoEsercizio[]>(fotoEserciziDemo);
+  const [conversazioni, setConversazioni] = useState<Conversazione[]>(conversazioniDemo);
+  const [messaggiDiretti, setMessaggiDiretti] =
+    useState<MessaggioDiretto[]>(messaggiDirettiDemo);
 
   const aggiornaRichiesta = useCallback(
     (id: string, campi: Partial<Richiesta>) => {
@@ -135,6 +154,58 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setFotoEsercizi((prev) => [...prev, f]);
   }, []);
 
+  const apriConversazione = useCallback(
+    (pazienteId: string, fisioterapistaId: string) => {
+      const esistente = conversazioni.find(
+        (c) => c.pazienteId === pazienteId && c.fisioterapistaId === fisioterapistaId
+      );
+      if (esistente) return esistente.id;
+
+      const nuova: Conversazione = {
+        id: `conv-${pazienteId}-${fisioterapistaId}`,
+        pazienteId,
+        fisioterapistaId,
+        iniziata: new Date().toISOString(),
+      };
+      setConversazioni((prev) => [...prev, nuova]);
+      return nuova.id;
+    },
+    [conversazioni]
+  );
+
+  const inviaMessaggioDiretto = useCallback(
+    (
+      conversazioneId: string,
+      mittenteId: string,
+      ruolo: "paziente" | "fisioterapista",
+      testo: string
+    ) => {
+      setMessaggiDiretti((prev) => [
+        ...prev,
+        {
+          id: `md-${conversazioneId}-${prev.length + 1}-${Math.random().toString(36).slice(2, 7)}`,
+          conversazioneId,
+          mittenteId,
+          ruolo,
+          testo,
+          timestamp: new Date().toISOString(),
+          letto: false,
+        },
+      ]);
+    },
+    []
+  );
+
+  const segnaConversazioneLetta = useCallback((conversazioneId: string, lettoreId: string) => {
+    setMessaggiDiretti((prev) =>
+      prev.map((m) =>
+        m.conversazioneId === conversazioneId && m.mittenteId !== lettoreId && !m.letto
+          ? { ...m, letto: true }
+          : m
+      )
+    );
+  }, []);
+
   return (
     <AppContext.Provider
       value={{
@@ -158,6 +229,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         aggiungiValutazione,
         fotoEsercizi,
         aggiungiFoto,
+        conversazioni,
+        messaggiDiretti,
+        apriConversazione,
+        inviaMessaggioDiretto,
+        segnaConversazioneLetta,
       }}
     >
       {children}
