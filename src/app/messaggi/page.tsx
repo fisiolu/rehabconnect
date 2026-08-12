@@ -64,7 +64,7 @@ export default function MessaggiPage() {
             </h2>
             <p className="text-slate-500 dark:text-slate-400 mb-6 max-w-sm mx-auto">
               {sonoPaziente
-                ? "Trova un fisioterapista nella tua zona e scrivigli: la conversazione comparirà qui."
+                ? "Trova un Fisioterapista nella tua zona e scrivigli: la conversazione comparirà qui."
                 : "Quando un paziente ti scrive, la conversazione comparirà qui."}
             </p>
             {sonoPaziente && (

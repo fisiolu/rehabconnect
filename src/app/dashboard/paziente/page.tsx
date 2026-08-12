@@ -113,7 +113,7 @@ export default function DashboardPaziente() {
         };
         aggiornaPosizione(utente!.id, nuova);
         setStatoGeo("attivo");
-        addToast("Posizione condivisa! Il fisioterapista potrà vederla.", "successo");
+        addToast("Posizione condivisa! Il Fisioterapista potrà vederla.", "successo");
       },
       (err) => {
         setStatoGeo("errore");
@@ -191,7 +191,7 @@ export default function DashboardPaziente() {
                   Oggi compi <strong>{etaOggi} anni</strong>. Tanti auguri di cuore!
                 </p>
                 <p className="text-yellow-200 text-sm mt-1">
-                  Dal tuo medico, dal fisioterapista e da tutto il nostro team
+                  Dal tuo medico, dal Fisioterapista e da tutto il nostro team
                 </p>
               </div>
             </div>
@@ -293,7 +293,7 @@ export default function DashboardPaziente() {
               Tutte le sedute completate!
             </p>
             <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-              Il fisioterapista programmerà le prossime sedute a breve.
+              Il Fisioterapista programmerà le prossime sedute a breve.
             </p>
           </div>
         )}
@@ -523,7 +523,7 @@ export default function DashboardPaziente() {
             </div>
           ) : (
             <p className="text-gray-500 dark:text-gray-400 mb-3">
-              Condividi la tua posizione per permettere al fisioterapista di raggiungerti facilmente.
+              Condividi la tua posizione per permettere al Fisioterapista di raggiungerti facilmente.
             </p>
           )}
 

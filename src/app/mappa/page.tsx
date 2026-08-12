@@ -194,7 +194,7 @@ export default function PaginaMappa() {
             <h2 className="text-base font-semibold mb-3">
               {utente.ruolo === "paziente"
                 ? "La mia posizione"
-                : "La mia posizione (fisioterapista)"}
+                : "La mia posizione (Fisioterapista)"}
             </h2>
 
             {miaPos ? (
@@ -220,7 +220,7 @@ export default function PaginaMappa() {
             ) : (
               <p className="text-gray-500 text-sm mb-3">
                 Nessuna posizione condivisa. Clicca il bottone per condividere la
-                tua posizione attuale con {utente.ruolo === "paziente" ? "il fisioterapista" : "i pazienti"}.
+                tua posizione attuale con {utente.ruolo === "paziente" ? "il Fisioterapista" : "i pazienti"}.
               </p>
             )}
 

@@ -257,7 +257,7 @@ export default function TrovaPage() {
                 <div className="text-center py-10 px-4">
                   <MapPin size={36} className="mx-auto text-slate-300 mb-3" aria-hidden="true" />
                   <p className="text-slate-600 dark:text-slate-300 font-medium mb-1">
-                    Nessun fisioterapista in questa zona
+                    Nessun Fisioterapista in questa zona
                   </p>
                   <p className="text-sm text-slate-500 dark:text-slate-400">
                     Prova a togliere qualche filtro, oppure allarga la ricerca.
@@ -304,7 +304,7 @@ function SceltaPartenza({
           Da dove cerchiamo?
         </h2>
         <p className="text-slate-500 dark:text-slate-400 mb-7">
-          Indica dove ti trovi e ti mostro subito i fisioterapisti più vicini, con le loro
+          Indica dove ti trovi e ti mostro subito i Fisioterapisti più vicini, con le loro
           specialità.
         </p>
 

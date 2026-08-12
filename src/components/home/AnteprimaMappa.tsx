@@ -1,11 +1,12 @@
 import { Phone, Star } from "lucide-react";
+import { FisioCamice, FisioCamicia } from "./Figurine";
 
 const SEGNAPOSTO = [
-  { x: 30, y: 30, etichetta: "800 m", tono: "teal" as const, ritardo: "0s" },
-  { x: 68, y: 22, etichetta: "2,4 km", tono: "teal" as const, ritardo: "0.4s" },
-  { x: 78, y: 62, etichetta: "5,1 km", tono: "teal" as const, ritardo: "0.8s" },
-  { x: 22, y: 70, etichetta: "9 km", tono: "ambra" as const, ritardo: "1.2s" },
-];
+  { x: 28, y: 26, etichetta: "800 m", tono: "teal" as const, ritardo: "0s", figura: "camice" },
+  { x: 70, y: 20, etichetta: "2,4 km", tono: "teal" as const, ritardo: "0.4s", figura: "camicia" },
+  { x: 80, y: 60, etichetta: "5,1 km", tono: "teal" as const, ritardo: "0.8s", figura: "camice" },
+  { x: 20, y: 68, etichetta: "9 km", tono: "ambra" as const, ritardo: "1.2s", figura: "camicia" },
+] as const;
 
 /**
  * Riproduzione statica della schermata di ricerca, per la pagina iniziale.
@@ -65,26 +66,47 @@ export default function AnteprimaMappa() {
           </svg>
 
           {/* Il punto "sei qui" */}
-          <div className="absolute" style={{ left: "48%", top: "46%" }}>
-            <span className="absolute -inset-3 rounded-full bg-primary-500/25 rc-anteprima-alone" />
-            <span className="relative block w-4 h-4 rounded-full bg-primary-600 border-2 border-white shadow-md" />
+          <div
+            className="absolute -translate-x-1/2 -translate-y-full"
+            style={{ left: "48%", top: "50%" }}
+          >
+            <span className="absolute left-1/2 -translate-x-1/2 bottom-0 w-6 h-6 -mb-3 rounded-full bg-primary-500/25 rc-anteprima-alone" />
+            <span className="relative rc-qui">
+              <span className="rc-qui-testo">Tu sei qui</span>
+              <span className="rc-qui-freccia" />
+            </span>
           </div>
 
-          {/* Segnaposto dei fisioterapisti */}
+          {/* Segnaposto dei Fisioterapisti: la figurina dice chi è, la targhetta quanto dista */}
           {SEGNAPOSTO.map((s) => (
             <span
               key={s.etichetta}
-              className={`absolute -translate-x-1/2 -translate-y-1/2 rc-anteprima-pin px-2.5 py-1 rounded-full text-[11px] font-bold text-white border-2 border-white shadow-lg whitespace-nowrap ${
-                s.tono === "teal" ? "bg-teal-500" : "bg-amber-500"
-              }`}
+              className="absolute -translate-x-1/2 -translate-y-1/2 rc-anteprima-pin flex flex-col items-center"
               style={{ left: `${s.x}%`, top: `${s.y}%`, animationDelay: s.ritardo }}
             >
-              {s.etichetta}
+              <span
+                className={`block rounded-full border-2 shadow-lg overflow-hidden ${
+                  s.tono === "teal" ? "border-teal-500" : "border-amber-500"
+                }`}
+              >
+                {s.figura === "camice" ? (
+                  <FisioCamice dimensione={34} />
+                ) : (
+                  <FisioCamicia dimensione={34} />
+                )}
+              </span>
+              <span
+                className={`-mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold text-white border-2 border-white shadow whitespace-nowrap ${
+                  s.tono === "teal" ? "bg-teal-500" : "bg-amber-500"
+                }`}
+              >
+                {s.etichetta}
+              </span>
             </span>
           ))}
         </div>
 
-        {/* Scheda del fisioterapista, come nell'app vera */}
+        {/* Scheda del Fisioterapista, come nell'app vera */}
         <div className="p-4 border-t border-slate-100 dark:border-gray-700">
           <div className="flex items-start justify-between gap-3">
             <div>

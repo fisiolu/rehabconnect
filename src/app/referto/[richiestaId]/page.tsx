@@ -194,7 +194,7 @@ export default function PaginaReferto() {
               </div>
               {richiesta.noteFisioterapista && (
                 <div className="mt-2 bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800 rounded-lg p-3">
-                  <p className="text-xs text-purple-600 dark:text-purple-400 font-medium mb-0.5">Note del fisioterapista</p>
+                  <p className="text-xs text-purple-600 dark:text-purple-400 font-medium mb-0.5">Note del Fisioterapista</p>
                   <p className="text-purple-800 dark:text-purple-300 text-sm">{richiesta.noteFisioterapista}</p>
                 </div>
               )}

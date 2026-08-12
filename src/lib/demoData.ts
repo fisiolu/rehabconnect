@@ -17,7 +17,7 @@ export interface Paziente {
   telefono: string;
   email: string;
   indirizzo: string;
-  /** Coordinate del domicilio: è il punto da cui si misura la vicinanza dei fisioterapisti. */
+  /** Coordinate del domicilio: è il punto da cui si misura la vicinanza dei Fisioterapisti. */
   domicilio: {
     lat: number;
     lng: number;
@@ -670,7 +670,7 @@ export const messaggiDemo: Messaggio[] = [
     mittente: "Dr.ssa Marino",
     mittentId: "med-001",
     ruolo: "medico",
-    testo: "Buongiorno Mario. Ho assegnato la sua riabilitazione alla fisioterapista Anna Ferrari. Si raccomanda di iniziare con movimenti leggeri.",
+    testo: "Buongiorno Mario. Ho assegnato la sua riabilitazione alla Fisioterapista Anna Ferrari. Si raccomanda di iniziare con movimenti leggeri.",
     timestamp: "2026-06-05T09:30:00",
   },
   {
@@ -761,7 +761,7 @@ export const valutazioniDemo: Valutazione[] = [
 export const fotoEserciziDemo: FotoEsercizio[] = [];
 
 /**
- * Conversazione diretta fra un paziente e un fisioterapista.
+ * Conversazione diretta fra un paziente e un Fisioterapista.
  * Nasce dalla ricerca sulla mappa e NON dipende da una richiesta assegnata da un
  * medico: è il paziente che sceglie chi contattare.
  */

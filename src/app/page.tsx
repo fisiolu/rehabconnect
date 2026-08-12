@@ -52,14 +52,14 @@ export default function HomePage() {
             </span>
 
             <h1 className="text-4xl sm:text-5xl lg:text-[3.4rem] font-bold text-notte dark:text-white leading-[1.08] tracking-tight mb-6">
-              Il fisioterapista{" "}
+              Il Fisioterapista{" "}
               <br />
               <span className="text-primary-600 dark:text-primary-400">a casa tua</span>, vicino
               davvero.
             </h1>
 
             <p className="text-lg sm:text-xl text-slate-600 dark:text-slate-300 leading-relaxed mb-9 max-w-xl">
-              Apri l&apos;app e vedi subito quali fisioterapisti lavorano nella tua zona, cosa
+              Apri l&apos;app e vedi subito quali Fisioterapisti lavorano nella tua zona, cosa
               trattano e quanto sono lontani da casa tua. Poi li chiami direttamente.
             </p>
 
@@ -98,7 +98,7 @@ export default function HomePage() {
       <section className="py-16 sm:py-20 bg-notte">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-            Hai bisogno di riabilitazione a domicilio?
+            Hai bisogno del Fisioterapista a domicilio?
           </h2>
           <p className="text-lg text-slate-300 mb-8">
             Bastano pochi secondi per scoprire chi lavora nella tua zona.
@@ -126,9 +126,7 @@ export default function HomePage() {
           >
             Aree riservate
           </h2>
-          <p className="text-slate-500 dark:text-slate-400">
-            Sei già seguito, oppure lavori con noi? Entra nella tua area.
-          </p>
+          <p className="text-slate-500 dark:text-slate-400">Entra nella tua area.</p>
         </div>
 
         <div className="grid sm:grid-cols-3 gap-5">
@@ -136,7 +134,7 @@ export default function HomePage() {
             icon={Accessibility}
             titolo="Paziente"
             sottotitolo="o familiare"
-            descrizione="Segui il tuo percorso, gli appuntamenti e i messaggi con il fisioterapista."
+            descrizione="Segui il tuo percorso, gli appuntamenti e i messaggi con il Fisioterapista."
             ctaLabel="Entra come paziente"
             onClick={() => accedi("paziente")}
             iconBg="bg-primary-50 dark:bg-primary-900/30"
@@ -158,7 +156,7 @@ export default function HomePage() {
             icon={Dumbbell}
             titolo="Fisioterapista"
             descrizione="Fatti trovare dai pazienti della tua zona e gestisci la tua agenda."
-            ctaLabel="Entra come fisioterapista"
+            ctaLabel="Entra come Fisioterapista"
             onClick={() => accedi("fisioterapista")}
             iconBg="bg-notte/10 dark:bg-white/10"
             iconColor="text-notte dark:text-slate-200"
@@ -171,7 +169,7 @@ export default function HomePage() {
             href="/trova"
             className="inline-flex items-center gap-1.5 text-primary-600 dark:text-primary-400 font-semibold hover:gap-2.5 transition-all rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
           >
-            Oppure cerca un fisioterapista senza registrarti
+            Oppure cerca un Fisioterapista senza registrarti
             <ArrowRight size={17} aria-hidden="true" />
           </Link>
         </p>

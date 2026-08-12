@@ -411,7 +411,7 @@ export default function DashboardFisioterapista() {
               </div>
 
               <div className="flex flex-wrap gap-2 text-sm text-gray-600">
-                <span className="flex items-center gap-1.5">🏃 Tu (fisioterapista)</span>
+                <span className="flex items-center gap-1.5">🏃 Tu (Fisioterapista)</span>
                 <span className="flex items-center gap-1.5">🧑‍🦽 Paziente</span>
                 <span className="ml-auto text-xs text-gray-400">{markers.length} posizione{markers.length !== 1 ? "i" : ""}</span>
               </div>

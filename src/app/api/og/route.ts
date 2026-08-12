@@ -65,7 +65,7 @@ export function GET() {
             marginBottom: "28px",
           },
         },
-        "Il fisioterapista a casa tua,"
+        "Il Fisioterapista a casa tua,"
       ),
       e(
         "div",

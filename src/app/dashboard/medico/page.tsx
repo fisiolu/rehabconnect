@@ -183,7 +183,7 @@ export default function DashboardMedico() {
                   </div>
 
                   <div>
-                    <label className="label">Note cliniche per il fisioterapista</label>
+                    <label className="label">Note cliniche per il Fisioterapista</label>
                     <textarea
                       className="input-field min-h-[70px] resize-none"
                       placeholder="Indicazioni cliniche, controindicazioni, obiettivi riabilitativi..."
@@ -194,7 +194,7 @@ export default function DashboardMedico() {
 
                   <div>
                     <label className="label">
-                      Assegna a fisioterapista{" "}
+                      Assegna a Fisioterapista{" "}
                       <span className="text-red-500">*</span>
                     </label>
                     <select
@@ -202,7 +202,7 @@ export default function DashboardMedico() {
                       value={fisSelezionato}
                       onChange={(e) => setFisSelezionato(e.target.value)}
                     >
-                      <option value="">— Seleziona fisioterapista —</option>
+                      <option value="">— Seleziona Fisioterapista —</option>
                       {fisDisponibili.map((f) => (
                         <option key={f.id} value={f.id}>
                           {f.nome} {f.cognome} — {f.specializzazioni[0]} (★ {f.valutazione})
@@ -211,7 +211,7 @@ export default function DashboardMedico() {
                     </select>
                     {fisDisponibili.length === 0 && (
                       <p className="text-sm text-orange-600 mt-1">
-                        Nessun fisioterapista disponibile al momento.
+                        Nessun Fisioterapista disponibile al momento.
                       </p>
                     )}
                   </div>

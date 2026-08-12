@@ -77,7 +77,7 @@ export default function ConversazionePage() {
   const paziente = pazienti.find((p) => p.id === conversazione.pazienteId);
   const sonoPaziente = utente.ruolo === "paziente";
 
-  // Il paziente vede il fisioterapista, e viceversa.
+  // Il paziente vede il Fisioterapista, e viceversa.
   const controparte = sonoPaziente
     ? { nome: fisio ? `${fisio.nome} ${fisio.cognome}` : "Fisioterapista", sottotitolo: fisio?.specializzazioni.join(" · ") ?? "", telefono: fisio?.telefono }
     : { nome: paziente ? `${paziente.nome} ${paziente.cognome}` : "Paziente", sottotitolo: paziente?.indirizzo ?? "", telefono: paziente?.telefono };

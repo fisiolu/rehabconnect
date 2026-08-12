@@ -1,4 +1,5 @@
 import { ShieldCheck } from "lucide-react";
+import LogoUfficiale from "@/components/LogoUfficiale";
 
 interface FooterHomeProps {
   onAdminClick: () => void;
@@ -11,12 +12,8 @@ export default function FooterHome({ onAdminClick }: FooterHomeProps) {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-8">
           <div className="col-span-2 sm:col-span-1">
             <div className="flex items-center gap-2.5 font-bold text-white mb-3">
-              <span className="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center shrink-0">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
-                  <circle cx="6" cy="6" r="3" />
-                  <circle cx="18" cy="18" r="3" />
-                  <path d="M8.5 8.5l7 7" />
-                </svg>
+              <span className="rounded-lg bg-white/95 p-0.5 shrink-0">
+                <LogoUfficiale dimensione={38} />
               </span>
               <span className="leading-[1.05]">
                 Fisioterapista
@@ -25,8 +22,7 @@ export default function FooterHome({ onAdminClick }: FooterHomeProps) {
               </span>
             </div>
             <p className="text-sm text-slate-400 leading-relaxed">
-              La piattaforma che connette pazienti, medici e fisioterapisti per la
-              riabilitazione domiciliare.
+              La piattaforma che connette pazienti e Fisioterapisti per un servizio domiciliare.
             </p>
           </div>
 

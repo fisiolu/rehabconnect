@@ -6,21 +6,21 @@ const passi = [
     icon: Crosshair,
     titolo: "Dici dove sei",
     testo:
-      "Premi un pulsante e l'app rileva la tua posizione. Se preferisci non darla, scegli semplicemente la tua città.",
+      "Premi un pulsante e l'app rileva la tua posizione. Altrimenti scegli semplicemente la tua città.",
   },
   {
     numero: "2",
     icon: Map,
     titolo: "Vedi chi c'è vicino",
     testo:
-      "Sulla mappa compaiono i fisioterapisti della tua zona, ciascuno con la distanza da casa tua e le sue specialità.",
+      "Sulla mappa compaiono i Fisioterapisti della tua zona, ciascuno con la distanza da casa tua e le sue specialità.",
   },
   {
     numero: "3",
     icon: PhoneCall,
     titolo: "Lo contatti direttamente",
     testo:
-      "Apri la scheda, controlli esperienza e valutazioni, e lo chiami. Senza liste d'attesa e senza passaparola.",
+      "Apri la scheda, controlli esperienza e valutazioni e lo chiami. Senza attesa e senza passaparola.",
   },
 ];
 
@@ -40,8 +40,8 @@ export default function ComeFunziona() {
             Tre passaggi, un minuto
           </h2>
           <p className="text-lg text-slate-500 dark:text-slate-400">
-            Non serve registrarsi per guardare. Apri, cerca, e vedi subito chi lavora vicino a
-            casa tua.
+            Non serve registrarsi. Apri, cerca, e vedi subito il Fisioterapista che lavora
+            vicino a casa tua.
           </p>
         </div>
 

@@ -5,6 +5,7 @@ import type { Map as LeafletMap, Marker } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { RisultatoRicerca } from "@/lib/geo";
 import { formattaDistanza } from "@/lib/geo";
+import { figuraPer, htmlSegnaposto, htmlTuSeiQui } from "@/lib/figurine";
 
 interface Props {
   /** Posizione del paziente: il puntino "sei qui". */
@@ -17,7 +18,7 @@ interface Props {
 
 /**
  * Mappa in stile "car sharing": al centro c'è l'utente, attorno i segnaposto
- * dei fisioterapisti. Toccando un segnaposto si apre la sua scheda.
+ * dei Fisioterapisti. Toccando un segnaposto si apre la sua scheda.
  */
 export default function MappaRicerca({
   centro,
@@ -56,18 +57,17 @@ export default function MappaRicerca({
         maxZoom: 19,
       }).addTo(mappa);
 
-      // Il puntino azzurro pulsante: "sei qui".
+      // La freccina che indica il punto esatto del paziente.
       L.marker([centro.lat, centro.lng], {
         icon: L.divIcon({
           className: "",
-          html: `<div class="rc-tu"><span class="rc-tu-alone"></span><span class="rc-tu-punto"></span></div>`,
-          iconSize: [22, 22],
-          iconAnchor: [11, 11],
+          html: htmlTuSeiQui(),
+          iconSize: [90, 34],
+          // La punta della freccia deve cadere esattamente sulle coordinate.
+          iconAnchor: [45, 34],
         }),
         zIndexOffset: 1000,
-      })
-        .addTo(mappa)
-        .bindPopup("<strong>Tu sei qui</strong>");
+      }).addTo(mappa);
 
       risultati.forEach(({ fisioterapista, distanzaKm, raggiungibile }) => {
         const colore = !fisioterapista.disponibile
@@ -79,11 +79,13 @@ export default function MappaRicerca({
         const marker = L.marker([fisioterapista.base.lat, fisioterapista.base.lng], {
           icon: L.divIcon({
             className: "",
-            html: `<div class="rc-pin" style="--rc-colore:${colore}">
-                     <span class="rc-pin-testo">${formattaDistanza(distanzaKm)}</span>
-                   </div>`,
-            iconSize: [58, 30],
-            iconAnchor: [29, 30],
+            html: htmlSegnaposto(
+              formattaDistanza(distanzaKm),
+              colore,
+              figuraPer(fisioterapista.id)
+            ),
+            iconSize: [50, 52],
+            iconAnchor: [25, 52],
           }),
         }).addTo(mappa);
 
@@ -91,7 +93,7 @@ export default function MappaRicerca({
         markersRef.current[fisioterapista.id] = marker;
       });
 
-      // Inquadratura iniziale: l'utente più i fisioterapisti più vicini.
+      // Inquadratura iniziale: l'utente più i Fisioterapisti più vicini.
       const daInquadrare = risultati.slice(0, 5);
       if (daInquadrare.length > 0) {
         const bounds = L.latLngBounds([
@@ -117,8 +119,8 @@ export default function MappaRicerca({
   // Quando cambia la selezione: evidenzia il segnaposto e centra la mappa su di esso.
   useEffect(() => {
     Object.entries(markersRef.current).forEach(([id, marker]) => {
-      const elemento = marker.getElement()?.querySelector(".rc-pin");
-      elemento?.classList.toggle("rc-pin-attivo", id === selezionatoId);
+      const elemento = marker.getElement()?.querySelector(".rc-fig");
+      elemento?.classList.toggle("rc-fig-attivo", id === selezionatoId);
     });
 
     if (!selezionatoId || !mapRef.current) return;

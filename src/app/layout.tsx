@@ -40,7 +40,7 @@ export const metadata: Metadata = {
         url: "/api/og",
         width: 1200,
         height: 630,
-        alt: "Fisioterapista Domiciliare — il fisioterapista a casa tua, vicino davvero",
+        alt: "Fisioterapista Domiciliare — il Fisioterapista a casa tua, vicino davvero",
       },
     ],
   },
@@ -99,7 +99,7 @@ export default function RootLayout({
                 {
                   "@type": "Service",
                   "@id": `${BASE}/#servizio`,
-                  name: "Ricerca di fisioterapisti a domicilio",
+                  name: "Ricerca di Fisioterapisti a domicilio",
                   serviceType: "Fisioterapia domiciliare",
                   description: DESCRIZIONE,
                   areaServed: { "@type": "Country", name: "Italia" },

@@ -8,7 +8,7 @@ export const NOME_SITO = "Fisioterapista Domiciliare";
 export const CLAIM = "Trova chi lavora vicino a te";
 
 export const DESCRIZIONE =
-  "Vedi sulla mappa quali fisioterapisti a domicilio lavorano nella tua zona, con le loro specialità e la distanza da casa tua. Nessuna registrazione per cercare.";
+  "Vedi sulla mappa quali Fisioterapisti a domicilio lavorano nella tua zona, con le loro specialità e la distanza da casa tua. Nessuna registrazione per cercare.";
 
 /**
  * Indirizzo pubblico del sito.

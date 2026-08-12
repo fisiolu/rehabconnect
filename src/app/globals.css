@@ -78,27 +78,74 @@ html.testo-grande {
   font-size: 20px;
 }
 
-/* Mappa ricerca — segnaposto in stile car sharing */
-.rc-tu {
-  position: relative;
-  width: 22px;
-  height: 22px;
+/* Segnaposto con figurina — usati sia dalla mappa vera sia dall'anteprima */
+.rc-fig {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    filter 0.15s ease;
 }
-.rc-tu-punto {
-  position: absolute;
-  inset: 4px;
-  background: #2563eb;
+.rc-fig-tondo {
+  display: block;
+  border-radius: 9999px;
+  border: 2px solid;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  line-height: 0;
+}
+.rc-fig-targa {
+  margin-top: -4px;
+  padding: 1px 7px;
+  border-radius: 9999px;
   border: 2px solid #fff;
-  border-radius: 9999px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
-.rc-tu-alone {
-  position: absolute;
-  inset: 0;
-  background: rgba(37, 99, 235, 0.35);
-  border-radius: 9999px;
-  animation: rc-pulsa 2s ease-out infinite;
+.rc-fig:hover {
+  transform: scale(1.06);
 }
+.rc-fig-attivo {
+  transform: scale(1.14);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.45));
+  z-index: 500;
+}
+
+/* Freccina "Tu sei qui" che indica il punto esatto del paziente */
+.rc-qui {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+}
+.rc-qui-testo {
+  background: #2563eb;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 9px;
+  border-radius: 9999px;
+  border: 2px solid #fff;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+.rc-qui-freccia {
+  width: 0;
+  height: 0;
+  margin-top: -1px;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 9px solid #2563eb;
+  filter: drop-shadow(0 1px 1px rgba(255, 255, 255, 0.9));
+}
+
+/* Anteprima della mappa nella pagina iniziale */
 @keyframes rc-pulsa {
   0% {
     transform: scale(0.6);
@@ -109,45 +156,6 @@ html.testo-grande {
     opacity: 0;
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .rc-tu-alone {
-    animation: none;
-  }
-}
-
-.rc-pin {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 52px;
-  height: 26px;
-  padding: 0 8px;
-  background: var(--rc-colore, #14b8a6);
-  color: #fff;
-  border: 2px solid #fff;
-  border-radius: 9999px;
-  font-size: 12px;
-  font-weight: 700;
-  white-space: nowrap;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
-  cursor: pointer;
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
-}
-.rc-pin:hover {
-  transform: scale(1.08);
-}
-.rc-pin-attivo {
-  transform: scale(1.18);
-  box-shadow:
-    0 0 0 3px #fff,
-    0 0 0 6px var(--rc-colore, #14b8a6),
-    0 4px 10px rgba(0, 0, 0, 0.4);
-  z-index: 500;
-}
-
-/* Anteprima della mappa nella pagina iniziale */
 .rc-anteprima-alone {
   animation: rc-pulsa 2.4s ease-out infinite;
 }

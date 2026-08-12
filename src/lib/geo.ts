@@ -46,12 +46,12 @@ export interface FiltriRicerca {
 export interface RisultatoRicerca {
   fisioterapista: Fisioterapista;
   distanzaKm: number;
-  /** Il domicilio del paziente rientra nel raggio dichiarato dal fisioterapista. */
+  /** Il domicilio del paziente rientra nel raggio dichiarato dal Fisioterapista. */
   raggiungibile: boolean;
 }
 
 /**
- * Ordina i fisioterapisti dal più vicino al più lontano rispetto al domicilio
+ * Ordina i Fisioterapisti dal più vicino al più lontano rispetto al domicilio
  * del paziente, applicando i filtri richiesti.
  */
 export function cercaFisioterapistiVicini(
