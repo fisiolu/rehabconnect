@@ -154,7 +154,22 @@ export default function HomePage() {
               ring="focus-visible:ring-primary-500"
             />
           </Rivela>
+          {/* Il Fisioterapista sta in mezzo: è l'altra metà dell'incontro che
+              la piattaforma serve. Il medico viene dopo, perché nel percorso
+              è di supporto e non passaggio obbligato. */}
           <Rivela className="h-full" ritardo={110}>
+            <PercorsoCard
+              icon={HandHelping}
+              titolo="Fisioterapista"
+              descrizione="Fatti trovare dai pazienti della tua zona e gestisci la tua agenda."
+              ctaLabel="Entra come Fisioterapista"
+              onClick={() => accedi("fisioterapista")}
+              iconBg="bg-notte/10 dark:bg-white/10"
+              iconColor="text-notte dark:text-slate-200"
+              ring="focus-visible:ring-notte"
+            />
+          </Rivela>
+          <Rivela className="h-full" ritardo={220}>
             <PercorsoCard
               icon={Stethoscope}
               titolo="Medico"
@@ -165,18 +180,6 @@ export default function HomePage() {
               iconBg="bg-teal-50 dark:bg-teal-900/30"
               iconColor="text-teal-600 dark:text-teal-400"
               ring="focus-visible:ring-teal-500"
-            />
-          </Rivela>
-          <Rivela className="h-full" ritardo={220}>
-            <PercorsoCard
-              icon={HandHelping}
-              titolo="Fisioterapista"
-              descrizione="Fatti trovare dai pazienti della tua zona e gestisci la tua agenda."
-              ctaLabel="Entra come Fisioterapista"
-              onClick={() => accedi("fisioterapista")}
-              iconBg="bg-notte/10 dark:bg-white/10"
-              iconColor="text-notte dark:text-slate-200"
-              ring="focus-visible:ring-notte"
             />
           </Rivela>
         </div>
