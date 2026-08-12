@@ -11,6 +11,7 @@ import ComeFunziona from "@/components/home/ComeFunziona";
 import PercheFidarsi from "@/components/home/PercheFidarsi";
 import PercorsoCard from "@/components/home/PercorsoCard";
 import FooterHome from "@/components/home/FooterHome";
+import Rivela from "@/components/Rivela";
 
 function getUtenteDemo(ruolo: string) {
   if (ruolo === "paziente") {
@@ -46,24 +47,30 @@ export default function HomePage() {
       <section className="relative overflow-hidden bg-gradient-to-b from-sfondo to-white dark:from-gray-900 dark:to-gray-900">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-14 pb-20 sm:pt-20 sm:pb-28 grid lg:grid-cols-2 gap-14 lg:gap-12 items-center">
           <div>
-            <span className="inline-flex items-center gap-2 bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 text-sm font-semibold px-3.5 py-1.5 rounded-full mb-6 border border-teal-200 dark:border-teal-800">
-              <MapPin size={15} aria-hidden="true" />
-              In tutta Italia
-            </span>
+            <Rivela>
+              <span className="inline-flex items-center gap-2 bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 text-sm font-semibold px-3.5 py-1.5 rounded-full mb-6 border border-teal-200 dark:border-teal-800">
+                <MapPin size={15} aria-hidden="true" />
+                In tutta Italia
+              </span>
+            </Rivela>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-[3.4rem] font-bold text-notte dark:text-white leading-[1.08] tracking-tight mb-6">
-              Il Fisioterapista{" "}
-              <br />
-              <span className="text-primary-600 dark:text-primary-400">a casa tua</span>, vicino
-              davvero.
-            </h1>
+            <Rivela ritardo={90}>
+              <h1 className="text-4xl sm:text-5xl lg:text-[3.4rem] font-bold text-notte dark:text-white leading-[1.08] tracking-tight mb-6">
+                Il Fisioterapista{" "}
+                <br />
+                <span className="text-primary-600 dark:text-primary-400">a casa tua</span>, vicino
+                davvero.
+              </h1>
+            </Rivela>
 
-            <p className="text-lg sm:text-xl text-slate-600 dark:text-slate-300 leading-relaxed mb-9 max-w-xl">
-              Apri l&apos;app e vedi subito quali Fisioterapisti lavorano nella tua zona, cosa
-              trattano e quanto sono lontani da casa tua. Poi li chiami direttamente.
-            </p>
+            <Rivela ritardo={180}>
+              <p className="text-lg sm:text-xl text-slate-600 dark:text-slate-300 leading-relaxed mb-9 max-w-xl">
+                Apri l&apos;app e vedi subito quali Fisioterapisti lavorano nella tua zona, cosa
+                trattano e quanto sono lontani da casa tua. Poi li chiami direttamente.
+              </p>
+            </Rivela>
 
-            <div className="flex flex-col sm:flex-row gap-3">
+            <Rivela ritardo={270} className="flex flex-col sm:flex-row gap-3">
               <Link
                 href="/trova"
                 className="inline-flex items-center justify-center gap-2.5 bg-primary-600 hover:bg-primary-700 text-white font-bold text-lg px-7 py-4 rounded-2xl transition-all shadow-lg shadow-primary-600/25 hover:shadow-xl hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
@@ -77,16 +84,20 @@ export default function HomePage() {
               >
                 Come funziona
               </a>
+            </Rivela>
+
+            <Rivela ritardo={360}>
+              <p className="text-sm text-slate-400 dark:text-slate-500 mt-5">
+                Nessuna registrazione per cercare · Versione dimostrativa
+              </p>
+            </Rivela>
+          </div>
+
+          <Rivela ritardo={200} className="lg:pl-4">
+            <div className="rc-galleggia">
+              <AnteprimaMappa />
             </div>
-
-            <p className="text-sm text-slate-400 dark:text-slate-500 mt-5">
-              Nessuna registrazione per cercare · Versione dimostrativa
-            </p>
-          </div>
-
-          <div className="lg:pl-4">
-            <AnteprimaMappa />
-          </div>
+          </Rivela>
         </div>
       </section>
 
@@ -96,7 +107,7 @@ export default function HomePage() {
 
       {/* ---------- Richiamo finale ---------- */}
       <section className="py-16 sm:py-20 bg-notte">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
+        <Rivela className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
             Hai bisogno del Fisioterapista a domicilio?
           </h2>
@@ -110,7 +121,7 @@ export default function HomePage() {
             <MapPin size={21} aria-hidden="true" />
             Cerca vicino a me
           </Link>
-        </div>
+        </Rivela>
       </section>
 
       {/* ---------- Aree riservate ---------- */}
@@ -119,7 +130,7 @@ export default function HomePage() {
         className="max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-20"
         aria-labelledby="percorsi-titolo"
       >
-        <div className="text-center max-w-xl mx-auto mb-10">
+        <Rivela className="text-center max-w-xl mx-auto mb-10">
           <h2
             id="percorsi-titolo"
             className="text-2xl sm:text-3xl font-bold text-notte dark:text-white mb-3"
@@ -127,41 +138,47 @@ export default function HomePage() {
             Aree riservate
           </h2>
           <p className="text-slate-500 dark:text-slate-400">Entra nella tua area.</p>
-        </div>
+        </Rivela>
 
         <div className="grid sm:grid-cols-3 gap-5">
-          <PercorsoCard
-            icon={Accessibility}
-            titolo="Paziente"
-            sottotitolo="o familiare"
-            descrizione="Segui il tuo percorso, gli appuntamenti e i messaggi con il Fisioterapista."
-            ctaLabel="Entra come paziente"
-            onClick={() => accedi("paziente")}
-            iconBg="bg-primary-50 dark:bg-primary-900/30"
-            iconColor="text-primary-600 dark:text-primary-400"
-            ring="focus-visible:ring-primary-500"
-          />
-          <PercorsoCard
-            icon={Stethoscope}
-            titolo="Medico"
-            sottotitolo="o centro"
-            descrizione="Valuta le richieste dei tuoi assistiti e indirizzali al professionista giusto."
-            ctaLabel="Entra come medico"
-            onClick={() => accedi("medico")}
-            iconBg="bg-teal-50 dark:bg-teal-900/30"
-            iconColor="text-teal-600 dark:text-teal-400"
-            ring="focus-visible:ring-teal-500"
-          />
-          <PercorsoCard
-            icon={HandHelping}
-            titolo="Fisioterapista"
-            descrizione="Fatti trovare dai pazienti della tua zona e gestisci la tua agenda."
-            ctaLabel="Entra come Fisioterapista"
-            onClick={() => accedi("fisioterapista")}
-            iconBg="bg-notte/10 dark:bg-white/10"
-            iconColor="text-notte dark:text-slate-200"
-            ring="focus-visible:ring-notte"
-          />
+          <Rivela className="h-full">
+            <PercorsoCard
+              icon={Accessibility}
+              titolo="Paziente"
+              sottotitolo="o familiare"
+              descrizione="Segui il tuo percorso, gli appuntamenti e i messaggi con il Fisioterapista."
+              ctaLabel="Entra come paziente"
+              onClick={() => accedi("paziente")}
+              iconBg="bg-primary-50 dark:bg-primary-900/30"
+              iconColor="text-primary-600 dark:text-primary-400"
+              ring="focus-visible:ring-primary-500"
+            />
+          </Rivela>
+          <Rivela className="h-full" ritardo={110}>
+            <PercorsoCard
+              icon={Stethoscope}
+              titolo="Medico"
+              sottotitolo="o centro"
+              descrizione="Valuta le richieste dei tuoi assistiti e indirizzali al professionista giusto."
+              ctaLabel="Entra come medico"
+              onClick={() => accedi("medico")}
+              iconBg="bg-teal-50 dark:bg-teal-900/30"
+              iconColor="text-teal-600 dark:text-teal-400"
+              ring="focus-visible:ring-teal-500"
+            />
+          </Rivela>
+          <Rivela className="h-full" ritardo={220}>
+            <PercorsoCard
+              icon={HandHelping}
+              titolo="Fisioterapista"
+              descrizione="Fatti trovare dai pazienti della tua zona e gestisci la tua agenda."
+              ctaLabel="Entra come Fisioterapista"
+              onClick={() => accedi("fisioterapista")}
+              iconBg="bg-notte/10 dark:bg-white/10"
+              iconColor="text-notte dark:text-slate-200"
+              ring="focus-visible:ring-notte"
+            />
+          </Rivela>
         </div>
 
         <p className="text-center mt-8">

@@ -1,4 +1,5 @@
 import { BadgeCheck, Home, MessageSquareHeart, Route } from "lucide-react";
+import Rivela from "@/components/Rivela";
 
 const motivi = [
   {
@@ -34,7 +35,7 @@ export default function PercheFidarsi() {
       aria-labelledby="fiducia-titolo"
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="text-center max-w-2xl mx-auto mb-12">
+        <Rivela className="text-center max-w-2xl mx-auto mb-12">
           <h2
             id="fiducia-titolo"
             className="text-3xl sm:text-4xl font-bold text-notte dark:text-white mb-4"
@@ -45,12 +46,13 @@ export default function PercheFidarsi() {
             Affidare un familiare a un professionista è una scelta delicata. Ti diamo gli elementi
             per farla con serenità.
           </p>
-        </div>
+        </Rivela>
 
         <div className="grid sm:grid-cols-2 gap-5">
-          {motivi.map((m) => (
-            <div
+          {motivi.map((m, i) => (
+            <Rivela
               key={m.titolo}
+              ritardo={i * 100}
               className="flex gap-4 bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 p-5 sm:p-6"
             >
               <span className="w-12 h-12 rounded-xl bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0">
@@ -62,7 +64,7 @@ export default function PercheFidarsi() {
                   {m.testo}
                 </p>
               </div>
-            </div>
+            </Rivela>
           ))}
         </div>
       </div>

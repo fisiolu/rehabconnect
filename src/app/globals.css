@@ -78,6 +78,53 @@ html.testo-grande {
   font-size: 20px;
 }
 
+/* ---------------------------------------------------------------------------
+   Movimento
+   Regole tenute brevi e discrete: il pubblico comprende persone anziane, per
+   cui animazioni lunghe o ampie disorientano invece di piacere. Tutto vive
+   dentro `prefers-reduced-motion: no-preference`, così chi ha chiesto meno
+   animazioni al sistema non vede muoversi niente. La classe `js` viene messa
+   dallo script nel <head>: senza JavaScript nulla viene nascosto.
+   --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+  .js .rivela {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  .js .rivela-visibile {
+    opacity: 1;
+    transform: none;
+    /* Curva morbida in uscita: parte decisa e si posa, senza rimbalzi */
+    transition:
+      opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* L'anteprima della mappa respira piano: è decorativa, non si legge */
+  .rc-galleggia {
+    animation: rc-galleggio 7s ease-in-out infinite;
+  }
+  @keyframes rc-galleggio {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-9px);
+    }
+  }
+
+  /* L'intestazione si stacca dalla pagina quando si scorre */
+  .rc-intestazione {
+    transition:
+      box-shadow 0.3s ease,
+      border-color 0.3s ease;
+  }
+  .rc-intestazione-staccata {
+    box-shadow: 0 4px 20px -8px rgba(18, 50, 74, 0.25);
+  }
+}
+
 /* Segnaposto con figurina — usati sia dalla mappa vera sia dall'anteprima */
 .rc-fig {
   display: flex;

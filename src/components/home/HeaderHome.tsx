@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { MapPin, Menu, X } from "lucide-react";
 import LogoUfficiale from "@/components/LogoUfficiale";
@@ -13,9 +13,23 @@ const linkNav = [
 
 export default function HeaderHome() {
   const [menuAperto, setMenuAperto] = useState(false);
+  const [staccata, setStaccata] = useState(false);
+
+  // L'intestazione prende un'ombra appena si comincia a scorrere: si stacca
+  // dalla pagina e resta leggibile sopra i contenuti.
+  useEffect(() => {
+    const alloScorrimento = () => setStaccata(window.scrollY > 8);
+    alloScorrimento();
+    window.addEventListener("scroll", alloScorrimento, { passive: true });
+    return () => window.removeEventListener("scroll", alloScorrimento);
+  }, []);
 
   return (
-    <header className="sticky top-0 z-40 bg-white/90 dark:bg-gray-900/95 backdrop-blur-sm border-b border-slate-200 dark:border-gray-800">
+    <header
+      className={`rc-intestazione sticky top-0 z-40 bg-white/90 dark:bg-gray-900/95 backdrop-blur-sm border-b border-slate-200 dark:border-gray-800 ${
+        staccata ? "rc-intestazione-staccata" : ""
+      }`}
+    >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         <Link
           href="/"

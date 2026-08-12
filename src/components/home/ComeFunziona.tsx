@@ -1,4 +1,5 @@
 import { Crosshair, Map, PhoneCall } from "lucide-react";
+import Rivela from "@/components/Rivela";
 
 const passi = [
   {
@@ -32,7 +33,7 @@ export default function ComeFunziona() {
       aria-labelledby="come-funziona-titolo"
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="text-center max-w-2xl mx-auto mb-14">
+        <Rivela className="text-center max-w-2xl mx-auto mb-14">
           <h2
             id="come-funziona-titolo"
             className="text-3xl sm:text-4xl font-bold text-notte dark:text-white mb-4"
@@ -43,11 +44,11 @@ export default function ComeFunziona() {
             Non serve registrarsi. Apri, cerca, e vedi subito il Fisioterapista che lavora
             vicino a casa tua.
           </p>
-        </div>
+        </Rivela>
 
         <ol className="grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-8">
-          {passi.map((p) => (
-            <li key={p.numero} className="relative">
+          {passi.map((p, i) => (
+            <Rivela key={p.numero} come="li" className="relative" ritardo={i * 120}>
               <div className="flex items-center gap-4 mb-4">
                 <span className="relative w-14 h-14 rounded-2xl bg-primary-600 text-white flex items-center justify-center shrink-0 shadow-md">
                   <p.icon size={24} aria-hidden="true" />
@@ -58,7 +59,7 @@ export default function ComeFunziona() {
                 <h3 className="text-xl font-bold text-notte dark:text-white">{p.titolo}</h3>
               </div>
               <p className="text-slate-500 dark:text-slate-400 leading-relaxed">{p.testo}</p>
-            </li>
+            </Rivela>
           ))}
         </ol>
       </div>
