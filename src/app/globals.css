@@ -125,6 +125,22 @@ html.testo-grande {
   }
 }
 
+/* Il microfono pulsa mentre sta ascoltando: si vede che è acceso */
+@keyframes rc-respiro {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.55);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(220, 38, 38, 0);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .rc-ascolto {
+    animation: rc-respiro 1.6s ease-out infinite;
+  }
+}
+
 /* Segnaposto con figurina — usati sia dalla mappa vera sia dall'anteprima */
 .rc-fig {
   display: flex;

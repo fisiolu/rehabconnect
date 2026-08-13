@@ -6,6 +6,8 @@ import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Phone, Send } from "lucide-react";
 import { useApp } from "@/lib/AppContext";
 import { fisioterapisti, pazienti } from "@/lib/demoData";
+import { risposteFor } from "@/lib/risposteRapide";
+import DettaturaVocale from "@/components/DettaturaVocale";
 
 export default function ConversazionePage() {
   const { conversazioneId } = useParams<{ conversazioneId: string }>();
@@ -82,18 +84,32 @@ export default function ConversazionePage() {
     ? { nome: fisio ? `${fisio.nome} ${fisio.cognome}` : "Fisioterapista", sottotitolo: fisio?.specializzazioni.join(" · ") ?? "", telefono: fisio?.telefono }
     : { nome: paziente ? `${paziente.nome} ${paziente.cognome}` : "Paziente", sottotitolo: paziente?.indirizzo ?? "", telefono: paziente?.telefono };
 
-  function invia(e: React.FormEvent) {
-    e.preventDefault();
-    const testo = bozza.trim();
-    if (!testo || !utente) return;
+  function inviaTesto(testo: string) {
+    const pulito = testo.trim();
+    if (!pulito || !utente) return;
     inviaMessaggioDiretto(
       conversazioneId,
       utente.id,
       sonoPaziente ? "paziente" : "fisioterapista",
-      testo
+      pulito
     );
     setBozza("");
   }
+
+  function invia(e: React.FormEvent) {
+    e.preventDefault();
+    inviaTesto(bozza);
+  }
+
+  /** Il testo dettato si aggiunge a quello già presente, non lo sostituisce. */
+  function aggiungiDettato(testo: string) {
+    setBozza((prima) => (prima ? `${prima} ${testo}` : testo));
+  }
+
+  const risposte = risposteFor(
+    sonoPaziente ? "paziente" : "fisioterapista",
+    messaggi.length === 0
+  );
 
   return (
     <div className="min-h-screen bg-sfondo dark:bg-gray-900 flex flex-col">
@@ -168,10 +184,25 @@ export default function ConversazionePage() {
         </div>
       </div>
 
-      <form
-        onSubmit={invia}
-        className="bg-white dark:bg-gray-800 border-t border-slate-200 dark:border-gray-700 sticky bottom-0"
-      >
+      <div className="bg-white dark:bg-gray-800 border-t border-slate-200 dark:border-gray-700 sticky bottom-0">
+        {/* Frasi pronte: un tocco al posto di digitare su una tastiera piccola */}
+        <div className="max-w-3xl mx-auto px-4 pt-3">
+          <ul className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+            {risposte.map((frase) => (
+              <li key={frase}>
+                <button
+                  type="button"
+                  onClick={() => inviaTesto(frase)}
+                  className="whitespace-nowrap px-3.5 py-2 rounded-full bg-primary-50 dark:bg-gray-700 text-primary-800 dark:text-primary-200 text-sm font-medium border border-primary-100 dark:border-gray-600 hover:bg-primary-100 dark:hover:bg-gray-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                >
+                  {frase}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <form onSubmit={invia}>
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-end gap-2">
           <label htmlFor="messaggio" className="sr-only">
             Scrivi un messaggio
@@ -187,19 +218,22 @@ export default function ConversazionePage() {
               }
             }}
             rows={1}
-            placeholder="Scrivi un messaggio…"
-            className="input-field flex-1 py-3 resize-none max-h-32"
+            placeholder="Scrivi, oppure detta col microfono…"
+            className="input-field flex-1 py-3.5 text-base resize-none max-h-32"
           />
+          <DettaturaVocale onTesto={aggiungiDettato} />
           <button
             type="submit"
             disabled={!bozza.trim()}
-            className="shrink-0 inline-flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold px-5 py-3 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+            aria-label="Invia il messaggio"
+            className="shrink-0 inline-flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold h-[52px] px-5 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
           >
-            <Send size={18} aria-hidden="true" />
+            <Send size={20} aria-hidden="true" />
             <span className="hidden sm:inline">Invia</span>
           </button>
         </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 }
