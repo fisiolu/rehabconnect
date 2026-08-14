@@ -5,6 +5,7 @@ import { useApp } from "@/lib/AppContext";
 import { useTema } from "@/components/ThemeProvider";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import LogoUfficiale from "@/components/LogoUfficiale";
 
 const ruoloLabel: Record<string, string> = {
   paziente: "Paziente",
@@ -107,10 +108,10 @@ export default function Navbar() {
         {/* Logo */}
         <Link
           href="/"
-          className="flex items-center gap-2 font-bold text-blue-600 hover:text-blue-700 transition-colors shrink-0"
+          className="flex items-center gap-2.5 font-bold text-blue-600 hover:text-blue-700 transition-colors shrink-0"
           aria-label="Torna alla scelta del ruolo"
         >
-          <span className="text-lg">🔗</span>
+          <LogoUfficiale dimensione={34} />
           <span className="hidden sm:block leading-[1.05] text-[13px]">
             Fisioterapista
             <br />
