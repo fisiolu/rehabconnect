@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ShieldCheck } from "lucide-react";
 import LogoUfficiale from "@/components/LogoUfficiale";
 
@@ -30,14 +31,14 @@ export default function FooterHome({ onAdminClick }: FooterHomeProps) {
             <h4 className="text-white font-semibold text-sm mb-3">Legale</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="#" className="hover:text-white transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400">
+                <Link href="/privacy" className="hover:text-white transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400">
                   Privacy
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400">
+                <Link href="/termini" className="hover:text-white transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400">
                   Termini di servizio
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

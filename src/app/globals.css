@@ -71,6 +71,28 @@
   .badge {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
   }
+
+  /* Pagine legali: testo pensato per essere letto, non scorso.
+     Sta dentro @layer perché usa @apply con varianti dark:, che fuori da un
+     layer Tailwind non riconosce. */
+  .rc-legale h2 {
+    @apply text-xl font-bold text-notte dark:text-white mt-9 mb-3;
+  }
+  .rc-legale h3 {
+    @apply text-base font-bold text-notte dark:text-white mt-6 mb-2;
+  }
+  .rc-legale p {
+    @apply leading-relaxed mb-3;
+  }
+  .rc-legale ul {
+    @apply list-disc pl-5 space-y-2 mb-4 leading-relaxed;
+  }
+  .rc-legale a {
+    @apply text-primary-600 dark:text-primary-400 font-medium underline underline-offset-2;
+  }
+  .rc-legale strong {
+    @apply font-semibold text-notte dark:text-white;
+  }
 }
 
 /* Testo grande — scala tutto via rem */
