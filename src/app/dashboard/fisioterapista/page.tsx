@@ -37,7 +37,7 @@ type Vista = "incarichi" | "agenda" | "mappa";
 type StatoGeo = "inattivo" | "caricamento" | "attivo" | "errore";
 
 export default function DashboardFisioterapista() {
-  const { utente, richieste, aggiornaRichiesta, addToast, posizioni, aggiornaPosizione, fotoEsercizi, aggiungiFoto } = useApp();
+  const { utente, richieste, aggiornaRichiesta, addToast, posizioni, aggiornaPosizione, fotoEsercizi, aggiungiFoto, conversazioni, messaggiDiretti } = useApp();
   const router = useRouter();
   const [vista, setVista] = useState<Vista>("incarichi");
   const [confermaRifiuto, setConfermaRifiuto] = useState<string | null>(null);
@@ -52,6 +52,29 @@ export default function DashboardFisioterapista() {
 
   const fis = fisioterapisti.find((f) => f.id === utente.id);
   const miaPos = posizioni[utente.id];
+
+  // Conversazioni con i pazienti, le più recenti per prime e quelle con
+  // messaggi da leggere in cima a tutto.
+  const idUtente = utente.id;
+  const conversazioniMie = conversazioni
+    .filter((c) => c.fisioterapistaId === idUtente)
+    .map((conversazione) => {
+      const msg = messaggiDiretti
+        .filter((m) => m.conversazioneId === conversazione.id)
+        .sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+      return {
+        conversazione,
+        paziente: pazienti.find((p) => p.id === conversazione.pazienteId),
+        ultimo: msg[msg.length - 1],
+        nonLetti: msg.filter((m) => !m.letto && m.mittenteId !== idUtente).length,
+      };
+    })
+    .sort((a, b) => {
+      if (a.nonLetti !== b.nonLetti) return b.nonLetti - a.nonLetti;
+      return (b.ultimo?.timestamp ?? "").localeCompare(a.ultimo?.timestamp ?? "");
+    });
+
+  const nonLettiTotali = conversazioniMie.reduce((n, c) => n + c.nonLetti, 0);
 
   function condividiPosizione() {
     if (!navigator.geolocation) {
@@ -161,6 +184,67 @@ export default function DashboardFisioterapista() {
             </div>
           </div>
         </div>
+
+        {/* Messaggi dei pazienti: chi scrive dalla ricerca arriva qui, e non
+            passa da un incarico assegnato dal medico. Se restassero solo nella
+            campanella si perderebbero. */}
+        {conversazioniMie.length > 0 && (
+          <div className="card">
+            <div className="flex items-center justify-between gap-3 mb-3">
+              <h2 className="flex items-center gap-2">
+                💬 Messaggi dei pazienti
+                {nonLettiTotali > 0 && (
+                  <span className="inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 rounded-full bg-red-600 text-white text-xs font-bold">
+                    {nonLettiTotali}
+                  </span>
+                )}
+              </h2>
+              <Link
+                href="/messaggi"
+                className="text-sm text-blue-600 hover:text-blue-800 font-medium shrink-0"
+              >
+                Vedi tutti
+              </Link>
+            </div>
+
+            <ul className="space-y-2">
+              {conversazioniMie.slice(0, 3).map(({ conversazione, paziente, ultimo, nonLetti }) => (
+                <li key={conversazione.id}>
+                  <Link
+                    href={`/messaggi/${conversazione.id}`}
+                    className={`block rounded-lg border p-3 transition-colors ${
+                      nonLetti > 0
+                        ? "border-blue-300 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-800"
+                        : "border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-semibold text-gray-900 dark:text-gray-100 truncate">
+                        {paziente ? `${paziente.nome} ${paziente.cognome}` : "Paziente"}
+                      </span>
+                      {nonLetti > 0 && (
+                        <span className="shrink-0 text-xs font-bold text-white bg-blue-600 rounded-full px-2 py-0.5">
+                          {nonLetti} nuovo{nonLetti > 1 ? "i" : ""}
+                        </span>
+                      )}
+                    </div>
+                    {paziente && (
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate">
+                        {paziente.indirizzo}
+                      </p>
+                    )}
+                    {ultimo && (
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mt-1 line-clamp-1">
+                        {ultimo.mittenteId === utente.id ? "Tu: " : ""}
+                        {ultimo.testo}
+                      </p>
+                    )}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {/* Alert incarichi da accettare */}
         {pendingAccettazione.length > 0 && (
