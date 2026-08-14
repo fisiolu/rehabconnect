@@ -35,6 +35,26 @@ export interface Medico {
   ambulatorio: string;
 }
 
+/**
+ * Il medico di base o lo specialista a cui il paziente fa riferimento.
+ *
+ * È una scheda di soli recapiti, compilata dal paziente: non presuppone che
+ * quel medico sia iscritto alla piattaforma. Serve ad avere il numero a
+ * portata di mano quando occorre un consiglio o una prescrizione prima di
+ * iniziare la fisioterapia.
+ */
+export interface MedicoRiferimento {
+  nome: string;
+  cognome: string;
+  /** "Medico di base", "Ortopedico", "Fisiatra"… */
+  ruolo: string;
+  ambulatorio: string;
+  telefono: string;
+  email: string;
+  orari: string;
+  note: string;
+}
+
 export interface Fisioterapista {
   id: string;
   nome: string;
@@ -837,6 +857,43 @@ export const messaggiDirettiDemo: MessaggioDiretto[] = [
     letto: false,
   },
 ];
+
+/**
+ * Schede dei medici di riferimento, una per paziente.
+ * Sono ricavate dai medici dimostrativi: il paziente può poi correggerle.
+ */
+export const mediciRiferimentoDemo: Record<string, MedicoRiferimento> = {
+  "paz-001": {
+    nome: "Francesca",
+    cognome: "Marino",
+    ruolo: "Medico di base",
+    ambulatorio: "Via della Salute 3, Milano",
+    telefono: "02 1234567",
+    email: "f.marino@asl.it",
+    orari: "Lun-Ven 9:00-12:00 · Mar e Gio anche 15:00-18:00",
+    note: "Su appuntamento, tranne il mercoledì mattina.",
+  },
+  "paz-002": {
+    nome: "Francesca",
+    cognome: "Marino",
+    ruolo: "Medico di base",
+    ambulatorio: "Via della Salute 3, Milano",
+    telefono: "02 1234567",
+    email: "f.marino@asl.it",
+    orari: "Lun-Ven 9:00-12:00",
+    note: "",
+  },
+  "paz-003": {
+    nome: "Roberto",
+    cognome: "Conti",
+    ruolo: "Medico di base",
+    ambulatorio: "Via Manzoni 22, Milano",
+    telefono: "02 7654321",
+    email: "r.conti@asl.it",
+    orari: "Lun-Sab 8:30-11:30",
+    note: "",
+  },
+};
 
 export const statoLabel: Record<StatoRichiesta, string> = {
   in_attesa: "In attesa",

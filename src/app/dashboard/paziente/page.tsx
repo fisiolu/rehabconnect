@@ -7,6 +7,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import StatoBadge from "@/components/StatoBadge";
 import GraficoRiabilitazione from "@/components/GraficoRiabilitazione";
+import SchedaMedico from "@/components/SchedaMedico";
 import { pazienti, fisioterapisti, medici, Richiesta, Posizione, Valutazione } from "@/lib/demoData";
 
 type StatoGeo = "inattivo" | "caricamento" | "attivo" | "errore";
@@ -313,6 +314,9 @@ export default function DashboardPaziente() {
             ))}
           </div>
         )}
+
+        {/* ===== IL MIO MEDICO ===== */}
+        <SchedaMedico pazienteId={utente.id} />
 
         {/* ===== GRAFICO PROGRESSO ===== */}
         {tuttiAppuntamenti.length > 0 && (

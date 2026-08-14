@@ -12,6 +12,7 @@ import {
   FotoEsercizio,
   Conversazione,
   MessaggioDiretto,
+  MedicoRiferimento,
   richieste as demoRichieste,
   messaggiDemo,
   notificheDemo,
@@ -20,6 +21,7 @@ import {
   fotoEserciziDemo,
   conversazioniDemo,
   messaggiDirettiDemo,
+  mediciRiferimentoDemo,
 } from "./demoData";
 
 interface UtenteCorrente {
@@ -67,6 +69,9 @@ interface AppContextType {
   ) => void;
   /** Segna come letti i messaggi ricevuti in quella conversazione. */
   segnaConversazioneLetta: (conversazioneId: string, lettoreId: string) => void;
+  /** Scheda del medico di riferimento, una per paziente. */
+  mediciRiferimento: Record<string, MedicoRiferimento>;
+  salvaMedicoRiferimento: (pazienteId: string, medico: MedicoRiferimento) => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -83,6 +88,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [conversazioni, setConversazioni] = useState<Conversazione[]>(conversazioniDemo);
   const [messaggiDiretti, setMessaggiDiretti] =
     useState<MessaggioDiretto[]>(messaggiDirettiDemo);
+  const [mediciRiferimento, setMediciRiferimento] =
+    useState<Record<string, MedicoRiferimento>>(mediciRiferimentoDemo);
 
   const aggiornaRichiesta = useCallback(
     (id: string, campi: Partial<Richiesta>) => {
@@ -196,6 +203,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     []
   );
 
+  const salvaMedicoRiferimento = useCallback(
+    (pazienteId: string, medico: MedicoRiferimento) => {
+      setMediciRiferimento((prev) => ({ ...prev, [pazienteId]: medico }));
+    },
+    []
+  );
+
   const segnaConversazioneLetta = useCallback((conversazioneId: string, lettoreId: string) => {
     setMessaggiDiretti((prev) =>
       prev.map((m) =>
@@ -234,6 +248,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         apriConversazione,
         inviaMessaggioDiretto,
         segnaConversazioneLetta,
+        mediciRiferimento,
+        salvaMedicoRiferimento,
       }}
     >
       {children}
