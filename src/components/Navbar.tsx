@@ -6,6 +6,7 @@ import { useTema } from "@/components/ThemeProvider";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import LogoUfficiale from "@/components/LogoUfficiale";
+import { ArrowLeft } from "lucide-react";
 
 const ruoloLabel: Record<string, string> = {
   paziente: "Paziente",
@@ -88,6 +89,22 @@ export default function Navbar() {
     router.push("/");
   }
 
+  /**
+   * Torna alla pagina precedente davvero, non alla home.
+   * Se però si è arrivati qui direttamente — link condiviso, scheda aperta da
+   * zero — la cronologia è vuota e `back()` non farebbe nulla: in quel caso
+   * si va alla propria area, che è il posto sensato da cui ripartire.
+   */
+  function tornaIndietro() {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+    } else if (utente) {
+      router.push(`/dashboard/${utente.ruolo}`);
+    } else {
+      router.push("/");
+    }
+  }
+
   function apriNotifiche() {
     setAperto((v) => !v);
   }
@@ -118,6 +135,16 @@ export default function Navbar() {
             Domiciliare
           </span>
         </Link>
+
+        {/* Torna indietro: usa la cronologia del browser, non porta alla home */}
+        <button
+          onClick={tornaIndietro}
+          className="shrink-0 inline-flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-100 text-sm font-semibold pl-2 pr-3 py-2 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+          aria-label="Torna alla pagina precedente"
+        >
+          <ArrowLeft size={17} aria-hidden="true" />
+          <span className="hidden sm:inline">Indietro</span>
+        </button>
 
         {/* Ruolo corrente */}
         <div className="flex items-center gap-1.5 min-w-0 flex-1 justify-center sm:justify-start">
