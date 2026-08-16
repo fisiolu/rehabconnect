@@ -77,6 +77,19 @@ grant update (
   anni_esperienza, presentazione
 ) on fisioterapisti to authenticated;
 
+-- Chi cerca senza aver fatto login vede la scheda per intero tranne
+-- cognome, telefono ed email: bastano per farsi un'idea, ma per
+-- contattare davvero il professionista serve registrarsi. RLS filtra le
+-- righe (solo gli approvati), questo filtra le colonne: la policy da
+-- sola non basta, Postgres nega colonna per colonna solo con GRANT/REVOKE.
+revoke select on fisioterapisti from anon;
+grant select (
+  id, nome, specializzazioni, disponibile, valutazione, numero_albo,
+  tariffa_min, tariffa_max, assicurazioni, base_lat, base_lng,
+  base_citta, base_provincia, raggio_km, anni_esperienza, presentazione,
+  stato_verifica, created_at
+) on fisioterapisti to anon;
+
 -- ---------------------------------------------------------------------
 -- Pazienti
 -- ---------------------------------------------------------------------

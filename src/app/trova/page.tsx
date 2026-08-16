@@ -68,9 +68,13 @@ export default function TrovaPage() {
   const [filtriAperti, setFiltriAperti] = useState(false);
   const [fisioterapisti, setFisioterapisti] = useState<Fisioterapista[]>([]);
 
+  // Il Medico demo non ha una sessione Supabase vera (entraComeMedicoDemo):
+  // per il database resta anonimo, quindi non basta "utente" non nullo.
+  const mostraContatti = !!utente && utente.ruolo !== "medico";
+
   useEffect(() => {
-    cercaApprovati(createClient()).then(setFisioterapisti);
-  }, []);
+    cercaApprovati(createClient(), mostraContatti).then(setFisioterapisti);
+  }, [mostraContatti]);
 
   // Se il paziente è già entrato, si parte dal suo domicilio.
   useEffect(() => {
@@ -193,6 +197,7 @@ export default function TrovaPage() {
               <div className="absolute left-3 right-3 bottom-3 top-3 z-[400] overflow-y-auto lg:left-4 lg:right-auto lg:w-80 lg:top-auto lg:max-h-[calc(100%-2rem)]">
                 <SchedaSelezionato
                   risultato={selezionato}
+                  mostraContatti={mostraContatti}
                   onChiudi={() => setSelezionatoId(null)}
                   onScrivi={() => scriviA(selezionato.fisioterapista.id)}
                 />
@@ -278,6 +283,7 @@ export default function TrovaPage() {
                   <CardFisioterapista
                     key={r.fisioterapista.id}
                     risultato={r}
+                    mostraContatti={mostraContatti}
                     attivo={r.fisioterapista.id === selezionatoId}
                     onClick={() =>
                       setSelezionatoId(
@@ -503,10 +509,12 @@ function Stelline({ valutazione }: { valutazione: number }) {
 
 function CardFisioterapista({
   risultato,
+  mostraContatti,
   attivo,
   onClick,
 }: {
   risultato: import("@/lib/geo").RisultatoRicerca;
+  mostraContatti: boolean;
   attivo: boolean;
   onClick: () => void;
 }) {
@@ -524,7 +532,8 @@ function CardFisioterapista({
     >
       <div className="flex items-start justify-between gap-3 mb-1.5">
         <h3 className="font-bold text-notte dark:text-white">
-          {f.nome} {f.cognome}
+          {f.nome}
+          {mostraContatti ? ` ${f.cognome}` : ""}
         </h3>
         <span className="shrink-0 text-sm font-bold text-teal-600 dark:text-teal-400">
           {formattaDistanza(distanzaKm)}
@@ -557,10 +566,12 @@ function CardFisioterapista({
 
 function SchedaSelezionato({
   risultato,
+  mostraContatti,
   onChiudi,
   onScrivi,
 }: {
   risultato: import("@/lib/geo").RisultatoRicerca;
+  mostraContatti: boolean;
   onChiudi: () => void;
   onScrivi: () => void;
 }) {
@@ -571,7 +582,8 @@ function SchedaSelezionato({
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="font-bold text-lg text-notte dark:text-white leading-tight">
-            {f.nome} {f.cognome}
+            {f.nome}
+            {mostraContatti ? ` ${f.cognome}` : ""}
           </h3>
           <p className="text-sm text-slate-500 dark:text-slate-400">
             a {formattaDistanza(distanzaKm)} da te · {f.base.citta}
@@ -659,22 +671,36 @@ function SchedaSelezionato({
         </p>
       )}
 
-      <div className="mt-4 grid grid-cols-2 gap-2">
-        <a
-          href={`tel:${f.telefono.replace(/\s/g, "")}`}
-          className="inline-flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-semibold px-4 py-3.5 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
-        >
-          <Phone size={18} aria-hidden="true" />
-          Chiama
-        </a>
-        <button
-          onClick={onScrivi}
-          className="inline-flex items-center justify-center gap-2 bg-white dark:bg-gray-700 hover:bg-slate-50 dark:hover:bg-gray-600 text-notte dark:text-white font-semibold px-4 py-3.5 rounded-xl border border-slate-200 dark:border-gray-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
-        >
-          <MessageSquare size={18} aria-hidden="true" />
-          Scrivi
-        </button>
-      </div>
+      {mostraContatti ? (
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <a
+            href={`tel:${f.telefono.replace(/\s/g, "")}`}
+            className="inline-flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-semibold px-4 py-3.5 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+          >
+            <Phone size={18} aria-hidden="true" />
+            Chiama
+          </a>
+          <button
+            onClick={onScrivi}
+            className="inline-flex items-center justify-center gap-2 bg-white dark:bg-gray-700 hover:bg-slate-50 dark:hover:bg-gray-600 text-notte dark:text-white font-semibold px-4 py-3.5 rounded-xl border border-slate-200 dark:border-gray-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+          >
+            <MessageSquare size={18} aria-hidden="true" />
+            Scrivi
+          </button>
+        </div>
+      ) : (
+        <div className="mt-4">
+          <button
+            onClick={onScrivi}
+            className="w-full inline-flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-semibold px-4 py-3.5 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+          >
+            Accedi per chiamare o scrivere
+          </button>
+          <p className="mt-2 text-xs text-slate-500 dark:text-slate-400 text-center leading-relaxed">
+            Cognome e telefono sono visibili dopo l&apos;accesso.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
