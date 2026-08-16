@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { verificaTurnstile } from "@/lib/turnstile";
 
 interface CorpoRichiesta {
   email: string;
@@ -20,6 +21,7 @@ interface CorpoRichiesta {
   raggioKm: number;
   anniEsperienza: number;
   presentazione: string;
+  turnstileToken?: string;
 }
 
 /**
@@ -30,6 +32,14 @@ interface CorpoRichiesta {
  */
 export async function POST(request: Request) {
   const corpo = (await request.json()) as CorpoRichiesta;
+
+  const ip = request.headers.get("x-forwarded-for");
+  if (!(await verificaTurnstile(corpo.turnstileToken, ip))) {
+    return NextResponse.json(
+      { errore: "Verifica anti-spam non superata. Ricarica la pagina e riprova." },
+      { status: 400 }
+    );
+  }
 
   if (!corpo.email || !corpo.password || !corpo.nome || !corpo.cognome || !corpo.numeroAlbo) {
     return NextResponse.json({ errore: "Mancano dei campi obbligatori." }, { status: 400 });

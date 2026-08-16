@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { MapPin, Search } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import TurnstileWidget from "@/components/TurnstileWidget";
 
 interface LuogoTrovato {
   nome: string;
@@ -28,6 +29,8 @@ export default function RegistratiPazientePage() {
 
   const [inCorso, setInCorso] = useState(false);
   const [errore, setErrore] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileKey, setTurnstileKey] = useState(0);
 
   async function cercaLuogo(e: React.FormEvent) {
     e.preventDefault();
@@ -69,6 +72,11 @@ export default function RegistratiPazientePage() {
       return;
     }
 
+    if (!turnstileToken) {
+      setErrore("Completa la verifica anti-spam prima di continuare.");
+      return;
+    }
+
     setInCorso(true);
 
     const corpo = {
@@ -80,6 +88,7 @@ export default function RegistratiPazientePage() {
       indirizzo: luogoScelto.nome,
       domicilioLat: luogoScelto.lat,
       domicilioLng: luogoScelto.lng,
+      turnstileToken,
     };
 
     const risposta = await fetch("/api/registrati/paziente", {
@@ -91,6 +100,10 @@ export default function RegistratiPazientePage() {
 
     if (!risposta.ok) {
       setInCorso(false);
+      // Il token Turnstile è a uso singolo: dopo un tentativo, riuscito o no,
+      // il widget va rimontato per ottenerne uno nuovo prima di riprovare.
+      setTurnstileToken(null);
+      setTurnstileKey((k) => k + 1);
       setErrore(dati.errore || "Non sono riuscito a completare la registrazione.");
       return;
     }
@@ -220,6 +233,8 @@ export default function RegistratiPazientePage() {
               </div>
             </div>
 
+            <TurnstileWidget key={turnstileKey} onToken={setTurnstileToken} />
+
             {errore && (
               <p
                 role="status"
@@ -229,7 +244,7 @@ export default function RegistratiPazientePage() {
               </p>
             )}
 
-            <button type="submit" disabled={inCorso} className="btn-primary w-full py-3">
+            <button type="submit" disabled={inCorso || !turnstileToken} className="btn-primary w-full py-3">
               {inCorso ? "Invio…" : "Crea il mio account"}
             </button>
           </form>

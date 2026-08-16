@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { MapPin, Search } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import TurnstileWidget from "@/components/TurnstileWidget";
 
 interface LuogoTrovato {
   nome: string;
@@ -52,6 +53,8 @@ export default function RegistratiFisioterapistaPage() {
 
   const [inCorso, setInCorso] = useState(false);
   const [errore, setErrore] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileKey, setTurnstileKey] = useState(0);
 
   async function cercaLuogo(e: React.FormEvent) {
     e.preventDefault();
@@ -99,6 +102,10 @@ export default function RegistratiFisioterapistaPage() {
       setErrore("Città e provincia sono obbligatorie.");
       return;
     }
+    if (!turnstileToken) {
+      setErrore("Completa la verifica anti-spam prima di continuare.");
+      return;
+    }
 
     setInCorso(true);
 
@@ -127,6 +134,7 @@ export default function RegistratiFisioterapistaPage() {
       raggioKm: Number(raggioKm),
       anniEsperienza: Number(anniEsperienza),
       presentazione,
+      turnstileToken,
     };
 
     const risposta = await fetch("/api/registrati/fisioterapista", {
@@ -138,6 +146,10 @@ export default function RegistratiFisioterapistaPage() {
 
     if (!risposta.ok) {
       setInCorso(false);
+      // Il token Turnstile è a uso singolo: dopo un tentativo, riuscito o no,
+      // il widget va rimontato per ottenerne uno nuovo prima di riprovare.
+      setTurnstileToken(null);
+      setTurnstileKey((k) => k + 1);
       setErrore(dati.errore || "Non sono riuscito a completare la registrazione.");
       return;
     }
@@ -369,6 +381,8 @@ export default function RegistratiFisioterapistaPage() {
                 value={presentazione} onChange={(e) => setPresentazione(e.target.value)} />
             </div>
 
+            <TurnstileWidget key={turnstileKey} onToken={setTurnstileToken} />
+
             {errore && (
               <p
                 role="status"
@@ -378,7 +392,7 @@ export default function RegistratiFisioterapistaPage() {
               </p>
             )}
 
-            <button type="submit" disabled={inCorso} className="btn-primary w-full py-3">
+            <button type="submit" disabled={inCorso || !turnstileToken} className="btn-primary w-full py-3">
               {inCorso ? "Invio…" : "Invia richiesta d'iscrizione"}
             </button>
           </form>

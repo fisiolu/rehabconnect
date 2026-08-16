@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { verificaTurnstile } from "@/lib/turnstile";
 
 interface CorpoRichiesta {
   email: string;
@@ -10,11 +11,20 @@ interface CorpoRichiesta {
   indirizzo: string;
   domicilioLat: number;
   domicilioLng: number;
+  turnstileToken?: string;
 }
 
 /** Stesso schema della registrazione fisioterapista: account già confermato + scheda, con rollback se la scheda fallisce. */
 export async function POST(request: Request) {
   const corpo = (await request.json()) as CorpoRichiesta;
+
+  const ip = request.headers.get("x-forwarded-for");
+  if (!(await verificaTurnstile(corpo.turnstileToken, ip))) {
+    return NextResponse.json(
+      { errore: "Verifica anti-spam non superata. Ricarica la pagina e riprova." },
+      { status: 400 }
+    );
+  }
 
   if (!corpo.email || !corpo.password || !corpo.nome || !corpo.cognome) {
     return NextResponse.json({ errore: "Mancano dei campi obbligatori." }, { status: 400 });
