@@ -23,7 +23,7 @@ export default function PrivacyPage() {
       <h2>Chi tratta i dati</h2>
       <p>
         Il titolare del trattamento è il gestore di &laquo;Fisioterapista Domiciliare&raquo;,
-        raggiungibile a <a href="mailto:fisiolu@inwind.it">fisiolu@inwind.it</a>.
+        raggiungibile a <a href="mailto:fisioterapistadomiciliare.info@gmail.com">fisioterapistadomiciliare.info@gmail.com</a>.
       </p>
 
       <h2>Che cosa questa applicazione non fa</h2>
@@ -88,7 +88,7 @@ export default function PrivacyPage() {
         Puoi esercitare i diritti previsti dagli articoli 15-22 del Regolamento europeo 2016/679:
         accesso, rettifica, cancellazione, limitazione, portabilità e opposizione. Poiché in questa
         versione non conserviamo alcun dato, in pratica non c&apos;è nulla da cancellare; per ogni
-        richiesta scrivi comunque a <a href="mailto:fisiolu@inwind.it">fisiolu@inwind.it</a>.
+        richiesta scrivi comunque a <a href="mailto:fisioterapistadomiciliare.info@gmail.com">fisioterapistadomiciliare.info@gmail.com</a>.
       </p>
       <p>
         Hai inoltre diritto di proporre reclamo al{" "}

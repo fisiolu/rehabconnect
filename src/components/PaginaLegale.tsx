@@ -51,10 +51,10 @@ export default function PaginaLegale({
         <p className="mt-12 pt-6 border-t border-slate-200 dark:border-gray-800 text-sm text-slate-500 dark:text-slate-400">
           Per qualsiasi domanda scrivi a{" "}
           <a
-            href="mailto:fisiolu@inwind.it"
+            href="mailto:fisioterapistadomiciliare.info@gmail.com"
             className="text-primary-600 dark:text-primary-400 font-medium underline underline-offset-2"
           >
-            fisiolu@inwind.it
+            fisioterapistadomiciliare.info@gmail.com
           </a>
           .
         </p>
