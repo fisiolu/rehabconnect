@@ -89,23 +89,13 @@ export default function TerminiPage() {
         piattaforma per scopi diversi da quello per cui esiste.
       </p>
 
-      <h2>Versione dimostrativa</h2>
-      <p>
-        Al momento la piattaforma è una <strong>dimostrazione</strong>: professionisti, pazienti,
-        recapiti e valutazioni sono inventati e servono solo a far vedere come funziona. Niente di
-        quanto vi appare corrisponde a persone reali e nessun contatto produce un appuntamento
-        vero. Il servizio è offerto così com&apos;è, senza garanzia di continuità, e può essere
-        modificato o interrotto in qualsiasi momento.
-      </p>
-
       <h2>Legge applicabile</h2>
       <p>
         Si applica la legge italiana. Per il trattamento dei dati vedi l&apos;
         <a href="/privacy">informativa privacy</a>.
       </p>
       <p className="text-sm text-slate-500 dark:text-slate-400">
-        Questo testo descrive la versione dimostrativa e non sostituisce il parere di un legale.
-        Prima di aprire il servizio a pazienti reali va rivisto da un professionista.
+        Questo testo non sostituisce il parere di un legale.
       </p>
     </PaginaLegale>
   );
