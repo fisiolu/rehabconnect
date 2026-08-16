@@ -215,7 +215,7 @@ html.testo-grande {
   width: 14px;
   height: 14px;
   border-radius: 9999px;
-  background: #2563eb;
+  background: #1f6a85;
   border: 2.5px solid #fff;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
@@ -227,7 +227,7 @@ html.testo-grande {
   height: 26px;
   margin-left: -13px;
   border-radius: 9999px;
-  background: rgba(37, 99, 235, 0.3);
+  background: rgba(31, 106, 133, 0.3);
   animation: rc-pulsa 2.4s ease-out infinite;
 }
 @media (prefers-reduced-motion: reduce) {
@@ -236,7 +236,7 @@ html.testo-grande {
   }
 }
 .rc-qui-testo {
-  background: #2563eb;
+  background: #1f6a85;
   color: #fff;
   font-size: 11px;
   font-weight: 700;
@@ -252,7 +252,7 @@ html.testo-grande {
   margin-top: -1px;
   border-left: 6px solid transparent;
   border-right: 6px solid transparent;
-  border-top: 9px solid #2563eb;
+  border-top: 9px solid #1f6a85;
   filter: drop-shadow(0 1px 1px rgba(255, 255, 255, 0.9));
 }
 

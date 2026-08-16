@@ -78,7 +78,7 @@ export default function MappaRicerca({
         const colore = !fisioterapista.disponibile
           ? "#94a3b8"
           : raggiungibile
-            ? "#14b8a6"
+            ? "#33ada4"
             : "#f59e0b";
 
         const marker = L.marker([fisioterapista.base.lat, fisioterapista.base.lng], {

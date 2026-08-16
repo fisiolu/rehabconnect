@@ -57,7 +57,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#2563eb",
+  themeColor: "#1f6a85",
   width: "device-width",
   initialScale: 1,
   // Nessun limite allo zoom: chi ha difficoltà di vista deve poter ingrandire
@@ -113,7 +113,7 @@ export default function RootLayout({
         {/* Anti-FOUC: apply saved theme before React hydrates */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `document.documentElement.classList.add('js');try{var t=localStorage.getItem('rc-tema');var p=window.matchMedia('(prefers-color-scheme:dark)').matches;if(t==='scuro'||(!t&&p))document.documentElement.classList.add('dark');if(localStorage.getItem('rc-testo')==='1')document.documentElement.classList.add('testo-grande')}catch(e){}`,
+            __html: `document.documentElement.classList.add('js');try{var t=localStorage.getItem('rc-tema');if(t==='scuro')document.documentElement.classList.add('dark');if(localStorage.getItem('rc-testo')==='1')document.documentElement.classList.add('testo-grande')}catch(e){}`,
           }}
         />
       </head>

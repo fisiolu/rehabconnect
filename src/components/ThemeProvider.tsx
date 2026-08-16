@@ -23,9 +23,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [testoGrande, setTestoGrande] = useState(false);
 
   useEffect(() => {
+    // Il tema di sistema non decide più da solo: di default l'app è
+    // chiara, indipendentemente dalle preferenze del dispositivo. Chi vuole
+    // lo scuro lo sceglie dal toggle, e da lì la scelta resta sua.
     const salvato = localStorage.getItem("rc-tema") as Tema | null;
-    const preferisce = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const iniziale: Tema = salvato ?? (preferisce ? "scuro" : "chiaro");
+    const iniziale: Tema = salvato ?? "chiaro";
     setTema(iniziale);
     document.documentElement.classList.toggle("dark", iniziale === "scuro");
 

@@ -34,10 +34,10 @@ export default function GraficoRiabilitazione({ appuntamenti, valutazioni }: Pro
         {/* Anello SVG */}
         <div className="shrink-0">
           <svg width="110" height="110" viewBox="0 0 110 110">
-            <circle cx="55" cy="55" r={r} fill="none" stroke="#e5e7eb" strokeWidth="10" className="dark:[stroke:#374151]" />
+            <circle cx="55" cy="55" r={r} fill="none" stroke="#d6e6e2" strokeWidth="10" className="dark:[stroke:#405a57]" />
             <circle
               cx="55" cy="55" r={r} fill="none"
-              stroke={percentuale >= 80 ? "#16a34a" : percentuale >= 50 ? "#2563eb" : "#f59e0b"}
+              stroke={percentuale >= 80 ? "#16a34a" : percentuale >= 50 ? "#1f6a85" : "#f59e0b"}
               strokeWidth="10"
               strokeDasharray={`${arco} ${circ}`}
               strokeLinecap="round"
@@ -47,7 +47,7 @@ export default function GraficoRiabilitazione({ appuntamenti, valutazioni }: Pro
             <text x="55" y="50" textAnchor="middle" fontSize="20" fontWeight="700" fill="currentColor" className="fill-gray-800 dark:fill-gray-100">
               {percentuale}%
             </text>
-            <text x="55" y="67" textAnchor="middle" fontSize="9" fill="#6b7280">
+            <text x="55" y="67" textAnchor="middle" fontSize="9" fill="#6c928c">
               completato
             </text>
           </svg>
