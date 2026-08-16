@@ -14,15 +14,6 @@ import { caricaPaziente, type PazienteRiga } from "@/lib/supabase/pazienti";
 
 type StatoGeo = "inattivo" | "caricamento" | "attivo" | "errore";
 
-function calcolaCompleanno(dataNascita: string): { isOggi: boolean; anni: number } {
-  const oggi = new Date();
-  const bDay = new Date(dataNascita);
-  const isOggi =
-    oggi.getMonth() === bDay.getMonth() && oggi.getDate() === bDay.getDate();
-  const anni = oggi.getFullYear() - bDay.getFullYear();
-  return { isOggi, anni };
-}
-
 export default function DashboardPaziente() {
   const {
     utente, richieste, aggiungiRichiesta, addToast,
@@ -60,25 +51,6 @@ export default function DashboardPaziente() {
     }
   }, []);
 
-  // Notifica compleanno — una volta per sessione/anno
-  useEffect(() => {
-    if (!utente || !paziente) return;
-    const { isOggi, anni } = calcolaCompleanno(paziente.dataNascita);
-    if (!isOggi) return;
-    const chiave = `rc-bday-${utente.id}-${new Date().getFullYear()}`;
-    if (localStorage.getItem(chiave)) return;
-    aggiungiNotifica({
-      id: `notif-bday-${Date.now()}`,
-      destinatarioId: utente.id,
-      testo: `🎂 Buon compleanno ${paziente.nome}! Oggi compi ${anni} anni. Tanti auguri da tutti noi!`,
-      tipo: "successo",
-      letto: false,
-      timestamp: new Date().toISOString(),
-    });
-    localStorage.setItem(chiave, "1");
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [utente?.id]);
-
   if (!utente || utente.ruolo !== "paziente") return null;
 
   const miaPos = posizioni[utente.id];
@@ -87,7 +59,6 @@ export default function DashboardPaziente() {
         id: pazienteReale.id,
         nome: pazienteReale.nome,
         cognome: pazienteReale.cognome,
-        dataNascita: pazienteReale.data_nascita,
         indirizzo: pazienteReale.indirizzo,
         medicoId: undefined as string | undefined,
       }
@@ -109,10 +80,6 @@ export default function DashboardPaziente() {
     ? fisioterapisti.find((f) => f.id === richiestaInCorso.fisioterapistaId)
     : null;
   const prossimoApp = richiestaInCorso?.appuntamenti.find((a) => !a.completato);
-
-  const { isOggi: isCompleanno, anni: etaOggi } = paziente
-    ? calcolaCompleanno(paziente.dataNascita)
-    : { isOggi: false, anni: 0 };
 
   function condividiPosizione() {
     if (!navigator.geolocation) {
@@ -196,25 +163,9 @@ export default function DashboardPaziente() {
       <Navbar />
       <main className="max-w-3xl mx-auto px-4 py-6 space-y-5">
 
-        {/* ===== BANNER COMPLEANNO ===== */}
-        {isCompleanno && (
-          <div className="card bg-gradient-to-r from-yellow-400 via-orange-400 to-pink-400 text-white border-0 shadow-lg">
-            <div className="flex items-center gap-4">
-              <div className="text-5xl shrink-0 animate-bounce">🎂</div>
-              <div className="flex-1 min-w-0">
-                <h2 className="text-xl font-bold leading-tight">
-                  Buon compleanno, {paziente?.nome}! 🎉
-                </h2>
-                <p className="text-yellow-100 mt-0.5">
-                  Oggi compi <strong>{etaOggi} anni</strong>. Tanti auguri di cuore!
-                </p>
-                <p className="text-yellow-200 text-sm mt-1">
-                  Dal tuo medico, dal Fisioterapista e da tutto il nostro team
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Gli auguri di compleanno erano qui. Tolti insieme alla data di
+            nascita: era l'unico motivo per cui la chiedevamo, e non basta a
+            giustificare la raccolta di un dato che non serve al servizio. */}
 
         {/* ===== INTESTAZIONE PAZIENTE ===== */}
         <div className="card bg-gradient-to-r from-blue-600 to-blue-700 text-white border-0">

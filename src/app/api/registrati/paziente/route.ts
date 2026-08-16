@@ -7,8 +7,6 @@ interface CorpoRichiesta {
   nome: string;
   cognome: string;
   telefono: string;
-  dataNascita: string;
-  codiceFiscale: string;
   indirizzo: string;
   domicilioLat: number;
   domicilioLng: number;
@@ -18,7 +16,7 @@ interface CorpoRichiesta {
 export async function POST(request: Request) {
   const corpo = (await request.json()) as CorpoRichiesta;
 
-  if (!corpo.email || !corpo.password || !corpo.nome || !corpo.cognome || !corpo.codiceFiscale) {
+  if (!corpo.email || !corpo.password || !corpo.nome || !corpo.cognome) {
     return NextResponse.json({ errore: "Mancano dei campi obbligatori." }, { status: 400 });
   }
 
@@ -43,8 +41,6 @@ export async function POST(request: Request) {
     cognome: corpo.cognome,
     telefono: corpo.telefono,
     email: corpo.email,
-    data_nascita: corpo.dataNascita,
-    codice_fiscale: corpo.codiceFiscale,
     indirizzo: corpo.indirizzo,
     domicilio_lat: corpo.domicilioLat,
     domicilio_lng: corpo.domicilioLng,

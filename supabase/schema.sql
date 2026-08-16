@@ -84,8 +84,12 @@ create table if not exists pazienti (
   id uuid primary key references auth.users(id) on delete cascade,
   nome text not null,
   cognome text not null,
-  data_nascita date not null,
-  codice_fiscale text not null,
+  -- Niente data di nascita né codice fiscale: per far incontrare un paziente
+  -- e un Fisioterapista vicino servono nome, indirizzo e telefono. Il codice
+  -- fiscale non entra in nessun calcolo e contiene già data e luogo di
+  -- nascita: conservarlo senza usarlo sarebbe solo un rischio in più, contro
+  -- il principio di minimizzazione. La fattura la emette il professionista,
+  -- che quel dato se lo fa dare direttamente.
   telefono text not null,
   email text not null,
   indirizzo text not null,
@@ -93,6 +97,12 @@ create table if not exists pazienti (
   domicilio_lng double precision not null,
   created_at timestamptz not null default now()
 );
+
+-- Per gli archivi creati quando questi due campi erano ancora richiesti.
+-- ATTENZIONE: cancella definitivamente i dati già raccolti. È voluto — sono
+-- dati che non dobbiamo più conservare — ma è irreversibile.
+alter table pazienti drop column if exists data_nascita;
+alter table pazienti drop column if exists codice_fiscale;
 
 alter table pazienti enable row level security;
 

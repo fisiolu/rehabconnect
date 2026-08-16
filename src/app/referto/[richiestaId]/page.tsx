@@ -95,15 +95,12 @@ export default function PaginaReferto() {
                 <p className="text-xs text-gray-400">Nome e cognome</p>
                 <p className="font-semibold text-gray-900 dark:text-gray-100">{paziente?.nome} {paziente?.cognome}</p>
               </div>
+              {/* Niente data di nascita né codice fiscale: la piattaforma non
+                  li raccoglie più. Se servono sul referto, è il professionista
+                  a chiederli al paziente e a inserirli nel proprio gestionale. */}
               <div>
-                <p className="text-xs text-gray-400">Data di nascita</p>
-                <p className="font-medium text-gray-700 dark:text-gray-300">
-                  {paziente?.dataNascita ? new Date(paziente.dataNascita).toLocaleDateString("it-IT") : "—"}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-400">Codice fiscale</p>
-                <p className="font-medium text-gray-700 dark:text-gray-300 font-mono">{paziente?.codiceFiscale}</p>
+                <p className="text-xs text-gray-400">Telefono</p>
+                <p className="font-medium text-gray-700 dark:text-gray-300">{paziente?.telefono ?? "—"}</p>
               </div>
               <div>
                 <p className="text-xs text-gray-400">Indirizzo</p>

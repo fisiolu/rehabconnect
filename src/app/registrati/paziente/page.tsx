@@ -20,8 +20,6 @@ export default function RegistratiPazientePage() {
   const [nome, setNome] = useState("");
   const [cognome, setCognome] = useState("");
   const [telefono, setTelefono] = useState("");
-  const [dataNascita, setDataNascita] = useState("");
-  const [codiceFiscale, setCodiceFiscale] = useState("");
 
   const [luogoTesto, setLuogoTesto] = useState("");
   const [risultatiLuogo, setRisultatiLuogo] = useState<LuogoTrovato[] | null>(null);
@@ -79,8 +77,6 @@ export default function RegistratiPazientePage() {
       nome,
       cognome,
       telefono,
-      dataNascita,
-      codiceFiscale,
       indirizzo: luogoScelto.nome,
       domicilioLat: luogoScelto.lat,
       domicilioLng: luogoScelto.lng,
@@ -165,18 +161,6 @@ export default function RegistratiPazientePage() {
                 <label className="label" htmlFor="telefono">Telefono</label>
                 <input id="telefono" type="tel" required className="input-field py-3"
                   value={telefono} onChange={(e) => setTelefono(e.target.value)} />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="label" htmlFor="dataNascita">Data di nascita</label>
-                  <input id="dataNascita" type="date" required className="input-field py-3"
-                    value={dataNascita} onChange={(e) => setDataNascita(e.target.value)} />
-                </div>
-                <div>
-                  <label className="label" htmlFor="cf">Codice fiscale</label>
-                  <input id="cf" required maxLength={16} className="input-field py-3 uppercase"
-                    value={codiceFiscale} onChange={(e) => setCodiceFiscale(e.target.value.toUpperCase())} />
-                </div>
               </div>
             </div>
 

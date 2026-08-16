@@ -12,8 +12,6 @@ export interface Paziente {
   id: string;
   nome: string;
   cognome: string;
-  dataNascita: string;
-  codiceFiscale: string;
   telefono: string;
   email: string;
   indirizzo: string;
@@ -212,8 +210,6 @@ export const pazienti: Paziente[] = [
     id: "paz-001",
     nome: "Mario",
     cognome: "Rossi",
-    dataNascita: "1955-06-19",
-    codiceFiscale: "RSSMRA55C15H501Z",
     telefono: "333 1234567",
     email: "mario.rossi@email.it",
     indirizzo: "Via Roma 12, Milano",
@@ -224,8 +220,6 @@ export const pazienti: Paziente[] = [
     id: "paz-002",
     nome: "Lucia",
     cognome: "Bianchi",
-    dataNascita: "1968-07-22",
-    codiceFiscale: "BNCLCU68L62H501X",
     telefono: "347 9876543",
     email: "lucia.bianchi@email.it",
     indirizzo: "Via Dante 45, Milano",
@@ -236,8 +230,6 @@ export const pazienti: Paziente[] = [
     id: "paz-003",
     nome: "Giuseppe",
     cognome: "Verdi",
-    dataNascita: "1942-11-08",
-    codiceFiscale: "VRDGPP42S08H501W",
     telefono: "389 5556666",
     email: "giuseppe.verdi@email.it",
     indirizzo: "Corso Vittorio 8, Milano",
