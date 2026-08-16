@@ -141,7 +141,7 @@ export default function DashboardPaziente() {
         if (prossimoApp) {
           new Notification("Fisioterapista Domiciliare — Promemoria seduta", {
             body: `Ricorda: hai una seduta il ${new Date(prossimoApp.data).toLocaleDateString("it-IT", { weekday: "long", day: "numeric", month: "long" })} ore ${prossimoApp.ora}.`,
-            icon: "/icons/icon-192.png",
+            icon: "/api/icon-192",
           });
         }
       }, 3000);

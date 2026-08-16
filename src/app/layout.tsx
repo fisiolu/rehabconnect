@@ -74,7 +74,6 @@ export default function RootLayout({
   return (
     <html lang="it" suppressHydrationWarning>
       <head>
-        <link rel="apple-touch-icon" href="/api/icon-192" />
         {/* Dati strutturati: spiegano ai motori di ricerca che cos'è questo sito.
             Nessuna recensione o valutazione dichiarata, perché non ne abbiamo di reali. */}
         <script
