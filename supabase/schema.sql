@@ -126,6 +126,24 @@ create policy "pazienti_select_admin"
   using (exists (select 1 from admins a where a.user_id = auth.uid()));
 
 -- ---------------------------------------------------------------------
+-- Limite di registrazioni per indirizzo IP (anti-abuso, non anti-frode:
+-- un IP domestico è spesso condiviso da più persone, per questo il
+-- limite applicato in src/lib/limiteRegistrazioni.ts resta permissivo).
+-- Una riga per ogni registrazione riuscita, letta e scritta solo dalle
+-- route server con la service-role key: nessuna policy pubblica.
+-- ---------------------------------------------------------------------
+create table if not exists limite_registrazioni (
+  id uuid primary key default gen_random_uuid(),
+  ip text not null,
+  creato_at timestamptz not null default now()
+);
+
+create index if not exists limite_registrazioni_ip_creato_at
+  on limite_registrazioni (ip, creato_at);
+
+alter table limite_registrazioni enable row level security;
+
+-- ---------------------------------------------------------------------
 -- Medico di riferimento (scheda di soli recapiti, auto-dichiarata)
 -- ---------------------------------------------------------------------
 create table if not exists medici_riferimento (

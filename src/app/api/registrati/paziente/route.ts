@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { verificaTurnstile } from "@/lib/turnstile";
+import { estraiIp } from "@/lib/ip";
+import { haRaggiuntoLimiteIp, registraTentativoIp } from "@/lib/limiteRegistrazioni";
 
 interface CorpoRichiesta {
   email: string;
@@ -17,8 +19,8 @@ interface CorpoRichiesta {
 /** Stesso schema della registrazione fisioterapista: account già confermato + scheda, con rollback se la scheda fallisce. */
 export async function POST(request: Request) {
   const corpo = (await request.json()) as CorpoRichiesta;
+  const ip = estraiIp(request);
 
-  const ip = request.headers.get("x-forwarded-for");
   if (!(await verificaTurnstile(corpo.turnstileToken, ip))) {
     return NextResponse.json(
       { errore: "Verifica anti-spam non superata. Ricarica la pagina e riprova." },
@@ -31,6 +33,13 @@ export async function POST(request: Request) {
   }
 
   const supabase = createAdminClient();
+
+  if (await haRaggiuntoLimiteIp(supabase, ip)) {
+    return NextResponse.json(
+      { errore: "Hai raggiunto il numero massimo di registrazioni consentite oggi da questa rete. Riprova domani." },
+      { status: 429 }
+    );
+  }
 
   const { data: creato, error: erroreCreazione } = await supabase.auth.admin.createUser({
     email: corpo.email,
@@ -63,6 +72,8 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
+
+  await registraTentativoIp(supabase, ip);
 
   return NextResponse.json({ ok: true });
 }
