@@ -115,13 +115,14 @@ export default function ConversazionePage() {
     <div className="min-h-screen bg-sfondo dark:bg-gray-900 flex flex-col">
       <header className="bg-white dark:bg-gray-800 border-b border-slate-200 dark:border-gray-700 sticky top-0 z-20">
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link
-            href="/messaggi"
+          <button
+            type="button"
+            onClick={() => router.back()}
             className="p-2 -ml-2 rounded-lg text-slate-500 hover:text-notte hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-gray-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-            aria-label="Torna all'elenco dei messaggi"
+            aria-label="Torna indietro"
           >
             <ArrowLeft size={22} aria-hidden="true" />
-          </Link>
+          </button>
           <div className="min-w-0 flex-1">
             <h1 className="font-bold text-notte dark:text-white leading-tight truncate">
               {controparte.nome}
