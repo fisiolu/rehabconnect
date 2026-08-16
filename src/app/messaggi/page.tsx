@@ -1,40 +1,26 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, MapPin, MessageSquare } from "lucide-react";
 import { useApp } from "@/lib/AppContext";
-import { fisioterapisti, pazienti } from "@/lib/demoData";
+import { createClient } from "@/lib/supabase/client";
+import { caricaConversazioni, type ConversazioneVista } from "@/lib/supabase/conversazioni";
 
 export default function MessaggiPage() {
   const router = useRouter();
-  const { utente, conversazioni, messaggiDiretti } = useApp();
+  const { utente } = useApp();
+  const [mie, setMie] = useState<ConversazioneVista[] | null>(null);
 
   useEffect(() => {
     if (!utente) router.replace("/");
   }, [utente, router]);
 
-  const mie = useMemo(() => {
-    if (!utente) return [];
-    return conversazioni
-      .filter((c) =>
-        utente.ruolo === "paziente"
-          ? c.pazienteId === utente.id
-          : utente.ruolo === "fisioterapista"
-            ? c.fisioterapistaId === utente.id
-            : false
-      )
-      .map((c) => {
-        const msg = messaggiDiretti
-          .filter((m) => m.conversazioneId === c.id)
-          .sort((a, b) => a.timestamp.localeCompare(b.timestamp));
-        const ultimo = msg[msg.length - 1];
-        const nonLetti = msg.filter((m) => !m.letto && m.mittenteId !== utente.id).length;
-        return { conversazione: c, ultimo, nonLetti };
-      })
-      .sort((a, b) => (b.ultimo?.timestamp ?? "").localeCompare(a.ultimo?.timestamp ?? ""));
-  }, [utente, conversazioni, messaggiDiretti]);
+  useEffect(() => {
+    if (!utente || (utente.ruolo !== "paziente" && utente.ruolo !== "fisioterapista")) return;
+    caricaConversazioni(createClient(), { ruolo: utente.ruolo, id: utente.id }).then(setMie);
+  }, [utente]);
 
   if (!utente) return null;
 
@@ -57,7 +43,9 @@ export default function MessaggiPage() {
       </header>
 
       <main className="max-w-3xl mx-auto px-4 py-5">
-        {mie.length === 0 ? (
+        {mie === null ? (
+          <p className="text-center text-slate-400 py-16">Carico…</p>
+        ) : mie.length === 0 ? (
           <div className="text-center py-16">
             <MessageSquare size={40} className="mx-auto text-slate-300 mb-4" aria-hidden="true" />
             <h2 className="text-lg font-bold text-notte dark:text-white mb-2">
@@ -80,45 +68,38 @@ export default function MessaggiPage() {
           </div>
         ) : (
           <ul className="space-y-3">
-            {mie.map(({ conversazione: c, ultimo, nonLetti }) => {
-              const altro = sonoPaziente
-                ? fisioterapisti.find((f) => f.id === c.fisioterapistaId)
-                : pazienti.find((p) => p.id === c.pazienteId);
-              const nome = altro ? `${altro.nome} ${altro.cognome}` : "—";
-
-              return (
-                <li key={c.id}>
-                  <Link
-                    href={`/messaggi/${c.id}`}
-                    className="block bg-white dark:bg-gray-800 rounded-xl border border-slate-200 dark:border-gray-700 p-4 hover:border-primary-300 hover:shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
-                  >
-                    <div className="flex items-start justify-between gap-3 mb-1">
-                      <h2 className="font-bold text-notte dark:text-white truncate">{nome}</h2>
-                      <div className="flex items-center gap-2 shrink-0">
-                        {ultimo && (
-                          <span className="text-xs text-slate-400 dark:text-slate-500">
-                            {new Date(ultimo.timestamp).toLocaleDateString("it-IT", {
-                              day: "2-digit",
-                              month: "2-digit",
-                            })}
-                          </span>
-                        )}
-                        {nonLetti > 0 && (
-                          <span className="inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 rounded-full bg-primary-600 text-white text-xs font-bold">
-                            {nonLetti}
-                          </span>
-                        )}
-                      </div>
+            {mie.map((c) => (
+              <li key={c.id}>
+                <Link
+                  href={`/messaggi/${c.id}`}
+                  className="block bg-white dark:bg-gray-800 rounded-xl border border-slate-200 dark:border-gray-700 p-4 hover:border-primary-300 hover:shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+                >
+                  <div className="flex items-start justify-between gap-3 mb-1">
+                    <h2 className="font-bold text-notte dark:text-white truncate">
+                      {c.controparte.nome} {c.controparte.cognome}
+                    </h2>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {c.ultimoTimestamp && (
+                        <span className="text-xs text-slate-400 dark:text-slate-500">
+                          {new Date(c.ultimoTimestamp).toLocaleDateString("it-IT", {
+                            day: "2-digit",
+                            month: "2-digit",
+                          })}
+                        </span>
+                      )}
+                      {c.nonLetti > 0 && (
+                        <span className="inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 rounded-full bg-primary-600 text-white text-xs font-bold">
+                          {c.nonLetti}
+                        </span>
+                      )}
                     </div>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2">
-                      {ultimo
-                        ? `${ultimo.mittenteId === utente.id ? "Tu: " : ""}${ultimo.testo}`
-                        : "Nessun messaggio"}
-                    </p>
-                  </Link>
-                </li>
-              );
-            })}
+                  </div>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2">
+                    {c.ultimoTesto || "Nessun messaggio"}
+                  </p>
+                </Link>
+              </li>
+            ))}
           </ul>
         )}
       </main>

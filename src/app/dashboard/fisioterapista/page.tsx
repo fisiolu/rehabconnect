@@ -9,6 +9,8 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import type { MarkerDati } from "@/components/MappaLeaflet";
 import { pazienti, fisioterapisti, Appuntamento, Posizione, FotoEsercizio } from "@/lib/demoData";
+import { createClient } from "@/lib/supabase/client";
+import { caricaConversazioni, type ConversazioneVista } from "@/lib/supabase/conversazioni";
 
 const MappaLeaflet = dynamic(() => import("@/components/MappaLeaflet"), {
   ssr: false,
@@ -37,7 +39,15 @@ type Vista = "incarichi" | "agenda" | "mappa";
 type StatoGeo = "inattivo" | "caricamento" | "attivo" | "errore";
 
 export default function DashboardFisioterapista() {
-  const { utente, richieste, aggiornaRichiesta, addToast, posizioni, aggiornaPosizione, fotoEsercizi, aggiungiFoto, conversazioni, messaggiDiretti } = useApp();
+  const { utente, richieste, aggiornaRichiesta, addToast, posizioni, aggiornaPosizione, fotoEsercizi, aggiungiFoto } = useApp();
+  const [conversazioniMie, setConversazioniMie] = useState<ConversazioneVista[]>([]);
+
+  useEffect(() => {
+    if (!utente || utente.ruolo !== "fisioterapista") return;
+    caricaConversazioni(createClient(), { ruolo: "fisioterapista", id: utente.id }).then(
+      setConversazioniMie
+    );
+  }, [utente]);
   const router = useRouter();
   const [vista, setVista] = useState<Vista>("incarichi");
   const [confermaRifiuto, setConfermaRifiuto] = useState<string | null>(null);
@@ -48,31 +58,56 @@ export default function DashboardFisioterapista() {
     if (!utente || utente.ruolo !== "fisioterapista") router.push("/");
   }, [utente, router]);
 
+  // La scheda vera resta in revisione finché l'admin non la approva:
+  // niente dashboard operativa finché quello stato non arriva.
+  const [statoVerifica, setStatoVerifica] = useState<
+    "caricamento" | "in_attesa" | "approvato" | "rifiutato"
+  >("caricamento");
+
+  useEffect(() => {
+    if (!utente || utente.ruolo !== "fisioterapista") return;
+    const supabase = createClient();
+    supabase
+      .from("fisioterapisti")
+      .select("stato_verifica")
+      .eq("id", utente.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        setStatoVerifica(
+          (data?.stato_verifica as "in_attesa" | "approvato" | "rifiutato") ?? "approvato"
+        );
+      });
+  }, [utente]);
+
   if (!utente || utente.ruolo !== "fisioterapista") return null;
+
+  if (statoVerifica === "caricamento") return null;
+
+  if (statoVerifica === "in_attesa" || statoVerifica === "rifiutato") {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <Navbar />
+        <main className="max-w-md mx-auto px-4 py-16 text-center">
+          <div className="card">
+            <div className="text-4xl mb-3">{statoVerifica === "in_attesa" ? "⏳" : "✋"}</div>
+            <h1 className="text-lg font-bold mb-2">
+              {statoVerifica === "in_attesa"
+                ? "La tua richiesta è in revisione"
+                : "La tua richiesta non è stata accolta"}
+            </h1>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">
+              {statoVerifica === "in_attesa"
+                ? "Controlliamo i dati della tua scheda professionale prima di renderla visibile ai pazienti. Ti aggiorneremo appena è pronta."
+                : "Scrivici se pensi sia un errore o se vuoi correggere la tua scheda."}
+            </p>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   const fis = fisioterapisti.find((f) => f.id === utente.id);
   const miaPos = posizioni[utente.id];
-
-  // Conversazioni con i pazienti, le più recenti per prime e quelle con
-  // messaggi da leggere in cima a tutto.
-  const idUtente = utente.id;
-  const conversazioniMie = conversazioni
-    .filter((c) => c.fisioterapistaId === idUtente)
-    .map((conversazione) => {
-      const msg = messaggiDiretti
-        .filter((m) => m.conversazioneId === conversazione.id)
-        .sort((a, b) => a.timestamp.localeCompare(b.timestamp));
-      return {
-        conversazione,
-        paziente: pazienti.find((p) => p.id === conversazione.pazienteId),
-        ultimo: msg[msg.length - 1],
-        nonLetti: msg.filter((m) => !m.letto && m.mittenteId !== idUtente).length,
-      };
-    })
-    .sort((a, b) => {
-      if (a.nonLetti !== b.nonLetti) return b.nonLetti - a.nonLetti;
-      return (b.ultimo?.timestamp ?? "").localeCompare(a.ultimo?.timestamp ?? "");
-    });
 
   const nonLettiTotali = conversazioniMie.reduce((n, c) => n + c.nonLetti, 0);
 
@@ -171,9 +206,7 @@ export default function DashboardFisioterapista() {
               🏥
             </div>
             <div className="flex-1 min-w-0">
-              <h1 className="text-xl font-bold">
-                {fis?.nome} {fis?.cognome}
-              </h1>
+              <h1 className="text-xl font-bold">{fis ? `${fis.nome} ${fis.cognome}` : utente.nome}</h1>
               <p className="text-purple-100 text-sm">{fis?.specializzazioni.join(" · ")}</p>
               <div className="flex items-center gap-2 mt-1">
                 <span className="text-yellow-300 text-sm">★ {fis?.valutazione}</span>
@@ -208,35 +241,29 @@ export default function DashboardFisioterapista() {
             </div>
 
             <ul className="space-y-2">
-              {conversazioniMie.slice(0, 3).map(({ conversazione, paziente, ultimo, nonLetti }) => (
-                <li key={conversazione.id}>
+              {conversazioniMie.slice(0, 3).map((c) => (
+                <li key={c.id}>
                   <Link
-                    href={`/messaggi/${conversazione.id}`}
+                    href={`/messaggi/${c.id}`}
                     className={`block rounded-lg border p-3 transition-colors ${
-                      nonLetti > 0
+                      c.nonLetti > 0
                         ? "border-blue-300 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-800"
                         : "border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
                     }`}
                   >
                     <div className="flex items-center justify-between gap-2">
                       <span className="font-semibold text-gray-900 dark:text-gray-100 truncate">
-                        {paziente ? `${paziente.nome} ${paziente.cognome}` : "Paziente"}
+                        {c.controparte.nome} {c.controparte.cognome}
                       </span>
-                      {nonLetti > 0 && (
+                      {c.nonLetti > 0 && (
                         <span className="shrink-0 text-xs font-bold text-white bg-blue-600 rounded-full px-2 py-0.5">
-                          {nonLetti} nuovo{nonLetti > 1 ? "i" : ""}
+                          {c.nonLetti} nuovo{c.nonLetti > 1 ? "i" : ""}
                         </span>
                       )}
                     </div>
-                    {paziente && (
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate">
-                        {paziente.indirizzo}
-                      </p>
-                    )}
-                    {ultimo && (
+                    {c.ultimoTesto && (
                       <p className="text-sm text-gray-600 dark:text-gray-300 mt-1 line-clamp-1">
-                        {ultimo.mittenteId === utente.id ? "Tu: " : ""}
-                        {ultimo.testo}
+                        {c.ultimoTesto}
                       </p>
                     )}
                   </Link>

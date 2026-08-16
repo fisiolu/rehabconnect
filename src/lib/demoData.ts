@@ -188,6 +188,17 @@ export const posizioniDemo: Record<string, Posizione> = {
   },
 };
 
+/**
+ * ATTENZIONE — non più la fonte di verità per pazienti/fisioterapisti reali.
+ *
+ * Da quando pazienti e fisioterapisti hanno un account Supabase vero (vedi
+ * supabase/schema.sql, src/lib/supabase/*), questo cast serve solo a far
+ * funzionare il ciclo "Richieste" (chat/[richiestaId], referto/[richiestaId],
+ * dashboard/medico, la tab Richieste di dashboard/admin), ancora a dati
+ * finti in attesa di un secondo passaggio di migrazione. Non usarlo per
+ * login, ricerca o messaggistica: quei percorsi leggono da Supabase
+ * (src/lib/supabase/fisioterapisti.ts, pazienti.ts, conversazioni.ts).
+ */
 export const pazienti: Paziente[] = [
   {
     id: "paz-001",
@@ -250,9 +261,10 @@ export const medici: Medico[] = [
 
 /**
  * Fisioterapisti dimostrativi distribuiti su tutto il territorio italiano.
- * Servono a mostrare la ricerca per vicinanza ovunque l'app venga aperta:
- * ci sono gruppi più fitti nelle zone in cui è più probabile che venga provata.
- * Nomi, recapiti e numeri d'albo sono inventati.
+ * Nomi, recapiti e numeri d'albo sono inventati. Non compaiono più nella
+ * ricerca reale di /trova (quella legge da Supabase, solo fisioterapisti
+ * veri e approvati) — restano solo per il ciclo "Richieste" ancora demo,
+ * vedi la nota sopra "pazienti".
  */
 export const fisioterapisti: Fisioterapista[] = [
   // ---- Milano e hinterland ----

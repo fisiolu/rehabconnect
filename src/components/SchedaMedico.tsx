@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Clock, Mail, MapPin, Pencil, Phone, Stethoscope } from "lucide-react";
 import { useApp } from "@/lib/AppContext";
 import type { MedicoRiferimento } from "@/lib/demoData";
+import { createClient } from "@/lib/supabase/client";
 
 const VUOTO: MedicoRiferimento = {
   nome: "",
@@ -25,8 +26,22 @@ const VUOTO: MedicoRiferimento = {
  * il passaggio che consigliamo prima di iniziare la fisioterapia.
  */
 export default function SchedaMedico({ pazienteId }: { pazienteId: string }) {
-  const { mediciRiferimento, salvaMedicoRiferimento, addToast } = useApp();
-  const medico = mediciRiferimento[pazienteId];
+  const { addToast } = useApp();
+  const [medico, setMedico] = useState<MedicoRiferimento | null>(null);
+  const [caricato, setCaricato] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from("medici_riferimento")
+      .select("nome, cognome, ruolo, ambulatorio, telefono, email, orari, note")
+      .eq("paziente_id", pazienteId)
+      .maybeSingle()
+      .then(({ data }) => {
+        setMedico(data as MedicoRiferimento | null);
+        setCaricato(true);
+      });
+  }, [pazienteId]);
 
   const [inModifica, setInModifica] = useState(false);
   const [bozza, setBozza] = useState<MedicoRiferimento>(medico ?? VUOTO);
@@ -36,16 +51,26 @@ export default function SchedaMedico({ pazienteId }: { pazienteId: string }) {
     setInModifica(true);
   }
 
-  function salva(e: React.FormEvent) {
+  async function salva(e: React.FormEvent) {
     e.preventDefault();
     if (!bozza.cognome.trim()) {
       addToast("Scrivi almeno il cognome del medico.", "errore");
       return;
     }
-    salvaMedicoRiferimento(pazienteId, bozza);
+    const supabase = createClient();
+    const { error } = await supabase
+      .from("medici_riferimento")
+      .upsert({ paziente_id: pazienteId, ...bozza });
+    if (error) {
+      addToast("Non sono riuscito a salvare. Riprova.", "errore");
+      return;
+    }
+    setMedico(bozza);
     setInModifica(false);
     addToast("Dati del medico salvati.", "successo");
   }
+
+  if (!caricato) return null;
 
   if (inModifica) {
     return (

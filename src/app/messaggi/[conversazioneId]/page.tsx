@@ -1,52 +1,78 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Phone, Send } from "lucide-react";
 import { useApp } from "@/lib/AppContext";
-import { fisioterapisti, pazienti } from "@/lib/demoData";
 import { risposteFor } from "@/lib/risposteRapide";
 import DettaturaVocale from "@/components/DettaturaVocale";
+import { createClient } from "@/lib/supabase/client";
+import {
+  caricaControparte,
+  caricaMessaggi,
+  inviaMessaggioDiretto,
+  segnaConversazioneLetta,
+  type Controparte,
+  type MessaggioDirettoRiga,
+} from "@/lib/supabase/conversazioni";
 
 export default function ConversazionePage() {
   const { conversazioneId } = useParams<{ conversazioneId: string }>();
   const router = useRouter();
-  const {
-    utente,
-    conversazioni,
-    messaggiDiretti,
-    inviaMessaggioDiretto,
-    segnaConversazioneLetta,
-  } = useApp();
+  const { utente } = useApp();
 
   const [bozza, setBozza] = useState("");
   const fondo = useRef<HTMLDivElement>(null);
 
-  const conversazione = conversazioni.find((c) => c.id === conversazioneId);
-
-  const messaggi = useMemo(
-    () =>
-      messaggiDiretti
-        .filter((m) => m.conversazioneId === conversazioneId)
-        .sort((a, b) => a.timestamp.localeCompare(b.timestamp)),
-    [messaggiDiretti, conversazioneId]
-  );
-
-  // Chi non c'entra con questa conversazione non deve poterla leggere.
-  const autorizzato =
-    !!utente &&
-    !!conversazione &&
-    ((utente.ruolo === "paziente" && utente.id === conversazione.pazienteId) ||
-      (utente.ruolo === "fisioterapista" && utente.id === conversazione.fisioterapistaId));
+  const [caricato, setCaricato] = useState(false);
+  const [controparte, setControparte] = useState<Controparte | null>(null);
+  const [messaggi, setMessaggi] = useState<MessaggioDirettoRiga[]>([]);
 
   useEffect(() => {
     if (!utente) router.replace("/");
   }, [utente, router]);
 
+  const sonoPaziente = utente?.ruolo === "paziente";
+
+  const ricarica = useCallback(async () => {
+    if (!utente || (utente.ruolo !== "paziente" && utente.ruolo !== "fisioterapista")) return;
+    const supabase = createClient();
+
+    // La RLS restituisce la riga solo se sei uno dei due partecipanti:
+    // niente trovata = non esiste, oppure non è tua. Stessa schermata per
+    // entrambi i casi, senza doverli distinguere.
+    const { data: conversazione } = await supabase
+      .from("conversazioni")
+      .select("id, paziente_id, fisioterapista_id")
+      .eq("id", conversazioneId)
+      .maybeSingle();
+
+    if (!conversazione) {
+      setCaricato(true);
+      return;
+    }
+
+    const controparteId = sonoPaziente
+      ? conversazione.fisioterapista_id
+      : conversazione.paziente_id;
+
+    const [c, m] = await Promise.all([
+      caricaControparte(supabase, !!sonoPaziente, controparteId),
+      caricaMessaggi(supabase, conversazioneId),
+    ]);
+    setControparte(c);
+    setMessaggi(m);
+    setCaricato(true);
+
+    if (m.some((msg) => !msg.letto && msg.mittente_id !== utente.id)) {
+      await segnaConversazioneLetta(supabase, conversazioneId, utente.id);
+    }
+  }, [utente, conversazioneId, sonoPaziente]);
+
   useEffect(() => {
-    if (autorizzato && utente) segnaConversazioneLetta(conversazioneId, utente.id);
-  }, [autorizzato, utente, conversazioneId, segnaConversazioneLetta]);
+    ricarica();
+  }, [ricarica]);
 
   useEffect(() => {
     fondo.current?.scrollIntoView({ behavior: "smooth" });
@@ -54,7 +80,9 @@ export default function ConversazionePage() {
 
   if (!utente) return null;
 
-  if (!conversazione || !autorizzato) {
+  if (!caricato) return null;
+
+  if (!controparte) {
     return (
       <div className="min-h-screen bg-sfondo dark:bg-gray-900 flex items-center justify-center px-4">
         <div className="text-center max-w-sm">
@@ -75,25 +103,19 @@ export default function ConversazionePage() {
     );
   }
 
-  const fisio = fisioterapisti.find((f) => f.id === conversazione.fisioterapistaId);
-  const paziente = pazienti.find((p) => p.id === conversazione.pazienteId);
-  const sonoPaziente = utente.ruolo === "paziente";
-
-  // Il paziente vede il Fisioterapista, e viceversa.
-  const controparte = sonoPaziente
-    ? { nome: fisio ? `${fisio.nome} ${fisio.cognome}` : "Fisioterapista", sottotitolo: fisio?.specializzazioni.join(" · ") ?? "", telefono: fisio?.telefono }
-    : { nome: paziente ? `${paziente.nome} ${paziente.cognome}` : "Paziente", sottotitolo: paziente?.indirizzo ?? "", telefono: paziente?.telefono };
-
-  function inviaTesto(testo: string) {
+  async function inviaTesto(testo: string) {
     const pulito = testo.trim();
     if (!pulito || !utente) return;
-    inviaMessaggioDiretto(
+    const supabase = createClient();
+    await inviaMessaggioDiretto(
+      supabase,
       conversazioneId,
       utente.id,
       sonoPaziente ? "paziente" : "fisioterapista",
       pulito
     );
     setBozza("");
+    ricarica();
   }
 
   function invia(e: React.FormEvent) {
@@ -125,7 +147,7 @@ export default function ConversazionePage() {
           </button>
           <div className="min-w-0 flex-1">
             <h1 className="font-bold text-notte dark:text-white leading-tight truncate">
-              {controparte.nome}
+              {controparte.nome} {controparte.cognome}
             </h1>
             {controparte.sottotitolo && (
               <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
@@ -154,7 +176,7 @@ export default function ConversazionePage() {
           )}
 
           {messaggi.map((m) => {
-            const mio = m.mittenteId === utente.id;
+            const mio = m.mittente_id === utente.id;
             return (
               <div key={m.id} className={`flex ${mio ? "justify-end" : "justify-start"}`}>
                 <div

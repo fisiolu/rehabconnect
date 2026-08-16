@@ -9,6 +9,8 @@ import StatoBadge from "@/components/StatoBadge";
 import GraficoRiabilitazione from "@/components/GraficoRiabilitazione";
 import SchedaMedico from "@/components/SchedaMedico";
 import { pazienti, fisioterapisti, medici, Richiesta, Posizione, Valutazione } from "@/lib/demoData";
+import { createClient } from "@/lib/supabase/client";
+import { caricaPaziente, type PazienteRiga } from "@/lib/supabase/pazienti";
 
 type StatoGeo = "inattivo" | "caricamento" | "attivo" | "errore";
 
@@ -34,6 +36,12 @@ export default function DashboardPaziente() {
   const [statoGeo, setStatoGeo] = useState<StatoGeo>("inattivo");
   const [erroreGeo, setErroreGeo] = useState("");
   const [notificheAttive, setNotificheAttive] = useState(false);
+  const [pazienteReale, setPazienteReale] = useState<PazienteRiga | null>(null);
+
+  useEffect(() => {
+    if (!utente || utente.ruolo !== "paziente") return;
+    caricaPaziente(createClient(), utente.id).then(setPazienteReale);
+  }, [utente]);
 
   const [form, setForm] = useState({
     patologia: "",
@@ -74,7 +82,16 @@ export default function DashboardPaziente() {
   if (!utente || utente.ruolo !== "paziente") return null;
 
   const miaPos = posizioni[utente.id];
-  const paziente = pazienti.find((p) => p.id === utente.id);
+  const paziente = pazienteReale
+    ? {
+        id: pazienteReale.id,
+        nome: pazienteReale.nome,
+        cognome: pazienteReale.cognome,
+        dataNascita: pazienteReale.data_nascita,
+        indirizzo: pazienteReale.indirizzo,
+        medicoId: undefined as string | undefined,
+      }
+    : pazienti.find((p) => p.id === utente.id);
   const medico = medici.find((m) => m.id === paziente?.medicoId);
   const mieRichieste = richieste.filter((r) => r.pazienteId === utente.id);
   const mieValutazioni = valutazioni.filter((v) => v.pazienteId === utente.id);

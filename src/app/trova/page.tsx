@@ -17,7 +17,7 @@ import {
   Wallet,
   X,
 } from "lucide-react";
-import { fisioterapisti } from "@/lib/demoData";
+import type { Fisioterapista } from "@/lib/demoData";
 import {
   cercaFisioterapistiVicini,
   formattaDistanza,
@@ -25,7 +25,10 @@ import {
   type Coordinate,
 } from "@/lib/geo";
 import { useApp } from "@/lib/AppContext";
-import { pazienti } from "@/lib/demoData";
+import { createClient } from "@/lib/supabase/client";
+import { cercaApprovati } from "@/lib/supabase/fisioterapisti";
+import { caricaPaziente } from "@/lib/supabase/pazienti";
+import { apriConversazione as apriConversazioneReale } from "@/lib/supabase/conversazioni";
 
 const MappaRicerca = dynamic(() => import("@/components/MappaRicerca"), {
   ssr: false,
@@ -52,7 +55,7 @@ const CITTA = [
 type StatoGps = "inattivo" | "in_corso" | "negato" | "non_supportato";
 
 export default function TrovaPage() {
-  const { utente, setUtente, apriConversazione, addToast } = useApp();
+  const { utente } = useApp();
   const router = useRouter();
 
   const [posizione, setPosizione] = useState<Coordinate | null>(null);
@@ -63,15 +66,21 @@ export default function TrovaPage() {
   const [soloDisponibili, setSoloDisponibili] = useState(true);
   const [soloRaggiungibili, setSoloRaggiungibili] = useState(true);
   const [filtriAperti, setFiltriAperti] = useState(false);
+  const [fisioterapisti, setFisioterapisti] = useState<Fisioterapista[]>([]);
+
+  useEffect(() => {
+    cercaApprovati(createClient()).then(setFisioterapisti);
+  }, []);
 
   // Se il paziente è già entrato, si parte dal suo domicilio.
   useEffect(() => {
     if (posizione || utente?.ruolo !== "paziente") return;
-    const paziente = pazienti.find((p) => p.id === utente.id);
-    if (paziente) {
-      setPosizione(paziente.domicilio);
-      setEtichettaPosizione(`Casa tua — ${paziente.indirizzo}`);
-    }
+    caricaPaziente(createClient(), utente.id).then((paziente) => {
+      if (paziente) {
+        setPosizione({ lat: paziente.domicilio_lat, lng: paziente.domicilio_lng });
+        setEtichettaPosizione(`Casa tua — ${paziente.indirizzo}`);
+      }
+    });
   }, [utente, posizione]);
 
   function usaPosizioneAttuale() {
@@ -105,26 +114,17 @@ export default function TrovaPage() {
     setSelezionatoId(null);
   }
 
-  /**
-   * Per scrivere serve un profilo paziente. In questa versione dimostrativa,
-   * chi non è ancora entrato viene fatto accedere come paziente di esempio,
-   * dicendoglielo apertamente invece di farlo di nascosto.
-   */
-  function scriviA(fisioterapistaId: string) {
-    let pazienteId = utente?.ruolo === "paziente" ? utente.id : null;
-
-    if (!pazienteId) {
-      const demo = pazienti[0];
-      pazienteId = demo.id;
-      setUtente({ ruolo: "paziente", id: demo.id, nome: `${demo.nome} ${demo.cognome}` });
-      addToast(`Versione dimostrativa: sei entrato come ${demo.nome} ${demo.cognome}`, "info");
+  /** Per scrivere serve essere autenticati come paziente. */
+  async function scriviA(fisioterapistaId: string) {
+    if (utente?.ruolo !== "paziente") {
+      router.push("/accedi?redirect=/trova");
+      return;
     }
-
-    const conversazioneId = apriConversazione(pazienteId, fisioterapistaId);
+    const conversazioneId = await apriConversazioneReale(createClient(), utente.id, fisioterapistaId);
     router.push(`/messaggi/${conversazioneId}`);
   }
 
-  const specialita = useMemo(() => specializzazioniDisponibili(fisioterapisti), []);
+  const specialita = useMemo(() => specializzazioniDisponibili(fisioterapisti), [fisioterapisti]);
 
   const risultati = useMemo(() => {
     if (!posizione) return [];
@@ -133,7 +133,7 @@ export default function TrovaPage() {
       soloDisponibili,
       soloRaggiungibili,
     });
-  }, [posizione, specializzazione, soloDisponibili, soloRaggiungibili]);
+  }, [posizione, fisioterapisti, specializzazione, soloDisponibili, soloRaggiungibili]);
 
   const selezionato = risultati.find((r) => r.fisioterapista.id === selezionatoId) ?? null;
 

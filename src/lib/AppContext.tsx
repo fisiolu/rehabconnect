@@ -1,6 +1,8 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
+import { createClient } from "./supabase/client";
+import { risolviRuolo } from "./supabase/ruolo";
 import {
   Ruolo,
   Richiesta,
@@ -10,21 +12,15 @@ import {
   Posizione,
   Valutazione,
   FotoEsercizio,
-  Conversazione,
-  MessaggioDiretto,
-  MedicoRiferimento,
   richieste as demoRichieste,
   messaggiDemo,
   notificheDemo,
   posizioniDemo,
   valutazioniDemo,
   fotoEserciziDemo,
-  conversazioniDemo,
-  messaggiDirettiDemo,
-  mediciRiferimentoDemo,
 } from "./demoData";
 
-interface UtenteCorrente {
+export interface UtenteCorrente {
   ruolo: Ruolo;
   id: string;
   nome: string;
@@ -38,7 +34,15 @@ export interface Toast {
 
 interface AppContextType {
   utente: UtenteCorrente | null;
-  setUtente: (u: UtenteCorrente | null) => void;
+  /** true finché non si è ancora capito se c'è una sessione valida. */
+  caricandoSessione: boolean;
+  esci: () => Promise<void>;
+  /**
+   * Provvisorio: il Medico non ha ancora un account Supabase vero (arriva
+   * in un passaggio successivo). Finché non lo migriamo, resta l'unico
+   * ruolo che entra con un profilo demo invece che con una sessione reale.
+   */
+  entraComeMedicoDemo: (u: UtenteCorrente) => void;
   richieste: Richiesta[];
   aggiornaRichiesta: (id: string, campi: Partial<Richiesta>) => void;
   aggiungiRichiesta: (r: Richiesta) => void;
@@ -57,27 +61,13 @@ interface AppContextType {
   aggiungiValutazione: (v: Valutazione) => void;
   fotoEsercizi: FotoEsercizio[];
   aggiungiFoto: (f: FotoEsercizio) => void;
-  conversazioni: Conversazione[];
-  messaggiDiretti: MessaggioDiretto[];
-  /** Restituisce la conversazione fra i due, creandola se non esiste ancora. */
-  apriConversazione: (pazienteId: string, fisioterapistaId: string) => string;
-  inviaMessaggioDiretto: (
-    conversazioneId: string,
-    mittenteId: string,
-    ruolo: "paziente" | "fisioterapista",
-    testo: string
-  ) => void;
-  /** Segna come letti i messaggi ricevuti in quella conversazione. */
-  segnaConversazioneLetta: (conversazioneId: string, lettoreId: string) => void;
-  /** Scheda del medico di riferimento, una per paziente. */
-  mediciRiferimento: Record<string, MedicoRiferimento>;
-  salvaMedicoRiferimento: (pazienteId: string, medico: MedicoRiferimento) => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [utente, setUtente] = useState<UtenteCorrente | null>(null);
+  const [caricandoSessione, setCaricandoSessione] = useState(true);
   const [richieste, setRichieste] = useState<Richiesta[]>(demoRichieste);
   const [messaggi, setMessaggi] = useState<Messaggio[]>(messaggiDemo);
   const [notifiche, setNotifiche] = useState<Notifica[]>(notificheDemo);
@@ -85,11 +75,43 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [posizioni, setPosizioni] = useState<Record<string, Posizione>>(posizioniDemo);
   const [valutazioni, setValutazioni] = useState<Valutazione[]>(valutazioniDemo);
   const [fotoEsercizi, setFotoEsercizi] = useState<FotoEsercizio[]>(fotoEserciziDemo);
-  const [conversazioni, setConversazioni] = useState<Conversazione[]>(conversazioniDemo);
-  const [messaggiDiretti, setMessaggiDiretti] =
-    useState<MessaggioDiretto[]>(messaggiDirettiDemo);
-  const [mediciRiferimento, setMediciRiferimento] =
-    useState<Record<string, MedicoRiferimento>>(mediciRiferimentoDemo);
+
+  // "utente" nasce dalla sessione Supabase vera, non più da un bottone
+  // che finge un login. Il ruolo si scopre cercando l'id in admins,
+  // fisioterapisti, pazienti — nell'ordine, il primo che risponde vince.
+  useEffect(() => {
+    const supabase = createClient();
+    let attivo = true;
+
+    async function aggiorna(userId: string | undefined) {
+      const risolto = userId ? await risolviRuolo(supabase, userId) : null;
+      if (attivo) {
+        setUtente(risolto);
+        setCaricandoSessione(false);
+      }
+    }
+
+    supabase.auth.getSession().then(({ data }) => aggiorna(data.session?.user.id));
+
+    const { data: sottoscrizione } = supabase.auth.onAuthStateChange((_evento, sessione) => {
+      aggiorna(sessione?.user.id);
+    });
+
+    return () => {
+      attivo = false;
+      sottoscrizione.subscription.unsubscribe();
+    };
+  }, []);
+
+  const esci = useCallback(async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    setUtente(null);
+  }, []);
+
+  const entraComeMedicoDemo = useCallback((u: UtenteCorrente) => {
+    setUtente(u);
+  }, []);
 
   const aggiornaRichiesta = useCallback(
     (id: string, campi: Partial<Richiesta>) => {
@@ -161,70 +183,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setFotoEsercizi((prev) => [...prev, f]);
   }, []);
 
-  const apriConversazione = useCallback(
-    (pazienteId: string, fisioterapistaId: string) => {
-      const esistente = conversazioni.find(
-        (c) => c.pazienteId === pazienteId && c.fisioterapistaId === fisioterapistaId
-      );
-      if (esistente) return esistente.id;
-
-      const nuova: Conversazione = {
-        id: `conv-${pazienteId}-${fisioterapistaId}`,
-        pazienteId,
-        fisioterapistaId,
-        iniziata: new Date().toISOString(),
-      };
-      setConversazioni((prev) => [...prev, nuova]);
-      return nuova.id;
-    },
-    [conversazioni]
-  );
-
-  const inviaMessaggioDiretto = useCallback(
-    (
-      conversazioneId: string,
-      mittenteId: string,
-      ruolo: "paziente" | "fisioterapista",
-      testo: string
-    ) => {
-      setMessaggiDiretti((prev) => [
-        ...prev,
-        {
-          id: `md-${conversazioneId}-${prev.length + 1}-${Math.random().toString(36).slice(2, 7)}`,
-          conversazioneId,
-          mittenteId,
-          ruolo,
-          testo,
-          timestamp: new Date().toISOString(),
-          letto: false,
-        },
-      ]);
-    },
-    []
-  );
-
-  const salvaMedicoRiferimento = useCallback(
-    (pazienteId: string, medico: MedicoRiferimento) => {
-      setMediciRiferimento((prev) => ({ ...prev, [pazienteId]: medico }));
-    },
-    []
-  );
-
-  const segnaConversazioneLetta = useCallback((conversazioneId: string, lettoreId: string) => {
-    setMessaggiDiretti((prev) =>
-      prev.map((m) =>
-        m.conversazioneId === conversazioneId && m.mittenteId !== lettoreId && !m.letto
-          ? { ...m, letto: true }
-          : m
-      )
-    );
-  }, []);
-
   return (
     <AppContext.Provider
       value={{
         utente,
-        setUtente,
+        caricandoSessione,
+        esci,
+        entraComeMedicoDemo,
         richieste,
         aggiornaRichiesta,
         aggiungiRichiesta,
@@ -243,13 +208,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         aggiungiValutazione,
         fotoEsercizi,
         aggiungiFoto,
-        conversazioni,
-        messaggiDiretti,
-        apriConversazione,
-        inviaMessaggioDiretto,
-        segnaConversazioneLetta,
-        mediciRiferimento,
-        salvaMedicoRiferimento,
       }}
     >
       {children}

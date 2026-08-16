@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import LogoUfficiale from "@/components/LogoUfficiale";
 import { ArrowLeft } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { caricaConversazioni } from "@/lib/supabase/conversazioni";
 
 const ruoloLabel: Record<string, string> = {
   paziente: "Paziente",
@@ -42,37 +44,25 @@ const notificaTipoIcona: Record<string, string> = {
 };
 
 export default function Navbar() {
-  const {
-    utente,
-    setUtente,
-    notifiche,
-    segnaNotificaLetta,
-    segnaNotificheLette,
-    conversazioni,
-    messaggiDiretti,
-  } = useApp();
+  const { utente, esci, notifiche, segnaNotificaLetta, segnaNotificheLette } = useApp();
   const { tema, toggleTema, testoGrande, toggleTesto } = useTema();
   const router = useRouter();
   const [aperto, setAperto] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const [messaggiNonLetti, setMessaggiNonLetti] = useState(0);
 
   const mieNotifiche = notifiche.filter((n) => n.destinatarioId === utente?.id);
   const nonLette = mieNotifiche.filter((n) => !n.letto).length;
 
-  // Messaggi diretti ancora da leggere, nelle conversazioni che riguardano l'utente.
-  const mieConversazioni = conversazioni.filter((c) =>
-    utente?.ruolo === "paziente"
-      ? c.pazienteId === utente.id
-      : utente?.ruolo === "fisioterapista"
-        ? c.fisioterapistaId === utente.id
-        : false
-  );
-  const messaggiNonLetti = messaggiDiretti.filter(
-    (m) =>
-      !m.letto &&
-      m.mittenteId !== utente?.id &&
-      mieConversazioni.some((c) => c.id === m.conversazioneId)
-  ).length;
+  useEffect(() => {
+    if (!utente || (utente.ruolo !== "paziente" && utente.ruolo !== "fisioterapista")) {
+      setMessaggiNonLetti(0);
+      return;
+    }
+    caricaConversazioni(createClient(), { ruolo: utente.ruolo, id: utente.id }).then((mie) =>
+      setMessaggiNonLetti(mie.reduce((n, c) => n + c.nonLetti, 0))
+    );
+  }, [utente]);
 
   useEffect(() => {
     function chiudi(e: MouseEvent) {
@@ -84,8 +74,8 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", chiudi);
   }, []);
 
-  function handleLogout() {
-    setUtente(null);
+  async function handleLogout() {
+    await esci();
     router.push("/");
   }
 

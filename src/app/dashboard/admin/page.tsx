@@ -1,14 +1,30 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useApp } from "@/lib/AppContext";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import StatoBadge from "@/components/StatoBadge";
 import Link from "next/link";
 import { pazienti, medici, fisioterapisti, StatoRichiesta, statoLabel } from "@/lib/demoData";
+import { createClient } from "@/lib/supabase/client";
 
 type Sezione = "panoramica" | "richieste" | "utenti";
+
+interface FisioReale {
+  id: string;
+  nome: string;
+  cognome: string;
+  email: string;
+  telefono: string;
+  specializzazioni: string[];
+  base_citta: string;
+  base_provincia: string;
+  numero_albo: string;
+  anni_esperienza: number;
+  stato_verifica: "in_attesa" | "approvato" | "rifiutato";
+  created_at: string;
+}
 
 export default function DashboardAdmin() {
   const { utente, richieste } = useApp();
@@ -16,11 +32,45 @@ export default function DashboardAdmin() {
   const [sezione, setSezione] = useState<Sezione>("panoramica");
   const [filtroStato, setFiltroStato] = useState<StatoRichiesta | "tutte">("tutte");
 
+  const [fisioReali, setFisioReali] = useState<FisioReale[]>([]);
+  const [caricandoFisioReali, setCaricandoFisioReali] = useState(true);
+  const [inCorsoId, setInCorsoId] = useState<string | null>(null);
+
+  const caricaFisioReali = useCallback(async () => {
+    setCaricandoFisioReali(true);
+    const supabase = createClient();
+    const { data } = await supabase
+      .from("fisioterapisti")
+      .select(
+        "id, nome, cognome, email, telefono, specializzazioni, base_citta, base_provincia, numero_albo, anni_esperienza, stato_verifica, created_at"
+      )
+      .order("created_at", { ascending: false });
+    setFisioReali((data as FisioReale[]) ?? []);
+    setCaricandoFisioReali(false);
+  }, []);
+
+  useEffect(() => {
+    if (utente?.ruolo === "admin") caricaFisioReali();
+  }, [utente, caricaFisioReali]);
+
+  async function approvaRifiuta(id: string, azione: "approva" | "rifiuta") {
+    setInCorsoId(id);
+    await fetch(`/api/admin/fisioterapisti/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ azione }),
+    });
+    await caricaFisioReali();
+    setInCorsoId(null);
+  }
+
   useEffect(() => {
     if (!utente || utente.ruolo !== "admin") router.push("/");
   }, [utente, router]);
 
   if (!utente || utente.ruolo !== "admin") return null;
+
+  const inAttesa = fisioReali.filter((f) => f.stato_verifica === "in_attesa");
 
   const stati: StatoRichiesta[] = [
     "in_attesa", "in_valutazione", "assegnata", "in_corso", "completata", "rifiutata",
@@ -225,6 +275,57 @@ export default function DashboardAdmin() {
         {/* Gestione utenti */}
         {sezione === "utenti" && (
           <div className="space-y-6">
+            <div>
+              <h2 className="mb-3">
+                Richieste d&apos;iscrizione fisioterapisti
+                {inAttesa.length > 0 && (
+                  <span className="ml-2 badge bg-amber-100 text-amber-700 text-xs align-middle">
+                    {inAttesa.length} in attesa
+                  </span>
+                )}
+              </h2>
+              {caricandoFisioReali ? (
+                <p className="text-sm text-gray-400">Carico…</p>
+              ) : inAttesa.length === 0 ? (
+                <p className="text-sm text-gray-400">Nessuna richiesta in attesa.</p>
+              ) : (
+                <div className="space-y-2">
+                  {inAttesa.map((f) => (
+                    <div key={f.id} className="card">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm">{f.nome} {f.cognome}</p>
+                          <p className="text-xs text-gray-400 mt-0.5">
+                            {f.specializzazioni.join(" · ")} · {f.base_citta} ({f.base_provincia})
+                          </p>
+                          <p className="text-xs text-gray-400">
+                            Albo n. {f.numero_albo} · {f.anni_esperienza} anni di esperienza
+                          </p>
+                          <p className="text-xs text-gray-400">{f.email} · {f.telefono}</p>
+                        </div>
+                        <div className="flex gap-2 shrink-0">
+                          <button
+                            onClick={() => approvaRifiuta(f.id, "rifiuta")}
+                            disabled={inCorsoId === f.id}
+                            className="btn-danger py-1.5 px-3 text-sm"
+                          >
+                            Rifiuta
+                          </button>
+                          <button
+                            onClick={() => approvaRifiuta(f.id, "approva")}
+                            disabled={inCorsoId === f.id}
+                            className="btn-success py-1.5 px-3 text-sm"
+                          >
+                            Approva
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <div>
               <h2 className="mb-3">Pazienti ({pazienti.length})</h2>
               <div className="space-y-2">

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useApp } from "@/lib/AppContext";
 import { useRouter } from "next/navigation";
-import { pazienti, medici, fisioterapisti } from "@/lib/demoData";
+import { medici } from "@/lib/demoData";
 import { Accessibility, ArrowRight, HandHelping, MapPin, Stethoscope } from "lucide-react";
 import HeaderHome from "@/components/home/HeaderHome";
 import AnteprimaMappa from "@/components/home/AnteprimaMappa";
@@ -13,30 +13,20 @@ import PercorsoCard from "@/components/home/PercorsoCard";
 import FooterHome from "@/components/home/FooterHome";
 import Rivela from "@/components/Rivela";
 
-function getUtenteDemo(ruolo: string) {
-  if (ruolo === "paziente") {
-    const p = pazienti[0];
-    return { ruolo: "paziente" as const, id: p.id, nome: `${p.nome} ${p.cognome}` };
-  }
-  if (ruolo === "medico") {
-    const m = medici[0];
-    return { ruolo: "medico" as const, id: m.id, nome: `Dr.ssa ${m.cognome}` };
-  }
-  if (ruolo === "fisioterapista") {
-    const f = fisioterapisti[0];
-    return { ruolo: "fisioterapista" as const, id: f.id, nome: `${f.nome} ${f.cognome}` };
-  }
-  return { ruolo: "admin" as const, id: "admin-001", nome: "Amministratore" };
-}
-
 export default function HomePage() {
-  const { setUtente } = useApp();
+  const { entraComeMedicoDemo } = useApp();
   const router = useRouter();
 
-  function accedi(ruolo: string) {
-    const utente = getUtenteDemo(ruolo);
-    setUtente(utente);
-    router.push(`/dashboard/${ruolo}`);
+  /**
+   * Paziente e Fisioterapista hanno ormai un account vero: la card manda
+   * al login, che a sua volta offre la registrazione.
+   * Il Medico resta provvisoriamente a un ingresso demo (nessun account
+   * reale ancora — arriverà in un passaggio successivo).
+   */
+  function accediComeMedicoDemo() {
+    const m = medici[0];
+    entraComeMedicoDemo({ ruolo: "medico", id: m.id, nome: `Dr.ssa ${m.cognome}` });
+    router.push("/dashboard/medico");
   }
 
   return (
@@ -148,7 +138,7 @@ export default function HomePage() {
               sottotitolo="o familiare"
               descrizione="Segui il tuo percorso, gli appuntamenti e i messaggi con il Fisioterapista."
               ctaLabel="Entra come paziente"
-              onClick={() => accedi("paziente")}
+              onClick={() => router.push("/accedi")}
               iconBg="bg-primary-50 dark:bg-primary-900/30"
               iconColor="text-primary-600 dark:text-primary-400"
               ring="focus-visible:ring-primary-500"
@@ -163,7 +153,7 @@ export default function HomePage() {
               titolo="Fisioterapista"
               descrizione="Fatti trovare dai pazienti della tua zona e gestisci la tua agenda."
               ctaLabel="Entra come Fisioterapista"
-              onClick={() => accedi("fisioterapista")}
+              onClick={() => router.push("/accedi")}
               iconBg="bg-notte/10 dark:bg-white/10"
               iconColor="text-notte dark:text-slate-200"
               ring="focus-visible:ring-notte"
@@ -176,7 +166,7 @@ export default function HomePage() {
               sottotitolo="di base/Specialista"
               descrizione="Valuta le richieste dei tuoi assistiti e indirizzali al professionista giusto."
               ctaLabel="Entra come medico"
-              onClick={() => accedi("medico")}
+              onClick={accediComeMedicoDemo}
               iconBg="bg-teal-50 dark:bg-teal-900/30"
               iconColor="text-teal-600 dark:text-teal-400"
               ring="focus-visible:ring-teal-500"
@@ -195,7 +185,7 @@ export default function HomePage() {
         </p>
       </section>
 
-      <FooterHome onAdminClick={() => accedi("admin")} />
+      <FooterHome onAdminClick={() => router.push("/accedi")} />
     </div>
   );
 }
