@@ -71,6 +71,14 @@ export interface Fisioterapista {
    */
   numeroAlbo: string;
   /**
+   * Casella PEC dichiarata all'iscrizione. Obbligatoria per registrarsi, ma
+   * facoltativa in questo tipo perché NON viene mostrata ai pazienti: la
+   * ricerca pubblica non la richiede al database. La leggono solo
+   * l'amministratore, per confrontarla con inipec.gov.it prima di approvare,
+   * e il professionista stesso.
+   */
+  pec?: string;
+  /**
    * Tariffa a seduta domiciliare, in euro. È una forbice perché varia con il tipo
    * di trattamento. Il trattamento domiciliare è sempre privato: non esiste una
    * convenzione diretta fra fisioterapista e ASL.

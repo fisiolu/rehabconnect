@@ -9,6 +9,7 @@ interface CorpoRichiesta {
   telefono: string;
   specializzazioni: string[];
   numeroAlbo: string;
+  pec: string;
   tariffaMin: number;
   tariffaMax: number;
   assicurazioni: string[];
@@ -34,6 +35,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ errore: "Mancano dei campi obbligatori." }, { status: 400 });
   }
 
+  // La PEC è obbligatoria: senza, la verifica d'identità non ha su cosa
+  // appoggiarsi. Il controllo è anche qui e non solo nel modulo, perché il
+  // modulo si può aggirare chiamando questa rotta direttamente.
+  const pec = corpo.pec?.trim().toLowerCase() ?? "";
+  if (!pec || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(pec)) {
+    return NextResponse.json(
+      { errore: "Serve un indirizzo PEC valido: è quello a cui invieremo la conferma." },
+      { status: 400 }
+    );
+  }
+
   const supabase = createAdminClient();
 
   const { data: creato, error: erroreCreazione } = await supabase.auth.admin.createUser({
@@ -57,6 +69,7 @@ export async function POST(request: Request) {
     email: corpo.email,
     specializzazioni: corpo.specializzazioni,
     numero_albo: corpo.numeroAlbo,
+    pec,
     tariffa_min: corpo.tariffaMin,
     tariffa_max: corpo.tariffaMax,
     assicurazioni: corpo.assicurazioni,

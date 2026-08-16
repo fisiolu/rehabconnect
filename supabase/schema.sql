@@ -18,6 +18,14 @@ create table if not exists fisioterapisti (
   disponibile boolean not null default true,
   valutazione numeric not null default 0,
   numero_albo text not null,
+  -- Casella PEC dichiarata all'iscrizione, obbligatoria.
+  -- Il numero d'albo è pubblico e chiunque può copiarlo: prova che il
+  -- professionista esiste, non che sia chi si sta iscrivendo. La PEC è per
+  -- legge obbligatoria per gli iscritti all'Ordine ed è la sola cosa che il
+  -- professionista vero controlla. Prima di approvare va CONFRONTATA con
+  -- quella ufficiale su inipec.gov.it: inviare alla PEC digitata senza
+  -- confronto non protegge da nulla.
+  pec text not null default '',
   tariffa_min int not null,
   tariffa_max int not null,
   assicurazioni text[] not null default '{}',
@@ -33,6 +41,10 @@ create table if not exists fisioterapisti (
   nota_admin text,
   created_at timestamptz not null default now()
 );
+
+-- Per gli archivi creati prima che la PEC diventasse obbligatoria:
+-- "create table if not exists" qui sopra non tocca una tabella già esistente.
+alter table fisioterapisti add column if not exists pec text not null default '';
 
 alter table fisioterapisti enable row level security;
 

@@ -35,6 +35,7 @@ export default function RegistratiFisioterapistaPage() {
   const [telefono, setTelefono] = useState("");
   const [specializzazioni, setSpecializzazioni] = useState("");
   const [numeroAlbo, setNumeroAlbo] = useState("");
+  const [pec, setPec] = useState("");
   const [anniEsperienza, setAnniEsperienza] = useState("");
   const [tariffaMin, setTariffaMin] = useState("");
   const [tariffaMax, setTariffaMax] = useState("");
@@ -112,6 +113,7 @@ export default function RegistratiFisioterapistaPage() {
         .map((s) => s.trim())
         .filter(Boolean),
       numeroAlbo,
+      pec,
       tariffaMin: Number(tariffaMin),
       tariffaMax: Number(tariffaMax),
       assicurazioni: assicurazioni
@@ -220,6 +222,36 @@ export default function RegistratiFisioterapistaPage() {
                 </label>
                 <input id="numeroAlbo" required className="input-field py-3"
                   value={numeroAlbo} onChange={(e) => setNumeroAlbo(e.target.value)} />
+              </div>
+
+              {/* La PEC è il perno della verifica: il numero d'albo è pubblico e
+                  copiabile, la casella PEC no. Va confrontata con INI-PEC. */}
+              <div>
+                <label className="label" htmlFor="pec">
+                  PEC comunicata all&apos;Ordine
+                </label>
+                <input
+                  id="pec"
+                  type="email"
+                  required
+                  placeholder="nome.cognome@pec.esempio.it"
+                  className="input-field py-3"
+                  value={pec}
+                  onChange={(e) => setPec(e.target.value)}
+                />
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">
+                  Serve a confermare che sei davvero tu. Deve essere la stessa PEC
+                  che risulta all&apos;Ordine: la confrontiamo con l&apos;indice nazionale{" "}
+                  <a
+                    href="https://www.inipec.gov.it"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary-600 dark:text-primary-400 underline underline-offset-2"
+                  >
+                    INI-PEC
+                  </a>{" "}
+                  e a quell&apos;indirizzo ti arriva il link di conferma.
+                </p>
               </div>
               <div>
                 <label className="label" htmlFor="specializzazioni">

@@ -18,6 +18,8 @@ interface FisioReale {
   base_citta: string;
   base_provincia: string;
   numero_albo: string;
+  /** Serve all'amministratore per il confronto con INI-PEC prima di approvare. */
+  pec: string;
   anni_esperienza: number;
   stato_verifica: "in_attesa" | "approvato" | "rifiutato";
   created_at: string;
@@ -62,7 +64,7 @@ export default function DashboardAdmin() {
       supabase
         .from("fisioterapisti")
         .select(
-          "id, nome, cognome, email, telefono, specializzazioni, base_citta, base_provincia, numero_albo, anni_esperienza, stato_verifica, created_at"
+          "id, nome, cognome, email, telefono, specializzazioni, base_citta, base_provincia, numero_albo, pec, anni_esperienza, stato_verifica, created_at"
         )
         .order("created_at", { ascending: false }),
       supabase
@@ -213,9 +215,50 @@ export default function DashboardAdmin() {
                             {f.specializzazioni.join(" · ")} · {f.base_citta} ({f.base_provincia})
                           </p>
                           <p className="text-xs text-gray-400">
-                            Albo n. {f.numero_albo} · {f.anni_esperienza} anni di esperienza
+                            {f.anni_esperienza} anni di esperienza
                           </p>
                           <p className="text-xs text-gray-400">{f.email} · {f.telefono}</p>
+
+                          {/* I due controlli da fare PRIMA di approvare. Il numero
+                              d'albo è pubblico e copiabile: da solo non prova nulla.
+                              È il confronto della PEC che smaschera un impostore. */}
+                          <div className="mt-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-2.5 space-y-1.5">
+                            <p className="text-xs font-semibold text-amber-900 dark:text-amber-300">
+                              Da controllare prima di approvare
+                            </p>
+                            <p className="text-xs text-amber-900 dark:text-amber-200">
+                              1. Albo <span className="font-mono">{f.numero_albo}</span> →{" "}
+                              <a
+                                href="https://fisionet.fnofi.it/albo-professionale"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="underline underline-offset-2 font-medium"
+                              >
+                                cerca su FNOFI
+                              </a>{" "}
+                              e verifica che il nome corrisponda
+                            </p>
+                            <p className="text-xs text-amber-900 dark:text-amber-200">
+                              2. PEC{" "}
+                              <span className="font-mono break-all">
+                                {f.pec || "— non indicata —"}
+                              </span>{" "}
+                              →{" "}
+                              <a
+                                href="https://www.inipec.gov.it"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="underline underline-offset-2 font-medium"
+                              >
+                                cerca su INI-PEC
+                              </a>{" "}
+                              e verifica che sia <strong>identica</strong> a quella ufficiale
+                            </p>
+                            <p className="text-xs text-amber-800 dark:text-amber-300/80">
+                              Se la PEC non coincide, rifiuta: è il segnale di
+                              un&apos;identità presa in prestito.
+                            </p>
+                          </div>
                         </div>
                         <div className="flex gap-2 shrink-0">
                           <button
