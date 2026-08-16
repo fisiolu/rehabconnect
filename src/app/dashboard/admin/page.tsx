@@ -4,12 +4,9 @@ import { useState, useEffect, useCallback } from "react";
 import { useApp } from "@/lib/AppContext";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
-import StatoBadge from "@/components/StatoBadge";
-import Link from "next/link";
-import { pazienti, medici, fisioterapisti, StatoRichiesta, statoLabel } from "@/lib/demoData";
 import { createClient } from "@/lib/supabase/client";
 
-type Sezione = "panoramica" | "richieste" | "utenti";
+type Sezione = "panoramica" | "utenti";
 
 interface FisioReale {
   id: string;
@@ -26,32 +23,61 @@ interface FisioReale {
   created_at: string;
 }
 
+interface PazienteReale {
+  id: string;
+  nome: string;
+  cognome: string;
+  email: string;
+  telefono: string;
+  indirizzo: string;
+  created_at: string;
+}
+
+const statoFisioLabel: Record<FisioReale["stato_verifica"], string> = {
+  in_attesa: "In attesa",
+  approvato: "Approvato",
+  rifiutato: "Rifiutato",
+};
+
+const statoFisioColore: Record<FisioReale["stato_verifica"], string> = {
+  in_attesa: "bg-amber-100 text-amber-700",
+  approvato: "bg-green-100 text-green-700",
+  rifiutato: "bg-gray-100 text-gray-500",
+};
+
 export default function DashboardAdmin() {
-  const { utente, richieste } = useApp();
+  const { utente } = useApp();
   const router = useRouter();
   const [sezione, setSezione] = useState<Sezione>("panoramica");
-  const [filtroStato, setFiltroStato] = useState<StatoRichiesta | "tutte">("tutte");
 
   const [fisioReali, setFisioReali] = useState<FisioReale[]>([]);
-  const [caricandoFisioReali, setCaricandoFisioReali] = useState(true);
+  const [pazientiReali, setPazientiReali] = useState<PazienteReale[]>([]);
+  const [caricando, setCaricando] = useState(true);
   const [inCorsoId, setInCorsoId] = useState<string | null>(null);
 
-  const caricaFisioReali = useCallback(async () => {
-    setCaricandoFisioReali(true);
+  const caricaTutto = useCallback(async () => {
+    setCaricando(true);
     const supabase = createClient();
-    const { data } = await supabase
-      .from("fisioterapisti")
-      .select(
-        "id, nome, cognome, email, telefono, specializzazioni, base_citta, base_provincia, numero_albo, anni_esperienza, stato_verifica, created_at"
-      )
-      .order("created_at", { ascending: false });
-    setFisioReali((data as FisioReale[]) ?? []);
-    setCaricandoFisioReali(false);
+    const [fisio, pazienti] = await Promise.all([
+      supabase
+        .from("fisioterapisti")
+        .select(
+          "id, nome, cognome, email, telefono, specializzazioni, base_citta, base_provincia, numero_albo, anni_esperienza, stato_verifica, created_at"
+        )
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("pazienti")
+        .select("id, nome, cognome, email, telefono, indirizzo, created_at")
+        .order("created_at", { ascending: false }),
+    ]);
+    setFisioReali((fisio.data as FisioReale[]) ?? []);
+    setPazientiReali((pazienti.data as PazienteReale[]) ?? []);
+    setCaricando(false);
   }, []);
 
   useEffect(() => {
-    if (utente?.ruolo === "admin") caricaFisioReali();
-  }, [utente, caricaFisioReali]);
+    if (utente?.ruolo === "admin") caricaTutto();
+  }, [utente, caricaTutto]);
 
   async function approvaRifiuta(id: string, azione: "approva" | "rifiuta") {
     setInCorsoId(id);
@@ -60,7 +86,7 @@ export default function DashboardAdmin() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ azione }),
     });
-    await caricaFisioReali();
+    await caricaTutto();
     setInCorsoId(null);
   }
 
@@ -71,24 +97,8 @@ export default function DashboardAdmin() {
   if (!utente || utente.ruolo !== "admin") return null;
 
   const inAttesa = fisioReali.filter((f) => f.stato_verifica === "in_attesa");
-
-  const stati: StatoRichiesta[] = [
-    "in_attesa", "in_valutazione", "assegnata", "in_corso", "completata", "rifiutata",
-  ];
-
-  const richiestaFiltrate =
-    filtroStato === "tutte"
-      ? richieste
-      : richieste.filter((r) => r.stato === filtroStato);
-
-  const kpi = {
-    richiesteTotali: richieste.length,
-    richiesteAttive: richieste.filter((r) =>
-      ["in_attesa", "in_valutazione", "assegnata", "in_corso"].includes(r.stato)
-    ).length,
-    pazientiTotali: pazienti.length,
-    fisDisponibili: fisioterapisti.filter((f) => f.disponibile).length,
-  };
+  const approvati = fisioReali.filter((f) => f.stato_verifica === "approvato");
+  const rifiutati = fisioReali.filter((f) => f.stato_verifica === "rifiutato");
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -104,22 +114,17 @@ export default function DashboardAdmin() {
               <h1 className="text-xl font-bold">Pannello Amministratore</h1>
               <p className="text-gray-500 text-sm">Supervisione della piattaforma</p>
             </div>
-            <Link
-              href="/mappa"
-              className="shrink-0 btn-secondary text-sm py-2 flex items-center gap-1.5"
-            >
-              🗺️ Mappa
-            </Link>
           </div>
         </div>
 
         {/* Navigazione sezioni */}
         <div className="flex gap-1 bg-gray-100 rounded-xl p-1">
-          {([
-            { id: "panoramica", label: "📊 Panoramica" },
-            { id: "richieste", label: "📋 Richieste" },
-            { id: "utenti", label: "👥 Utenti" },
-          ] as { id: Sezione; label: string }[]).map((s) => (
+          {(
+            [
+              { id: "panoramica", label: "📊 Panoramica" },
+              { id: "utenti", label: "👥 Utenti" },
+            ] as { id: Sezione; label: string }[]
+          ).map((s) => (
             <button
               key={s.id}
               onClick={() => setSezione(s.id)}
@@ -139,10 +144,10 @@ export default function DashboardAdmin() {
           <div className="space-y-6">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {[
-                { label: "Richieste totali", valore: kpi.richiesteTotali, icona: "📋", colore: "text-blue-600" },
-                { label: "Richieste attive", valore: kpi.richiesteAttive, icona: "⏳", colore: "text-yellow-600" },
-                { label: "Pazienti registrati", valore: kpi.pazientiTotali, icona: "🧑‍🦽", colore: "text-green-600" },
-                { label: "Fisio disponibili", valore: kpi.fisDisponibili, icona: "🏥", colore: "text-purple-600" },
+                { label: "Pazienti registrati", valore: pazientiReali.length, icona: "🧑‍🦽", colore: "text-blue-600" },
+                { label: "Fisioterapisti approvati", valore: approvati.length, icona: "✅", colore: "text-green-600" },
+                { label: "In attesa di approvazione", valore: inAttesa.length, icona: "⏳", colore: "text-amber-600" },
+                { label: "Rifiutati", valore: rifiutati.length, icona: "✋", colore: "text-gray-500" },
               ].map((k) => (
                 <div key={k.label} className="card text-center">
                   <div className="text-2xl mb-1">{k.icona}</div>
@@ -153,121 +158,30 @@ export default function DashboardAdmin() {
             </div>
 
             <div>
-              <h2 className="mb-3">Distribuzione per stato</h2>
-              <div className="card space-y-3">
-                {stati.map((s) => {
-                  const n = richieste.filter((r) => r.stato === s).length;
-                  const perc = richieste.length ? Math.round((n / richieste.length) * 100) : 0;
-                  return (
-                    <div key={s}>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="text-gray-700">{statoLabel[s]}</span>
-                        <span className="font-medium">{n}</span>
-                      </div>
-                      <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-blue-500 rounded-full transition-all"
-                          style={{ width: `${perc}%` }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div>
-              <h2 className="mb-3">Ultime richieste</h2>
-              <div className="space-y-2">
-                {[...richieste]
-                  .sort((a, b) => (b.dataCreazione > a.dataCreazione ? 1 : -1))
-                  .slice(0, 5)
-                  .map((r) => {
-                    const paz = pazienti.find((p) => p.id === r.pazienteId);
-                    return (
-                      <div key={r.id} className="card flex items-center gap-3">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">
-                            {paz?.nome} {paz?.cognome} — {r.patologia}
-                          </p>
-                          <p className="text-xs text-gray-400">
-                            {new Date(r.dataCreazione).toLocaleDateString("it-IT")}
-                          </p>
-                        </div>
-                        <StatoBadge stato={r.stato} />
-                      </div>
-                    );
-                  })}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Tutte le richieste */}
-        {sezione === "richieste" && (
-          <div className="space-y-4">
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => setFiltroStato("tutte")}
-                className={`badge cursor-pointer transition-colors ${
-                  filtroStato === "tutte"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                Tutte ({richieste.length})
-              </button>
-              {stati.map((s) => {
-                const n = richieste.filter((r) => r.stato === s).length;
-                if (n === 0) return null;
-                return (
-                  <button
-                    key={s}
-                    onClick={() => setFiltroStato(s)}
-                    className={`badge cursor-pointer transition-colors ${
-                      filtroStato === s
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
-                  >
-                    {statoLabel[s]} ({n})
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="space-y-3">
-              {richiestaFiltrate.map((r) => {
-                const paz = pazienti.find((p) => p.id === r.pazienteId);
-                const med = medici.find((m) => m.id === r.medicoId);
-                const fis = fisioterapisti.find((f) => f.id === r.fisioterapistaId);
-                return (
-                  <div key={r.id} className="card">
-                    <div className="flex items-start justify-between gap-3">
+              <h2 className="mb-3">Ultimi fisioterapisti registrati</h2>
+              {caricando ? (
+                <p className="text-sm text-gray-400">Carico…</p>
+              ) : fisioReali.length === 0 ? (
+                <p className="text-sm text-gray-400">Ancora nessuna registrazione.</p>
+              ) : (
+                <div className="space-y-2">
+                  {fisioReali.slice(0, 5).map((f) => (
+                    <div key={f.id} className="card flex items-center gap-3">
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1 flex-wrap">
-                          <span className="font-semibold">
-                            {paz?.nome} {paz?.cognome}
-                          </span>
-                          {r.urgenza === "urgente" && (
-                            <span className="badge bg-red-100 text-red-700 text-xs">Urgente</span>
-                          )}
-                        </div>
-                        <p className="text-sm text-gray-600">{r.patologia}</p>
-                        <div className="text-xs text-gray-400 mt-1 space-y-0.5">
-                          <p>Medico: Dr.ssa {med?.cognome}</p>
-                          {fis && <p>Fisio: {fis.nome} {fis.cognome}</p>}
-                          <p>
-                            {r.tipoIntervento} ·{" "}
-                            {new Date(r.dataCreazione).toLocaleDateString("it-IT")}
-                          </p>
-                        </div>
+                        <p className="text-sm font-medium truncate">
+                          {f.nome} {f.cognome}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          {new Date(f.created_at).toLocaleDateString("it-IT")} · {f.base_citta}
+                        </p>
                       </div>
-                      <StatoBadge stato={r.stato} />
+                      <span className={`badge text-xs shrink-0 ${statoFisioColore[f.stato_verifica]}`}>
+                        {statoFisioLabel[f.stato_verifica]}
+                      </span>
                     </div>
-                  </div>
-                );
-              })}
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -284,7 +198,7 @@ export default function DashboardAdmin() {
                   </span>
                 )}
               </h2>
-              {caricandoFisioReali ? (
+              {caricando ? (
                 <p className="text-sm text-gray-400">Carico…</p>
               ) : inAttesa.length === 0 ? (
                 <p className="text-sm text-gray-400">Nessuna richiesta in attesa.</p>
@@ -327,62 +241,12 @@ export default function DashboardAdmin() {
             </div>
 
             <div>
-              <h2 className="mb-3">Pazienti ({pazienti.length})</h2>
-              <div className="space-y-2">
-                {pazienti.map((p) => {
-                  const med = medici.find((m) => m.id === p.medicoId);
-                  const nRichieste = richieste.filter((r) => r.pazienteId === p.id).length;
-                  return (
-                    <div key={p.id} className="card flex items-center gap-3">
-                      <div className="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center text-lg shrink-0">
-                        🧑‍🦽
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm">
-                          {p.nome} {p.cognome}
-                        </p>
-                        <p className="text-xs text-gray-400">
-                          Medico: Dr.ssa {med?.cognome} · {nRichieste} richieste
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div>
-              <h2 className="mb-3">Medici ({medici.length})</h2>
-              <div className="space-y-2">
-                {medici.map((m) => {
-                  const nRichieste = richieste.filter((r) => r.medicoId === m.id).length;
-                  return (
-                    <div key={m.id} className="card flex items-center gap-3">
-                      <div className="w-9 h-9 bg-green-100 rounded-full flex items-center justify-center text-lg shrink-0">
-                        👨‍⚕️
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm">
-                          Dr.ssa {m.nome} {m.cognome}
-                        </p>
-                        <p className="text-xs text-gray-400">
-                          {m.ambulatorio} · {nRichieste} richieste gestite
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div>
-              <h2 className="mb-3">Fisioterapisti ({fisioterapisti.length})</h2>
-              <div className="space-y-2">
-                {fisioterapisti.map((f) => {
-                  const nIncarichi = richieste.filter(
-                    (r) => r.fisioterapistaId === f.id
-                  ).length;
-                  return (
+              <h2 className="mb-3">Fisioterapisti approvati ({approvati.length})</h2>
+              {approvati.length === 0 ? (
+                <p className="text-sm text-gray-400">Nessuno ancora.</p>
+              ) : (
+                <div className="space-y-2">
+                  {approvati.map((f) => (
                     <div key={f.id} className="card flex items-center gap-3">
                       <div className="w-9 h-9 bg-purple-100 rounded-full flex items-center justify-center text-lg shrink-0">
                         🏥
@@ -392,22 +256,54 @@ export default function DashboardAdmin() {
                           {f.nome} {f.cognome}
                         </p>
                         <p className="text-xs text-gray-400">
-                          {f.specializzazioni.join(" · ")} · ★{f.valutazione} · {nIncarichi} incarichi
+                          {f.specializzazioni.join(" · ")} · {f.base_citta} ({f.base_provincia})
                         </p>
                       </div>
-                      <span
-                        className={`badge text-xs ${
-                          f.disponibile
-                            ? "bg-green-100 text-green-700"
-                            : "bg-gray-100 text-gray-500"
-                        }`}
-                      >
-                        {f.disponibile ? "Disponibile" : "Occupato"}
-                      </span>
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {rifiutati.length > 0 && (
+              <div>
+                <h2 className="mb-3">Rifiutati ({rifiutati.length})</h2>
+                <div className="space-y-2">
+                  {rifiutati.map((f) => (
+                    <div key={f.id} className="card flex items-center gap-3 opacity-70">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm">
+                          {f.nome} {f.cognome}
+                        </p>
+                        <p className="text-xs text-gray-400">{f.email}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
+            )}
+
+            <div>
+              <h2 className="mb-3">Pazienti ({pazientiReali.length})</h2>
+              {pazientiReali.length === 0 ? (
+                <p className="text-sm text-gray-400">Ancora nessuna registrazione.</p>
+              ) : (
+                <div className="space-y-2">
+                  {pazientiReali.map((p) => (
+                    <div key={p.id} className="card flex items-center gap-3">
+                      <div className="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center text-lg shrink-0">
+                        🧑‍🦽
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm">
+                          {p.nome} {p.cognome}
+                        </p>
+                        <p className="text-xs text-gray-400">{p.indirizzo}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}

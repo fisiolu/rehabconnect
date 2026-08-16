@@ -97,6 +97,12 @@ create policy "pazienti_update_proprio"
   using (id = auth.uid())
   with check (id = auth.uid());
 
+-- Stesso motivo della policy analoga su fisioterapisti: l'admin deve
+-- poter vedere l'elenco reale degli iscritti dalla propria dashboard.
+create policy "pazienti_select_admin"
+  on pazienti for select
+  using (exists (select 1 from admins a where a.user_id = auth.uid()));
+
 -- ---------------------------------------------------------------------
 -- Medico di riferimento (scheda di soli recapiti, auto-dichiarata)
 -- ---------------------------------------------------------------------
