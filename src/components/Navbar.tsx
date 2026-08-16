@@ -279,6 +279,16 @@ export default function Navbar() {
             )}
           </div>
 
+          {/* Cambia password: non ha senso per il Medico demo, che non ha una sessione Supabase vera */}
+          {utente.ruolo !== "medico" && (
+            <Link
+              href="/account/password"
+              className="hidden sm:block text-sm text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-100 transition-colors font-medium"
+            >
+              Password
+            </Link>
+          )}
+
           {/* Logout */}
           <button
             onClick={handleLogout}
