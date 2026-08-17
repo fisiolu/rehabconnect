@@ -36,6 +36,12 @@ create table if not exists fisioterapisti (
   raggio_km int not null,
   anni_esperienza int not null,
   presentazione text not null default '',
+  -- Percorso della foto dentro il bucket "foto-fisioterapisti", non un URL.
+  -- Facoltativa. Non compare nella grant per il ruolo anon più sotto, quindi
+  -- chi cerca senza aver fatto accesso non la riceve nemmeno come stringa:
+  -- l'immagine vera sta in un bucket privato e richiede un link firmato,
+  -- che solo un utente autenticato può ottenere.
+  foto_path text,
   stato_verifica text not null default 'in_attesa'
     check (stato_verifica in ('in_attesa', 'approvato', 'rifiutato')),
   nota_admin text,
@@ -45,6 +51,7 @@ create table if not exists fisioterapisti (
 -- Per gli archivi creati prima che la PEC diventasse obbligatoria:
 -- "create table if not exists" qui sopra non tocca una tabella già esistente.
 alter table fisioterapisti add column if not exists pec text not null default '';
+alter table fisioterapisti add column if not exists foto_path text;
 
 alter table fisioterapisti enable row level security;
 
@@ -74,7 +81,7 @@ grant update (
   nome, cognome, telefono, email, specializzazioni, disponibile,
   numero_albo, tariffa_min, tariffa_max, assicurazioni,
   base_lat, base_lng, base_citta, base_provincia, raggio_km,
-  anni_esperienza, presentazione
+  anni_esperienza, presentazione, foto_path
 ) on fisioterapisti to authenticated;
 
 -- Chi cerca senza aver fatto login vede la scheda per intero tranne
@@ -89,6 +96,53 @@ grant select (
   base_citta, base_provincia, raggio_km, anni_esperienza, presentazione,
   stato_verifica, created_at
 ) on fisioterapisti to anon;
+
+-- ---------------------------------------------------------------------
+-- Foto dei fisioterapisti (facoltative)
+--
+-- Bucket PRIVATO, non pubblico: un bucket pubblico servirebbe l'immagine a
+-- chiunque conosca l'URL, e la foto tornerebbe visibile a chi non si è
+-- registrato — proprio ciò che vogliamo evitare. Da privato, l'immagine si
+-- ottiene solo con un link firmato a scadenza, che il database rilascia
+-- soltanto a un utente autenticato.
+-- ---------------------------------------------------------------------
+insert into storage.buckets (id, name, public)
+values ('foto-fisioterapisti', 'foto-fisioterapisti', false)
+on conflict (id) do update set public = false;
+
+-- Ognuno gestisce solo la propria foto: il percorso deve iniziare con il
+-- proprio id utente (es. "<uid>/profilo.jpg").
+drop policy if exists "foto_fisio_scrittura_propria" on storage.objects;
+create policy "foto_fisio_scrittura_propria"
+  on storage.objects for insert to authenticated
+  with check (
+    bucket_id = 'foto-fisioterapisti'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+drop policy if exists "foto_fisio_aggiornamento_proprio" on storage.objects;
+create policy "foto_fisio_aggiornamento_proprio"
+  on storage.objects for update to authenticated
+  using (
+    bucket_id = 'foto-fisioterapisti'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+drop policy if exists "foto_fisio_cancellazione_propria" on storage.objects;
+create policy "foto_fisio_cancellazione_propria"
+  on storage.objects for delete to authenticated
+  using (
+    bucket_id = 'foto-fisioterapisti'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+-- Chi ha fatto accesso può vedere le foto: è il permesso che rende possibile
+-- generare il link firmato. Al ruolo anon non è concesso nulla, quindi chi
+-- non si è registrato non può ottenere né il percorso né l'immagine.
+drop policy if exists "foto_fisio_lettura_autenticati" on storage.objects;
+create policy "foto_fisio_lettura_autenticati"
+  on storage.objects for select to authenticated
+  using (bucket_id = 'foto-fisioterapisti');
 
 -- ---------------------------------------------------------------------
 -- Pazienti

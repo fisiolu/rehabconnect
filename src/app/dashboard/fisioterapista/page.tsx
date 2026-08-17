@@ -11,6 +11,7 @@ import type { MarkerDati } from "@/components/MappaLeaflet";
 import { pazienti, fisioterapisti, Appuntamento, Posizione, FotoEsercizio } from "@/lib/demoData";
 import { createClient } from "@/lib/supabase/client";
 import { caricaConversazioni, type ConversazioneVista } from "@/lib/supabase/conversazioni";
+import FotoProfiloFisio from "@/components/FotoProfiloFisio";
 
 const MappaLeaflet = dynamic(() => import("@/components/MappaLeaflet"), {
   ssr: false,
@@ -328,6 +329,9 @@ export default function DashboardFisioterapista() {
         {/* Vista incarichi */}
         {vista === "incarichi" && (
           <div className="space-y-4">
+
+            <FotoProfiloFisio fisioterapistaId={utente.id} />
+
 
             {/* Da accettare */}
             {pendingAccettazione.length > 0 && (

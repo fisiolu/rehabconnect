@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import {
@@ -27,6 +28,7 @@ import {
 import { useApp } from "@/lib/AppContext";
 import { createClient } from "@/lib/supabase/client";
 import { cercaApprovati } from "@/lib/supabase/fisioterapisti";
+import { linkFirmatiMultipli } from "@/lib/supabase/fotoProfilo";
 import { caricaPaziente } from "@/lib/supabase/pazienti";
 import { apriConversazione as apriConversazioneReale } from "@/lib/supabase/conversazioni";
 
@@ -67,6 +69,8 @@ export default function TrovaPage() {
   const [soloRaggiungibili, setSoloRaggiungibili] = useState(true);
   const [filtriAperti, setFiltriAperti] = useState(false);
   const [fisioterapisti, setFisioterapisti] = useState<Fisioterapista[]>([]);
+  /** Percorso della foto → link firmato temporaneo. */
+  const [fotoUrl, setFotoUrl] = useState<Record<string, string>>({});
 
   // Il Medico demo non ha una sessione Supabase vera (entraComeMedicoDemo):
   // per il database resta anonimo, quindi non basta "utente" non nullo.
@@ -75,6 +79,23 @@ export default function TrovaPage() {
   useEffect(() => {
     cercaApprovati(createClient(), mostraContatti).then(setFisioterapisti);
   }, [mostraContatti]);
+
+  /**
+   * Link firmati per le foto, chiesti in un colpo solo per tutte le schede.
+   * Solo chi ha fatto accesso riceve i percorsi dal database, quindi per gli
+   * altri questa mappa resta vuota e le schede restano senza foto.
+   */
+  useEffect(() => {
+    const percorsi = fisioterapisti
+      .map((f) => f.fotoPath)
+      .filter((p): p is string => !!p);
+
+    if (percorsi.length === 0) {
+      setFotoUrl({});
+      return;
+    }
+    linkFirmatiMultipli(createClient(), percorsi).then(setFotoUrl);
+  }, [fisioterapisti]);
 
   // Se il paziente è già entrato, si parte dal suo domicilio.
   useEffect(() => {
@@ -198,6 +219,11 @@ export default function TrovaPage() {
                 <SchedaSelezionato
                   risultato={selezionato}
                   mostraContatti={mostraContatti}
+                  fotoUrl={
+                    selezionato.fisioterapista.fotoPath
+                      ? fotoUrl[selezionato.fisioterapista.fotoPath]
+                      : undefined
+                  }
                   onChiudi={() => setSelezionatoId(null)}
                   onScrivi={() => scriviA(selezionato.fisioterapista.id)}
                 />
@@ -284,6 +310,7 @@ export default function TrovaPage() {
                     key={r.fisioterapista.id}
                     risultato={r}
                     mostraContatti={mostraContatti}
+                    fotoUrl={r.fisioterapista.fotoPath ? fotoUrl[r.fisioterapista.fotoPath] : undefined}
                     attivo={r.fisioterapista.id === selezionatoId}
                     onClick={() =>
                       setSelezionatoId(
@@ -507,14 +534,38 @@ function Stelline({ valutazione }: { valutazione: number }) {
   );
 }
 
+/**
+ * Foto tonda del professionista. Compare solo quando c'è un link firmato,
+ * cioè solo per chi ha fatto accesso: senza, la scheda resta come prima.
+ */
+function FotoTonda({ url, dimensione }: { url: string; dimensione: number }) {
+  return (
+    <span
+      className="block rounded-full overflow-hidden shrink-0 bg-slate-100 dark:bg-gray-700 border border-slate-200 dark:border-gray-600"
+      style={{ width: dimensione, height: dimensione }}
+    >
+      <Image
+        src={url}
+        alt=""
+        width={dimensione}
+        height={dimensione}
+        unoptimized
+        className="w-full h-full object-cover"
+      />
+    </span>
+  );
+}
+
 function CardFisioterapista({
   risultato,
   mostraContatti,
+  fotoUrl,
   attivo,
   onClick,
 }: {
   risultato: import("@/lib/geo").RisultatoRicerca;
   mostraContatti: boolean;
+  fotoUrl?: string;
   attivo: boolean;
   onClick: () => void;
 }) {
@@ -530,8 +581,9 @@ function CardFisioterapista({
           : "border-slate-200 dark:border-gray-700 hover:border-primary-300 hover:shadow-sm"
       }`}
     >
-      <div className="flex items-start justify-between gap-3 mb-1.5">
-        <h3 className="font-bold text-notte dark:text-white">
+      <div className="flex items-start gap-3 mb-1.5">
+        {fotoUrl && <FotoTonda url={fotoUrl} dimensione={44} />}
+        <h3 className="font-bold text-notte dark:text-white flex-1 min-w-0">
           {f.nome}
           {mostraContatti ? ` ${f.cognome}` : ""}
         </h3>
@@ -567,11 +619,13 @@ function CardFisioterapista({
 function SchedaSelezionato({
   risultato,
   mostraContatti,
+  fotoUrl,
   onChiudi,
   onScrivi,
 }: {
   risultato: import("@/lib/geo").RisultatoRicerca;
   mostraContatti: boolean;
+  fotoUrl?: string;
   onChiudi: () => void;
   onScrivi: () => void;
 }) {
@@ -579,8 +633,9 @@ function SchedaSelezionato({
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-slate-200 dark:border-gray-700 p-4">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
+      <div className="flex items-start gap-3">
+        {fotoUrl && <FotoTonda url={fotoUrl} dimensione={56} />}
+        <div className="min-w-0 flex-1">
           <h3 className="font-bold text-lg text-notte dark:text-white leading-tight">
             {f.nome}
             {mostraContatti ? ` ${f.cognome}` : ""}

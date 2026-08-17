@@ -77,6 +77,12 @@ export interface Fisioterapista {
    */
   pec?: string;
   /**
+   * Percorso della foto nel bucket privato, non un URL: per vederla serve un
+   * link firmato, che il database rilascia solo a chi ha fatto accesso.
+   * Facoltativa, e assente per chi cerca senza essersi registrato.
+   */
+  fotoPath?: string;
+  /**
    * Tariffa a seduta domiciliare, in euro. È una forbice perché varia con il tipo
    * di trattamento. Il trattamento domiciliare è sempre privato: non esiste una
    * convenzione diretta fra fisioterapista e ASL.

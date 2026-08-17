@@ -60,8 +60,15 @@ export default function PrivacyPage() {
         Finché la scheda è in attesa di approvazione o viene rifiutata, resta visibile solo a te e
         all&apos;amministratore. Una volta approvata, chi cerca senza aver fatto accesso vede nome,
         specializzazioni, tariffa, presentazione e le altre informazioni professionali, ma{" "}
-        <strong>non il cognome, il telefono o l&apos;email</strong>: questi tre compaiono solo a chi
-        si è registrato e ha effettuato l&apos;accesso.
+        <strong>non il cognome, il telefono, l&apos;email o la foto</strong>: questi compaiono solo
+        a chi si è registrato e ha effettuato l&apos;accesso.
+      </p>
+      <p>
+        La <strong>foto è facoltativa</strong>: puoi non metterla, cambiarla o toglierla quando
+        vuoi dalla tua area, e togliendola il file viene cancellato. È conservata in un archivio
+        chiuso: non ha un indirizzo web pubblico, e viene mostrata solo attraverso un collegamento
+        temporaneo che il sistema rilascia unicamente a chi ha effettuato l&apos;accesso. Metti una
+        foto in cui compari tu: non caricare immagini di altre persone.
       </p>
 
       <h3>Se cerchi senza esserti registrato</h3>

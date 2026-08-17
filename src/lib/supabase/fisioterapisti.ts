@@ -11,6 +11,7 @@ interface RigaFisioterapista {
   specializzazioni: string[];
   telefono?: string;
   email?: string;
+  foto_path?: string | null;
   disponibile: boolean;
   valutazione: number;
   numero_albo: string;
@@ -35,6 +36,7 @@ function aFisioterapista(r: RigaFisioterapista): Fisioterapista {
     specializzazioni: r.specializzazioni,
     telefono: r.telefono ?? "",
     email: r.email ?? "",
+    fotoPath: r.foto_path ?? undefined,
     disponibile: r.disponibile,
     valutazione: r.valutazione,
     numeroAlbo: r.numero_albo,
@@ -62,7 +64,9 @@ export async function cercaApprovati(
   supabase: SupabaseClient,
   mostraContatti: boolean
 ): Promise<Fisioterapista[]> {
-  const colonne = mostraContatti ? `${COLONNE_BASE}, cognome, telefono, email` : COLONNE_BASE;
+  const colonne = mostraContatti
+    ? `${COLONNE_BASE}, cognome, telefono, email, foto_path`
+    : COLONNE_BASE;
   const { data } = await supabase
     .from("fisioterapisti")
     .select(colonne)
