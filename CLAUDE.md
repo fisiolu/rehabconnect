@@ -118,3 +118,45 @@ Punti da tenere a mente:
 - Query di ricerca lato client (haversine su tutti i fisioterapisti
   approvati): va benissimo alla scala attuale, da rivalutare con
   PostGIS/`ST_DWithin` se il numero di iscritti cresce molto.
+
+## Idee in discussione (agosto 2026, non ancora decise né iniziate)
+
+Ragionate insieme prima di scrivere codice — nessuna delle tre è ancora
+iniziata. Vanno riprese da qui, non da zero, alla prossima sessione.
+
+- **Campi di accessibilità sulla scheda paziente** (piano, ascensore
+  sì/no, note d'accesso tipo parcheggio/citofono): il fisioterapista li
+  vedrebbe prima di accettare/spostarsi, non dopo essere già arrivato.
+  Costo di sviluppo basso (pochi campi in più su `pazienti` + un modulo),
+  valore alto. Non ancora costruito.
+- **Servizio/pubblicità per fisioterapisti** (assicurazioni, officine,
+  offerte legate ai costi di spostamento): **rimandato esplicitamente
+  dall'utente**. Motivo: oggi la piattaforma ha zero fisioterapisti
+  iscritti — vendere spazi a inserzionisti non ha senso senza un pubblico
+  vero, ed è comunque un cambio di natura del progetto (da incontro
+  paziente-fisioterapista a media/concessionaria). Se si riprende in
+  futuro, partire da una pagina statica di convenzioni negoziate a mano,
+  non da un sistema di gestione inserzionisti.
+- **Telemedicina**: forma concordata con l'utente — non un pulsante
+  video generico sempre visibile, ma un passo dentro la conversazione
+  già esistente fra paziente e fisioterapista (stessa `Conversazione`
+  di oggi, non una funzione a sé). Il percorso:
+  1. Il paziente trova il fisioterapista in `/trova` (già reale).
+  2. Prima di scrivere liberamente, compila un **breve questionario
+     guidato** (4 domande a scelta, non testo libero libero):
+     da quanto ha il disturbo, se ha già diagnosi/prescrizione del
+     medico, qual è la zona/il problema principale (unico campo di
+     testo libero), quanto riesce a muoversi da solo in casa. Va
+     salvato come dati strutturati (non testo semplice) e mostrato al
+     fisioterapista come una scheda riassuntiva, non come un messaggio
+     di chat qualunque — diventa il primo "messaggio" della
+     conversazione.
+  3. Il fisioterapista risponde in chat come oggi; se ha bisogno di
+     vedere il paziente muoversi o fargli domande dal vivo prima di
+     decidere se e come venire, propone lui una videochiamata — un
+     link generato al volo dentro quella stessa conversazione.
+  4. Solo dopo si fissa (se ha senso) la visita vera a domicilio.
+  Nota tecnica discussa: per il video, partire dalla versione economica
+  (link a una stanza tipo Jitsi, nessuna infrastruttura nuova da
+  mantenere) invece di un SDK a pagamento (Daily.co/Twilio), che resta
+  un'opzione per dopo se serve più controllo/qualità.
