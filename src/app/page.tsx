@@ -14,16 +14,21 @@ import FooterHome from "@/components/home/FooterHome";
 import Rivela from "@/components/Rivela";
 
 export default function HomePage() {
-  const { entraComeMedicoDemo } = useApp();
+  const { addToast, entraComeMedicoDemo } = useApp();
   const router = useRouter();
 
   /**
    * Paziente e Fisioterapista hanno ormai un account vero: la card manda
    * al login, che a sua volta offre la registrazione.
-   * Il Medico resta provvisoriamente a un ingresso demo (nessun account
-   * reale ancora — arriverà in un passaggio successivo).
+   * Il Medico non ha ancora un account reale né una dashboard funzionante:
+   * la card principale avvisa che la sezione è in lavorazione, ma resta un
+   * pulsante secondario esplicito per riaprire la vecchia dashboard demo.
    */
-  function accediComeMedicoDemo() {
+  function avvisaSezioneInLavorazione() {
+    addToast("Questa sezione è in fase di lavorazione.", "info");
+  }
+
+  function apriVersioneDemoMedico() {
     const m = medici[0];
     entraComeMedicoDemo({ ruolo: "medico", id: m.id, nome: `Dr.ssa ${m.cognome}` });
     router.push("/dashboard/medico");
@@ -160,10 +165,11 @@ export default function HomePage() {
               sottotitolo="di base/Specialista"
               descrizione="Valuta le richieste dei tuoi assistiti e indirizzali al professionista giusto."
               ctaLabel="Entra come medico"
-              onClick={accediComeMedicoDemo}
+              onClick={avvisaSezioneInLavorazione}
               iconBg="bg-teal-50 dark:bg-teal-900/30"
               iconColor="text-teal-600 dark:text-teal-400"
               ring="focus-visible:ring-teal-500"
+              azioneExtra={{ label: "Versione DEMO", onClick: apriVersioneDemoMedico }}
             />
           </Rivela>
         </div>
