@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { ShieldCheck } from "lucide-react";
 import LogoUfficiale from "@/components/LogoUfficiale";
 
 interface FooterHomeProps {
@@ -65,11 +64,7 @@ export default function FooterHome({ onAdminClick }: FooterHomeProps) {
           </div>
         </div>
 
-        <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-xs text-slate-400 flex items-center gap-1.5 text-center sm:text-left">
-            <ShieldCheck size={14} aria-hidden="true" className="shrink-0" />
-            Versione dimostrativa — nessun dato sanitario reale, nessun servizio a pagamento
-          </p>
+        <div className="border-t border-white/10 pt-6 flex items-center justify-center sm:justify-start">
           <p className="text-xs text-slate-500">© {new Date().getFullYear()} Fisioterapista Domiciliare</p>
         </div>
       </div>

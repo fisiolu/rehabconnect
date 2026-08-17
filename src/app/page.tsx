@@ -75,12 +75,6 @@ export default function HomePage() {
                 Come funziona
               </a>
             </Rivela>
-
-            <Rivela ritardo={360}>
-              <p className="text-sm text-slate-400 dark:text-slate-500 mt-5">
-                Nessuna registrazione per cercare · Versione dimostrativa
-              </p>
-            </Rivela>
           </div>
 
           <Rivela ritardo={200} className="lg:pl-4">
