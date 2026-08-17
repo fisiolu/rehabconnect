@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { MapPin, Search } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import TurnstileWidget from "@/components/TurnstileWidget";
+import { useApp } from "@/lib/AppContext";
 
 interface LuogoTrovato {
   nome: string;
@@ -15,6 +16,7 @@ interface LuogoTrovato {
 
 export default function RegistratiPazientePage() {
   const router = useRouter();
+  const { addToast } = useApp();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -116,6 +118,7 @@ export default function RegistratiPazientePage() {
       router.push("/accedi");
       return;
     }
+    addToast(`Benvenuto/a, ${nome}! La tua registrazione è completata.`, "successo");
     router.push("/dashboard/paziente");
   }
 

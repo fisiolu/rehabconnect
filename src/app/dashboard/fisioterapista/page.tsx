@@ -93,12 +93,12 @@ export default function DashboardFisioterapista() {
             <div className="text-4xl mb-3">{statoVerifica === "in_attesa" ? "⏳" : "✋"}</div>
             <h1 className="text-lg font-bold mb-2">
               {statoVerifica === "in_attesa"
-                ? "La tua richiesta è in revisione"
+                ? "Grazie per esserti iscritto/a!"
                 : "La tua richiesta non è stata accolta"}
             </h1>
             <p className="text-gray-500 dark:text-gray-400 text-sm">
               {statoVerifica === "in_attesa"
-                ? "Controlliamo i dati della tua scheda professionale prima di renderla visibile ai pazienti. Ti aggiorneremo appena è pronta."
+                ? "La tua richiesta è in revisione: controlliamo i dati della tua scheda professionale prima di renderla visibile ai pazienti. L'amministratore confermerà l'iscrizione a breve — ti aggiorneremo appena è pronta."
                 : "Scrivici se pensi sia un errore o se vuoi correggere la tua scheda."}
             </p>
           </div>
