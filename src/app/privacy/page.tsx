@@ -209,8 +209,7 @@ export default function PrivacyPage() {
       <h2>Modifiche a questa informativa</h2>
       <p>
         Possiamo aggiornare questo testo quando cambia il modo in cui trattiamo i dati; la data in
-        alto riporta l&apos;ultimo aggiornamento. Questo testo non sostituisce il parere di un
-        legale.
+        alto riporta l&apos;ultimo aggiornamento.
       </p>
     </PaginaLegale>
   );
