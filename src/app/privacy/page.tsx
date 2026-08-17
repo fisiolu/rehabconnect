@@ -145,6 +145,11 @@ export default function PrivacyPage() {
           senza usare il GPS, per trasformarlo in coordinate.
         </li>
         <li>
+          <strong>Meta (Facebook)</strong>: solo se accetti dal banner che compare la prima volta,
+          riceve dati di navigazione (pixel di misurazione) per farci capire come funzionano le
+          nostre campagne pubblicitarie. Se rifiuti o ignori il banner, non si attiva.
+        </li>
+        <li>
           Un altro Fisioterapista o un altro paziente vedono, l&apos;uno dell&apos;altro, solo quanto
           descritto in questa pagina — mai l&apos;intera scheda dell&apos;altra parte.
         </li>

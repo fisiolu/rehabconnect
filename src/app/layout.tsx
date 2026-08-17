@@ -4,6 +4,7 @@ import { AppProvider } from "@/lib/AppContext";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import ToastContainer from "@/components/ToastContainer";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
+import MetaPixel from "@/components/MetaPixel";
 import { CLAIM, DESCRIZIONE, NOME_SITO, urlSito } from "@/lib/sito";
 
 const BASE = urlSito();
@@ -122,6 +123,7 @@ export default function RootLayout({
             {children}
             <ToastContainer />
             <ServiceWorkerRegister />
+            <MetaPixel />
           </AppProvider>
         </ThemeProvider>
       </body>
