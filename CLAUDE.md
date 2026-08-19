@@ -2,7 +2,7 @@
 
 ## Cos'è
 
-App per collegare pazienti e fisioterapisti che lavorano a domicilio:
+App per collegare pazienti a fisioterapisti che lavorano a domicilio:
 ricerca per vicinanza, messaggistica diretta, e il ciclo clinico formale
 (richiesta → medico → assegnazione → referto). Online su
 [app.fisioterapistadomiciliare.it](https://app.fisioterapistadomiciliare.it),
