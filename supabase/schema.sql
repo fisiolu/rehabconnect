@@ -61,9 +61,23 @@ create policy "fisioterapisti_select_pubblico_o_proprio"
 
 -- L'admin deve vedere anche le schede in attesa/rifiutate altrui, per
 -- poterle approvare dalla dashboard.
+--
+-- Doppio controllo: se l'admin ha attivato la verifica in due passaggi
+-- (vedi tabella auth.mfa_factors), la sessione deve aver completato anche
+-- il secondo fattore (aal2), non bastare la sola password (aal1). Finché
+-- non l'ha ancora attivata resta valido aal1, per non bloccarlo fuori
+-- prima ancora che possa iscriversi al secondo fattore.
+drop policy if exists "fisioterapisti_select_admin" on fisioterapisti;
 create policy "fisioterapisti_select_admin"
   on fisioterapisti for select
-  using (exists (select 1 from admins a where a.user_id = auth.uid()));
+  using (
+    exists (select 1 from admins a where a.user_id = auth.uid())
+    and array[(select auth.jwt() ->> 'aal')] <@ (
+      select case when count(id) > 0 then array['aal2'] else array['aal1', 'aal2'] end
+      from auth.mfa_factors
+      where user_id = auth.uid() and status = 'verified'
+    )
+  );
 
 create policy "fisioterapisti_insert_proprio"
   on fisioterapisti for insert
@@ -188,9 +202,19 @@ create policy "pazienti_update_proprio"
 
 -- Stesso motivo della policy analoga su fisioterapisti: l'admin deve
 -- poter vedere l'elenco reale degli iscritti dalla propria dashboard.
+-- Stesso doppio controllo aal2: qui i dati sono ancora più sensibili
+-- (tabella normalmente owner-only), quindi vale lo stesso ragionamento.
+drop policy if exists "pazienti_select_admin" on pazienti;
 create policy "pazienti_select_admin"
   on pazienti for select
-  using (exists (select 1 from admins a where a.user_id = auth.uid()));
+  using (
+    exists (select 1 from admins a where a.user_id = auth.uid())
+    and array[(select auth.jwt() ->> 'aal')] <@ (
+      select case when count(id) > 0 then array['aal2'] else array['aal1', 'aal2'] end
+      from auth.mfa_factors
+      where user_id = auth.uid() and status = 'verified'
+    )
+  );
 
 -- ---------------------------------------------------------------------
 -- Limite di registrazioni per indirizzo IP (anti-abuso, non anti-frode:

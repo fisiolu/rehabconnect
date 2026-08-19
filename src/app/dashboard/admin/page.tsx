@@ -5,8 +5,9 @@ import { useApp } from "@/lib/AppContext";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import { createClient } from "@/lib/supabase/client";
+import type { Factor } from "@supabase/supabase-js";
 
-type Sezione = "panoramica" | "utenti";
+type Sezione = "panoramica" | "utenti" | "sicurezza";
 
 interface FisioReale {
   id: string;
@@ -48,7 +49,7 @@ const statoFisioColore: Record<FisioReale["stato_verifica"], string> = {
 };
 
 export default function DashboardAdmin() {
-  const { utente } = useApp();
+  const { utente, addToast } = useApp();
   const router = useRouter();
   const [sezione, setSezione] = useState<Sezione>("panoramica");
 
@@ -56,6 +57,19 @@ export default function DashboardAdmin() {
   const [pazientiReali, setPazientiReali] = useState<PazienteReale[]>([]);
   const [caricando, setCaricando] = useState(true);
   const [inCorsoId, setInCorsoId] = useState<string | null>(null);
+
+  // Verifica in due passaggi (MFA/TOTP) per l'accesso admin.
+  const [fattoriMfa, setFattoriMfa] = useState<Factor[]>([]);
+  const [iscrizione, setIscrizione] = useState<{ factorId: string; qrCode: string; secret: string } | null>(null);
+  const [codiceMfa, setCodiceMfa] = useState("");
+  const [inCorsoMfa, setInCorsoMfa] = useState(false);
+  const [erroreMfa, setErroreMfa] = useState("");
+
+  const caricaFattoriMfa = useCallback(async () => {
+    const supabase = createClient();
+    const { data } = await supabase.auth.mfa.listFactors();
+    setFattoriMfa(data?.totp ?? []);
+  }, []);
 
   const caricaTutto = useCallback(async () => {
     setCaricando(true);
@@ -78,8 +92,11 @@ export default function DashboardAdmin() {
   }, []);
 
   useEffect(() => {
-    if (utente?.ruolo === "admin") caricaTutto();
-  }, [utente, caricaTutto]);
+    if (utente?.ruolo === "admin") {
+      caricaTutto();
+      caricaFattoriMfa();
+    }
+  }, [utente, caricaTutto, caricaFattoriMfa]);
 
   async function approvaRifiuta(id: string, azione: "approva" | "rifiuta") {
     setInCorsoId(id);
@@ -90,6 +107,75 @@ export default function DashboardAdmin() {
     });
     await caricaTutto();
     setInCorsoId(null);
+  }
+
+  async function iniziaIscrizioneMfa() {
+    setErroreMfa("");
+    setInCorsoMfa(true);
+    const supabase = createClient();
+    const { data, error } = await supabase.auth.mfa.enroll({ factorType: "totp" });
+    setInCorsoMfa(false);
+    if (error || !data) {
+      setErroreMfa("Non sono riuscito ad avviare l'attivazione. Riprova.");
+      return;
+    }
+    setIscrizione({ factorId: data.id, qrCode: data.totp.qr_code, secret: data.totp.secret });
+  }
+
+  async function confermaIscrizioneMfa(e: React.FormEvent) {
+    e.preventDefault();
+    if (!iscrizione) return;
+    setErroreMfa("");
+    setInCorsoMfa(true);
+
+    const supabase = createClient();
+    const { data: sfida, error: erroreSfida } = await supabase.auth.mfa.challenge({
+      factorId: iscrizione.factorId,
+    });
+    if (erroreSfida) {
+      setInCorsoMfa(false);
+      setErroreMfa("Non sono riuscito ad avviare la verifica. Riprova.");
+      return;
+    }
+
+    const { error: erroreVerifica } = await supabase.auth.mfa.verify({
+      factorId: iscrizione.factorId,
+      challengeId: sfida.id,
+      code: codiceMfa,
+    });
+
+    setInCorsoMfa(false);
+    if (erroreVerifica) {
+      setErroreMfa("Codice non valido. Riprova.");
+      return;
+    }
+
+    setIscrizione(null);
+    setCodiceMfa("");
+    await caricaFattoriMfa();
+    addToast("Verifica in due passaggi attivata.");
+  }
+
+  async function annullaIscrizioneMfa() {
+    if (!iscrizione) return;
+    const supabase = createClient();
+    await supabase.auth.mfa.unenroll({ factorId: iscrizione.factorId });
+    setIscrizione(null);
+    setCodiceMfa("");
+    setErroreMfa("");
+  }
+
+  async function disattivaMfa(factorId: string) {
+    setInCorsoMfa(true);
+    const supabase = createClient();
+    const { error } = await supabase.auth.mfa.unenroll({ factorId });
+    setInCorsoMfa(false);
+    if (error) {
+      setErroreMfa("Non sono riuscito a disattivarla. Riprova.");
+      return;
+    }
+    await caricaFattoriMfa();
+    addToast("Verifica in due passaggi disattivata.", "info");
   }
 
   useEffect(() => {
@@ -125,6 +211,7 @@ export default function DashboardAdmin() {
             [
               { id: "panoramica", label: "📊 Panoramica" },
               { id: "utenti", label: "👥 Utenti" },
+              { id: "sicurezza", label: "🔒 Sicurezza" },
             ] as { id: Sezione; label: string }[]
           ).map((s) => (
             <button
@@ -346,6 +433,97 @@ export default function DashboardAdmin() {
                     </div>
                   ))}
                 </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Sicurezza: verifica in due passaggi */}
+        {sezione === "sicurezza" && (
+          <div className="space-y-6">
+            <div className="card space-y-3">
+              <h2>Verifica in due passaggi</h2>
+              <p className="text-sm text-gray-500">
+                Oltre alla password, ad ogni accesso l&apos;app chiederà un
+                codice generato da un&apos;app di autenticazione (es. Google
+                Authenticator, Authy). Protegge il pannello anche se qualcuno
+                scoprisse la tua password.
+              </p>
+
+              {erroreMfa && (
+                <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                  {erroreMfa}
+                </p>
+              )}
+
+              {fattoriMfa.length > 0 ? (
+                <div className="space-y-2">
+                  {fattoriMfa.map((f) => (
+                    <div key={f.id} className="flex items-center justify-between gap-3 rounded-lg bg-green-50 border border-green-200 p-3">
+                      <div>
+                        <p className="text-sm font-medium text-green-800">Attiva</p>
+                        <p className="text-xs text-green-700">
+                          Aggiunta il {new Date(f.created_at).toLocaleDateString("it-IT")}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => disattivaMfa(f.id)}
+                        disabled={inCorsoMfa}
+                        className="btn-danger py-1.5 px-3 text-sm"
+                      >
+                        Disattiva
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : iscrizione ? (
+                <div className="space-y-3">
+                  <div className="flex flex-col items-center gap-2 py-2">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={iscrizione.qrCode} alt="Codice QR per l'app di autenticazione" className="w-40 h-40" />
+                    <p className="text-xs text-gray-500">
+                      Non riesci a inquadrarlo? Inserisci a mano:{" "}
+                      <span className="font-mono break-all">{iscrizione.secret}</span>
+                    </p>
+                  </div>
+
+                  <form onSubmit={confermaIscrizioneMfa} className="space-y-3">
+                    <div>
+                      <label className="label" htmlFor="codice-mfa">Codice mostrato dall&apos;app</label>
+                      <input
+                        id="codice-mfa"
+                        type="text"
+                        inputMode="numeric"
+                        autoComplete="one-time-code"
+                        required
+                        maxLength={6}
+                        className="input-field py-3 tracking-widest text-center text-lg"
+                        value={codiceMfa}
+                        onChange={(e) => setCodiceMfa(e.target.value.replace(/\D/g, ""))}
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={annullaIscrizioneMfa}
+                        className="flex-1 py-2.5 text-sm font-medium rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      >
+                        Annulla
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={inCorsoMfa || codiceMfa.length !== 6}
+                        className="btn-primary flex-1 py-2.5 text-sm"
+                      >
+                        {inCorsoMfa ? "Verifica…" : "Conferma"}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              ) : (
+                <button onClick={iniziaIscrizioneMfa} disabled={inCorsoMfa} className="btn-primary py-2.5 px-4 text-sm">
+                  {inCorsoMfa ? "Preparazione…" : "Attiva verifica in due passaggi"}
+                </button>
               )}
             </div>
           </div>
