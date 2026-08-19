@@ -56,6 +56,11 @@ export default function FooterHome({ onAdminClick }: FooterHomeProps) {
             <h4 className="text-white font-semibold text-sm mb-3">Contatti</h4>
             <ul className="space-y-2 text-sm">
               <li>
+                <Link href="/contatti" className="hover:text-white transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400">
+                  Scrivici
+                </Link>
+              </li>
+              <li>
                 <a href="mailto:fisioterapistadomiciliare.info@gmail.com" className="hover:text-white transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400">
                   fisioterapistadomiciliare.info@gmail.com
                 </a>

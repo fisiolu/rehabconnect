@@ -4,9 +4,12 @@ import Rivela from "@/components/Rivela";
 const motivi = [
   {
     icon: BadgeCheck,
-    titolo: "Professionisti verificati",
+    // "Verificati" prometteva più di quanto sia dimostrabile: il controllo
+    // riguarda l'iscrizione all'albo, non l'identità con documento. Il titolo
+    // dice ora esattamente ciò che facciamo, né più né meno.
+    titolo: "Iscrizione all'albo controllata",
     testo:
-      "Ogni fisioterapista dichiara il proprio numero di iscrizione all'albo, controllato prima della pubblicazione del profilo.",
+      "Ogni fisioterapista dichiara il proprio numero d'iscrizione all'Ordine e la PEC: li confrontiamo con i registri pubblici prima di pubblicare il profilo, e il numero resta in scheda perché tu possa ricontrollarlo.",
   },
   {
     icon: Route,
