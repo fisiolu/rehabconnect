@@ -28,9 +28,8 @@ export default function PrivacyPage() {
         , che è anche l&apos;indirizzo per esercitare i diritti descritti più sotto.
       </p>
       <p>
-        &laquo;Fisioterapista Domiciliare&raquo; è un progetto personale a carattere informativo,
-        curato da un singolo professionista: non è una società, una clinica né una struttura
-        sanitaria.
+        &laquo;Fisioterapista Domiciliare&raquo; è un progetto a carattere informativo: non è una
+        società, una clinica né una struttura sanitaria.
       </p>
 
       <h2>Quali dati raccogliamo e perché</h2>

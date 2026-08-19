@@ -28,8 +28,8 @@ export default function ContattiPage() {
         Fisioterapisti della Regione Lazio con il numero <strong>1301</strong>.
       </p>
       <p>
-        Non è una società, una clinica né una struttura sanitaria: è il lavoro di un singolo
-        professionista.
+        È un progetto a carattere informativo: non è una società, una clinica né una struttura
+        sanitaria.
       </p>
 
       <h2>Come scrivere</h2>
@@ -52,9 +52,8 @@ export default function ContattiPage() {
 
       <h2>Quando aspettarsi risposta</h2>
       <p>
-        Di norma entro pochi giorni lavorativi. È un progetto seguito da una persona sola, fra un
-        domicilio e l&apos;altro: non posso promettere tempi certi, ma le richieste sui dati
-        personali hanno la precedenza, come la legge richiede.
+        Di norma entro pochi giorni lavorativi. Non posso promettere tempi certi, ma le richieste
+        sui dati personali hanno la precedenza, come la legge richiede.
       </p>
 
       <h2>Cosa non posso fare da qui</h2>
