@@ -93,6 +93,20 @@
   .rc-legale strong {
     @apply font-semibold text-notte dark:text-white;
   }
+  /* Tabelle della cookie policy: scorrono in orizzontale sul telefono
+     invece di far scorrere tutta la pagina. */
+  .rc-legale table {
+    @apply w-full my-4 text-sm border-collapse block overflow-x-auto sm:table;
+  }
+  .rc-legale th {
+    @apply text-left font-semibold text-notte dark:text-white border-b-2 border-slate-200 dark:border-gray-700 py-2 pr-4 align-top;
+  }
+  .rc-legale td {
+    @apply border-b border-slate-100 dark:border-gray-800 py-2 pr-4 align-top;
+  }
+  .rc-legale code {
+    @apply text-[0.9em] bg-slate-100 dark:bg-gray-800 px-1.5 py-0.5 rounded;
+  }
 }
 
 /* Testo grande — scala tutto via rem */

@@ -208,6 +208,24 @@ export default function ConversazionePage() {
       </div>
 
       <div className="bg-white dark:bg-gray-800 border-t border-slate-200 dark:border-gray-700 sticky bottom-0">
+        {/* Avviso sui dati sanitari: la chat è il punto in cui un paziente
+            scriverebbe la propria patologia, che per il Regolamento europeo
+            è un dato particolare. Sta sopra il campo di scrittura, dove si
+            legge prima di scrivere, non sepolto nell'informativa. */}
+        <div className="max-w-3xl mx-auto px-4 pt-3">
+          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed bg-slate-50 dark:bg-gray-900/50 border border-slate-200 dark:border-gray-700 rounded-lg px-3 py-2">
+            Non inserire referti, diagnosi, immagini cliniche o altri dati sulla salute che non
+            siano necessari. La chat non è un servizio di emergenza e non sostituisce una
+            valutazione sanitaria: in caso di urgenza chiama il <strong>112</strong>.{" "}
+            <Link
+              href="/privacy"
+              className="underline underline-offset-2 text-primary-600 dark:text-primary-400"
+            >
+              Informativa privacy
+            </Link>
+          </p>
+        </div>
+
         {/* Frasi pronte: un tocco al posto di digitare su una tastiera piccola */}
         <div className="max-w-3xl mx-auto px-4 pt-3">
           <ul className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">

@@ -19,12 +19,18 @@ export default function PrivacyPage() {
 
       <h2>Chi tratta i dati</h2>
       <p>
-        Il titolare del trattamento è il gestore di &laquo;Fisioterapista Domiciliare&raquo;,
-        raggiungibile a{" "}
+        Il titolare del trattamento è <strong>Luciano Simione</strong>, fisioterapista, iscritto
+        all&apos;Ordine dei Fisioterapisti della Regione Lazio con il numero <strong>1301</strong>.
+        Puoi scrivergli a{" "}
         <a href="mailto:fisioterapistadomiciliare.info@gmail.com">
           fisioterapistadomiciliare.info@gmail.com
         </a>
-        .
+        , che è anche l&apos;indirizzo per esercitare i diritti descritti più sotto.
+      </p>
+      <p>
+        &laquo;Fisioterapista Domiciliare&raquo; è un progetto personale a carattere informativo,
+        curato da un singolo professionista: non è una società, una clinica né una struttura
+        sanitaria.
       </p>
 
       <h2>Quali dati raccogliamo e perché</h2>

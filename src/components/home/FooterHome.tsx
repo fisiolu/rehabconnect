@@ -1,5 +1,6 @@
 import Link from "next/link";
 import LogoUfficiale from "@/components/LogoUfficiale";
+import BottonePreferenzeCookie from "@/components/BottonePreferenzeCookie";
 
 interface FooterHomeProps {
   onAdminClick: () => void;
@@ -38,6 +39,15 @@ export default function FooterHome({ onAdminClick }: FooterHomeProps) {
                 <Link href="/termini" className="hover:text-white transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400">
                   Termini di servizio
                 </Link>
+              </li>
+              <li>
+                <Link href="/cookie" className="hover:text-white transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400">
+                  Cookie policy
+                </Link>
+              </li>
+              <li>
+                {/* Revocare il consenso dev'essere facile quanto darlo. */}
+                <BottonePreferenzeCookie className="text-left hover:text-white transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400" />
               </li>
             </ul>
           </div>

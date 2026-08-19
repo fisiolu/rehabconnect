@@ -7,6 +7,20 @@ import Script from "next/script";
 const PIXEL_ID = "1546955526432141";
 const CHIAVE_CONSENSO = "rc-consenso-meta";
 
+/**
+ * Evento con cui il piè di pagina riapre il banner.
+ *
+ * Revocare deve essere facile quanto acconsentire: senza questa via, una
+ * scelta fatta una volta resterebbe per sempre nella memoria del browser e
+ * il visitatore non potrebbe più cambiare idea.
+ */
+export const EVENTO_APRI_CONSENSO = "rc-apri-consenso";
+
+/** Richiama il banner da qualunque punto dell'app. */
+export function apriPreferenzeCookie() {
+  window.dispatchEvent(new Event(EVENTO_APRI_CONSENSO));
+}
+
 declare global {
   interface Window {
     fbq?: ((...args: unknown[]) => void) & { queue?: unknown[] };
@@ -52,9 +66,25 @@ export default function MetaPixel() {
     }
   }, []);
 
+  // Il piè di pagina può richiamare il banner per far cambiare idea.
+  useEffect(() => {
+    const riapri = () => setConsenso("in_attesa");
+    window.addEventListener(EVENTO_APRI_CONSENSO, riapri);
+    return () => window.removeEventListener(EVENTO_APRI_CONSENSO, riapri);
+  }, []);
+
   function rispondi(scelta: "accettato" | "rifiutato") {
+    const prima = localStorage.getItem(CHIAVE_CONSENSO);
     localStorage.setItem(CHIAVE_CONSENSO, scelta);
     setConsenso(scelta);
+
+    // Togliere il componente non basta a disattivare un pixel già partito:
+    // lo script di Meta resta caricato nella pagina. Chi revoca il consenso
+    // ha diritto che smetta davvero, quindi si ricarica la pagina — così
+    // riparte pulita, senza il pixel.
+    if (prima === "accettato" && scelta === "rifiutato") {
+      window.location.reload();
+    }
   }
 
   return (
@@ -93,7 +123,15 @@ fbq('track', 'PageView');
           <div className="max-w-3xl mx-auto flex flex-col sm:flex-row items-center gap-3">
             <p className="text-sm text-slate-600 dark:text-slate-300 flex-1">
               Usiamo un pixel di misurazione pubblicitaria (Meta) per capire come funzionano le
-              nostre campagne. Si attiva solo se accetti. Vedi l&apos;
+              nostre campagne. Si attiva solo se accetti, e puoi cambiare idea quando vuoi dal
+              piè di pagina. Vedi la{" "}
+              <a
+                href="/cookie"
+                className="underline underline-offset-2 text-primary-600 dark:text-primary-400"
+              >
+                cookie policy
+              </a>{" "}
+              e l&apos;
               <a
                 href="/privacy"
                 className="underline underline-offset-2 text-primary-600 dark:text-primary-400"
