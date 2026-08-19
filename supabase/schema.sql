@@ -62,22 +62,19 @@ create policy "fisioterapisti_select_pubblico_o_proprio"
 -- L'admin deve vedere anche le schede in attesa/rifiutate altrui, per
 -- poterle approvare dalla dashboard.
 --
--- Doppio controllo: se l'admin ha attivato la verifica in due passaggi
--- (vedi tabella auth.mfa_factors), la sessione deve aver completato anche
--- il secondo fattore (aal2), non bastare la sola password (aal1). Finché
--- non l'ha ancora attivata resta valido aal1, per non bloccarlo fuori
--- prima ancora che possa iscriversi al secondo fattore.
+-- NB: qui NON si controlla aal2/auth.mfa_factors. Ci avevo provato (vedi
+-- git log), ma il ruolo "authenticated" non ha grant di lettura su
+-- auth.mfa_factors su questo progetto, quindi la subquery falliva con un
+-- errore di permesso — e siccome un errore in una policy manda in errore
+-- l'intera SELECT, l'admin smetteva di vedere fisioterapisti E pazienti,
+-- non solo quelli col secondo fattore. Il doppio controllo per l'admin
+-- resta comunque attivo dove serve davvero: al login (src/app/accedi) e
+-- sulla route che approva/rifiuta (src/app/api/admin/fisioterapisti/[id]),
+-- che passano dall'Auth API di Supabase invece che da una query SQL.
 drop policy if exists "fisioterapisti_select_admin" on fisioterapisti;
 create policy "fisioterapisti_select_admin"
   on fisioterapisti for select
-  using (
-    exists (select 1 from admins a where a.user_id = auth.uid())
-    and array[(select auth.jwt() ->> 'aal')] <@ (
-      select case when count(id) > 0 then array['aal2'] else array['aal1', 'aal2'] end
-      from auth.mfa_factors
-      where user_id = auth.uid() and status = 'verified'
-    )
-  );
+  using (exists (select 1 from admins a where a.user_id = auth.uid()));
 
 create policy "fisioterapisti_insert_proprio"
   on fisioterapisti for insert
@@ -202,19 +199,12 @@ create policy "pazienti_update_proprio"
 
 -- Stesso motivo della policy analoga su fisioterapisti: l'admin deve
 -- poter vedere l'elenco reale degli iscritti dalla propria dashboard.
--- Stesso doppio controllo aal2: qui i dati sono ancora più sensibili
--- (tabella normalmente owner-only), quindi vale lo stesso ragionamento.
+-- Stesso motivo per cui NON controlla aal2 qui: vedi il commento sopra
+-- su fisioterapisti_select_admin.
 drop policy if exists "pazienti_select_admin" on pazienti;
 create policy "pazienti_select_admin"
   on pazienti for select
-  using (
-    exists (select 1 from admins a where a.user_id = auth.uid())
-    and array[(select auth.jwt() ->> 'aal')] <@ (
-      select case when count(id) > 0 then array['aal2'] else array['aal1', 'aal2'] end
-      from auth.mfa_factors
-      where user_id = auth.uid() and status = 'verified'
-    )
-  );
+  using (exists (select 1 from admins a where a.user_id = auth.uid()));
 
 -- ---------------------------------------------------------------------
 -- Limite di registrazioni per indirizzo IP (anti-abuso, non anti-frode:
