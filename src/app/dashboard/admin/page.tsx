@@ -109,6 +109,23 @@ export default function DashboardAdmin() {
     setInCorsoId(null);
   }
 
+  async function eliminaFisioterapista(id: string, nomeCompleto: string) {
+    if (!confirm(`Eliminare definitivamente l'account di ${nomeCompleto}? L'operazione non si può annullare.`)) {
+      return;
+    }
+    setInCorsoId(id);
+    const risposta = await fetch(`/api/admin/fisioterapisti/${id}`, { method: "DELETE" });
+    if (!risposta.ok) {
+      const corpo = await risposta.json().catch(() => null);
+      addToast(corpo?.errore ?? "Non sono riuscito ad eliminare l'account.", "errore");
+      setInCorsoId(null);
+      return;
+    }
+    await caricaTutto();
+    setInCorsoId(null);
+    addToast("Account eliminato.");
+  }
+
   async function iniziaIscrizioneMfa() {
     setErroreMfa("");
     setInCorsoMfa(true);
@@ -407,6 +424,13 @@ export default function DashboardAdmin() {
                         </p>
                         <p className="text-xs text-gray-400">{f.email}</p>
                       </div>
+                      <button
+                        onClick={() => eliminaFisioterapista(f.id, `${f.nome} ${f.cognome}`)}
+                        disabled={inCorsoId === f.id}
+                        className="btn-danger py-1.5 px-3 text-sm shrink-0"
+                      >
+                        Elimina
+                      </button>
                     </div>
                   ))}
                 </div>
